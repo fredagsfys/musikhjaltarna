@@ -1,0 +1,22 @@
+---
+import { routes, site, type CtaId } from '~/config/site';
+
+export interface Props {
+  ctaId: CtaId;
+  class?: string;
+}
+
+const { ctaId, class: className } = Astro.props;
+---
+
+<a
+  href={`${routes.purchase}?cta=${ctaId}`}
+  data-cta-id={ctaId}
+  data-astro-prefetch
+  class:list={[
+    'bg-accent hover:bg-accent-strong inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-base font-semibold text-white shadow-sm transition-colors',
+    className,
+  ]}
+>
+  Köp · {site.offer.priceLabel}
+</a>

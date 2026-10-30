@@ -1,0 +1,19 @@
+---
+export interface Props {
+  id: string;
+  tone?: 'default' | 'muted';
+  class?: string;
+}
+
+const { id, tone = 'default', class: className } = Astro.props;
+---
+
+<section
+  id={id}
+  aria-labelledby={`${id}-title`}
+  class:list={['py-16 sm:py-24', tone === 'muted' && 'bg-surface-muted', className]}
+>
+  <div class="container-page">
+    <slot />
+  </div>
+</section>

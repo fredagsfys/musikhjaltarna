@@ -1,0 +1,27 @@
+---
+/**
+ * Wireframe placeholder for an image that will be produced later.
+ * Replace with `<Image>` from `astro:assets` once the asset exists.
+ */
+export interface Props {
+  label: string;
+  ratio?: string;
+  shape?: 'rect' | 'circle';
+  class?: string;
+}
+
+const { label, ratio = '4 / 3', shape = 'rect', class: className } = Astro.props;
+---
+
+<div
+  role="img"
+  aria-label={`Platshållare: ${label}`}
+  style={{ aspectRatio: ratio }}
+  class:list={[
+    'bg-placeholder border-line text-ink-muted grid w-full place-items-center border p-3 text-center text-sm',
+    shape === 'circle' ? 'rounded-full' : 'rounded-2xl',
+    className,
+  ]}
+>
+  <span aria-hidden="true">{label}</span>
+</div>
