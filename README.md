@@ -67,8 +67,8 @@ Komponenterna hittar dem automatiskt och Astro skapar AVIF/WebP i rätt storleka
 | Namn och e-post (leads) | Rad i tabellen `leads`, med köpknappens `cta_id`                                        | Cloudflare D1 |
 
 Varje köpknapp leder till en egen sida, så att Cloudflare Web Analytics kan räkna klick per sektion utan cookies, egna
-händelser eller query strings. Slår du på Web Analytics för `musikhjaltarna.se` i Cloudflare (Analytics & Logs → Web
-Analytics) syns hela tratten under _Top paths_.
+händelser eller query strings. Mätskriptet läggs in i alla sidor i produktionsbygget (`site.webAnalyticsToken` i
+`src/config/site.ts`), och tratten syns i Cloudflare under Analytics & Logs → Web Analytics → _Top paths_.
 
 Namn och e-post sparas av ett litet API i [`worker/index.ts`](worker/index.ts) i D1-databasen `musikhjaltarna`.
 Köpavsikt och uppdateringsintresse sparas som separata rader. Inga cookies, IP-adresser eller webbläsaruppgifter sparas.

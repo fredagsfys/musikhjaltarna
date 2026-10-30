@@ -16,6 +16,8 @@ export const site = {
     currency: 'SEK',
     priceLabel: '79 kr/månad',
   },
+  /** Cloudflare Web Analytics site token. Public by design: it appears in every page's HTML. */
+  webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
 } as const;
 
 /** Every buy button has its own ID so conversion can be attributed per section. */
