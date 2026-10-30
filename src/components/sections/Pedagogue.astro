@@ -1,0 +1,33 @@
+---
+import BuyButton from '~/components/ui/BuyButton.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import Section from '~/components/ui/Section.astro';
+import { routes } from '~/config/site';
+---
+
+<!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
+<Section id="pedagogen" tone="muted">
+  <h2 id="pedagogen-title" class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+    Pedagogen bakom tjänsten
+  </h2>
+
+  <div class="mt-10 grid gap-8 sm:grid-cols-[14rem_1fr] sm:gap-12">
+    <figure class="max-w-56">
+      <Placeholder label="Porträtt" ratio="1 / 1" />
+      <figcaption class="text-ink-muted mt-3 text-center text-sm">Suzanna, pianopedagog</figcaption>
+    </figure>
+
+    <div>
+      <p class="text-ink-muted max-w-prose text-lg text-pretty">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua.
+      </p>
+      <p class="mt-4">
+        <a href={routes.about} class="text-accent font-semibold underline underline-offset-4 hover:no-underline">
+          Läs mer om Pianotopia
+        </a>
+      </p>
+      <BuyButton ctaId="kop_pedagog" class="mt-8" />
+    </div>
+  </div>
+</Section>
