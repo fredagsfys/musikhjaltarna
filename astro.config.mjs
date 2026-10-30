@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -8,5 +9,8 @@ export default defineConfig({
   build: {
     // `/kop.html` is served as `/kop`, matching canonical URLs and the sitemap.
     format: 'file',
+  },
+  vite: {
+    plugins: [tailwindcss()],
   },
 });
