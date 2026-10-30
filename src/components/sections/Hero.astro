@@ -1,0 +1,27 @@
+---
+import BuyButton from '~/components/ui/BuyButton.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import Price from '~/components/ui/Price.astro';
+---
+
+<!-- Sektion 1: Löftet och tjänsten. Barnets framsteg är huvudlöftet. -->
+<section id="hero" aria-labelledby="hero-title" class="pt-12 pb-16 sm:pt-20 sm:pb-24">
+  <div class="container-page grid items-center gap-10 md:grid-cols-2 md:gap-14">
+    <div>
+      <p class="text-sm font-semibold tracking-[0.4em] uppercase">Pianotopia</p>
+      <h1 id="hero-title" class="mt-4 text-4xl leading-tight font-bold tracking-tight text-balance sm:text-5xl">
+        Hjälpen mellan lektionerna som gör att barnet kommer vidare.
+      </h1>
+      <p class="text-ink-muted mt-6 max-w-prose text-lg text-pretty">
+        Ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan pianolektionerna.
+      </p>
+      <Price class="mt-8" />
+      <BuyButton ctaId="kop_hero" class="mt-4" />
+    </div>
+
+    <figure>
+      <Placeholder label="Barnet använder appen vid pianot" />
+      <figcaption class="text-ink-muted mt-3 text-center text-sm">Ett komplement till barnets pianolärare</figcaption>
+    </figure>
+  </div>
+</section>
