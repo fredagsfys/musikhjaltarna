@@ -1,15 +1,26 @@
-// Cloudflare Workers static assets: serves the Astro build output, no Worker script needed.
+// Cloudflare Workers: static assets for the site, plus a small API in worker/index.ts that stores leads.
 // https://developers.cloudflare.com/workers/static-assets/
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   // Must match the Worker name in the Cloudflare dashboard.
   "name": "musikhjaltarna",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-10-30",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     // Serves `kop.html` at `/kop`, matching the canonical URLs and the sitemap.
     "html_handling": "auto-trailing-slash",
     // Unknown paths get `dist/404.html` with a 404 status.
     "not_found_handling": "404-page",
+    // Only the API runs the Worker; every other request is served straight from the assets.
+    "run_worker_first": ["/api/*"],
   },
+  // Stores leads from the purchase flow (worker/index.ts creates the table).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "musikhjaltarna",
+    },
+  ],
 }
