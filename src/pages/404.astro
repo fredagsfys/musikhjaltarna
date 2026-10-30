@@ -1,12 +1,17 @@
 ---
+import Button from '~/components/ui/Button.astro';
+import IconBadge from '~/components/ui/IconBadge.astro';
 import { routes } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 ---
 
 <FlowLayout title="Sidan hittades inte">
-  <h1 class="mt-6 text-2xl font-bold tracking-tight sm:text-3xl">Sidan hittades inte</h1>
-  <p class="text-text mt-3">Sidan du letar efter finns inte eller har flyttats.</p>
-  <a href={routes.home} class="text-primary mt-6 inline-block font-semibold underline underline-offset-4">
-    Till startsidan
-  </a>
+  <div class="flex flex-col items-center gap-[18px] text-center">
+    <IconBadge icon="music" />
+    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1]">Sidan hittades inte</h1>
+    <p>Sidan du letar efter finns inte eller har flyttats.</p>
+    <Button variant="link" arrow={false} href={routes.home}>
+      Till startsidan
+    </Button>
+  </div>
 </FlowLayout>
