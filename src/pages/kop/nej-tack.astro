@@ -1,0 +1,18 @@
+---
+import Button from '~/components/ui/Button.astro';
+import IconBadge from '~/components/ui/IconBadge.astro';
+import { routes, site } from '~/config/site';
+import FlowLayout from '~/layouts/FlowLayout.astro';
+---
+
+<!-- Köpflöde steg 3, alternativ: besökaren tackade nej till uppdateringar. -->
+<FlowLayout title="Tack för att du tittade förbi">
+  <div class="flex flex-col items-center gap-[18px] text-center">
+    <IconBadge icon="music" />
+    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">Tack för att du tittade förbi!</h1>
+    <p class="text-pretty">Du får inga utskick från oss. Välkommen tillbaka när {site.product} lanseras.</p>
+    <Button variant="link" arrow={false} href={routes.home}>
+      Tillbaka till erbjudandet
+    </Button>
+  </div>
+</FlowLayout>

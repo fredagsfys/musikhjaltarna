@@ -1,0 +1,20 @@
+---
+/** Hand-drawn arrow curving down to the left, with an open arrowhead. */
+export interface Props {
+  class?: string;
+}
+---
+
+<svg
+  class={Astro.props.class}
+  viewBox="0 0 100 60"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="3"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <path d="M90 6C70 10 52 20 48 36C45 46 30 52 8 50"></path>
+  <path d="M18 42L7 50L18 57"></path>
+</svg>

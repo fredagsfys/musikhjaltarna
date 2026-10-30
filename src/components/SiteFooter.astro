@@ -2,33 +2,30 @@
 import { routes, site } from '~/config/site';
 
 const links = [
-  { href: routes.about, label: site.name },
   { href: routes.contact, label: 'Kontakt' },
   { href: routes.terms, label: 'Villkor' },
   { href: routes.privacy, label: 'Integritet' },
 ];
 ---
 
-<footer class="border-border border-t py-10">
-  <div class="container-page gutter-x flex flex-col items-center gap-4 text-sm">
+<footer class="gutter-x bg-white border-border border-t pt-8 pb-12">
+  <div class="container-page text-text flex flex-wrap items-center justify-between gap-4 text-[0.9375rem]">
+    <a href={routes.about} class="font-display text-ink hover:text-primary-dark text-xl no-underline">
+      {site.name}
+    </a>
     <nav aria-label="Sidfot">
-      <ul class="flex flex-wrap justify-center gap-x-2 gap-y-1">
-        {links.map(({ href, label }, i) => (
-          <li class="flex gap-2">
-            {i > 0 && (
-              <span aria-hidden="true" class="text-text">
-                ·
-              </span>
-            )}
-            <a href={href} class="hover:text-primary underline-offset-4 hover:underline">
+      <ul class="flex flex-wrap gap-6">
+        {links.map(({ href, label }) => (
+          <li>
+            <a href={href} class="text-text hover:text-ink">
               {label}
             </a>
           </li>
         ))}
       </ul>
     </nav>
-    <p class="text-text">
-      © {new Date().getFullYear()} {site.name}
+    <p>
+      © {new Date().getFullYear()} {site.legalName}
     </p>
   </div>
 </footer>

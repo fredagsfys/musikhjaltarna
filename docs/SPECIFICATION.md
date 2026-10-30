@@ -174,7 +174,7 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 
 **Mätpunkt:** `ja till information` (event: `updates_opt_in`).
 
-### Steg 3 – Gör fortsättningen tydlig (`/kop/tack`)
+### Steg 3 – Gör fortsättningen tydlig (`/kop/tack`, `/kop/nej-tack`)
 
 | Element | Innehåll                                                   |
 | ------- | ---------------------------------------------------------- |
@@ -203,7 +203,7 @@ Köpavsikt (`purchase_intent`) och uppdateringsintresse (`updates_opt_in`) lagra
 
 ## Öppna frågor
 
-1. **"Nej tack" i steg 2.** Wireframen visar inte vart det leder. Implementerat: tillbaka till erbjudandet (`/`).
+1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
 3. **Lagring av leads.** Vilket verktyg tar emot formulärdata (t.ex. egen endpoint, Formspree, HubSpot, Brevo)?
 4. **Analysverktyg.** Vilket verktyg ska användas (t.ex. Plausible, GA4, PostHog)?

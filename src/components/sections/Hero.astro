@@ -1,27 +1,45 @@
 ---
+import CurvedArrow from '~/components/doodles/CurvedArrow.astro';
+import AccentHeading from '~/components/ui/AccentHeading.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
+import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
-import Price from '~/components/ui/Price.astro';
+import SpeechNote from '~/components/ui/SpeechNote.astro';
+import TrustList from '~/components/ui/TrustList.astro';
+import { site } from '~/config/site';
 ---
 
 <!-- Sektion 1: Löftet och tjänsten. Barnets framsteg är huvudlöftet. -->
-<section id="hero" aria-labelledby="hero-title" class="pt-12 pb-16 sm:pt-20 sm:pb-24">
-  <div class="container-page gutter-x grid items-center gap-10 md:grid-cols-2 md:gap-14">
-    <div>
-      <p class="text-sm font-semibold tracking-[0.4em] uppercase">Pianotopia</p>
-      <h1 id="hero-title" class="mt-4 text-4xl leading-tight font-bold tracking-tight text-balance sm:text-5xl">
-        Hjälpen mellan lektionerna som gör att barnet kommer vidare.
-      </h1>
-      <p class="text-text mt-6 max-w-prose text-lg text-pretty">
-        Ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan pianolektionerna.
+<section id="hero" aria-labelledby="hero-title" class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16">
+  <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12">
+    <div class="@container min-w-0">
+      <Eyebrow rule>
+        {site.name} · {site.product}
+      </Eyebrow>
+      <AccentHeading
+        id="hero-title"
+        text="Hjälpen mellan lektionerna som gör att barnet"
+        accent="kommer vidare."
+        class="mt-6"
+      />
+      <p class="text-lead mt-8 lg:max-w-[34ch]">
+        {site.product} är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
+        pianolektionerna.
       </p>
-      <Price class="mt-8" />
-      <BuyButton ctaId="kop_hero" class="mt-4" />
+      <BuyButton ctaId="kop_hero" class="mt-10" />
+      <TrustList class="mt-6" items={['Ett komplement till barnets pianolärare']} />
     </div>
 
-    <figure>
-      <Placeholder label="Barnet använder appen vid pianot" />
-      <figcaption class="text-text mt-3 text-center text-sm">Ett komplement till barnets pianolärare</figcaption>
-    </figure>
+    <!--
+      Geometry from the design file: a 500px stage, the arch inset 6% and 10% from the top, the note
+      overhanging by 10%. From 640px the stage is 90% wide so the overhang stays inside the page gutter.
+    -->
+    <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[10.2%] sm:w-[90%]">
+      <Placeholder label="Hero-bild" ratio="1 / 1.043" shape="arch" />
+      <div class="absolute top-0 right-0 flex rotate-5 flex-col items-end sm:-right-[10%]">
+        <SpeechNote lines={['Lorem ipsum', 'dolor sit amet']} />
+        <CurvedArrow class="text-gold mr-10 w-20" />
+      </div>
+    </div>
   </div>
 </section>
