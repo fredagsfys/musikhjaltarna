@@ -25,5 +25,14 @@ export type Props = SEOProps;
       Hoppa till innehållet
     </a>
     <slot />
+
+    <script>
+      import { track } from '~/lib/analytics';
+
+      document.addEventListener('click', (event) => {
+        const cta = (event.target as Element).closest<HTMLElement>('[data-cta-id]');
+        if (cta) track('cta_click', { cta_id: cta.dataset.ctaId });
+      });
+    </script>
   </body>
 </html>
