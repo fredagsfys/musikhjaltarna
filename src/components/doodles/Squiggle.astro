@@ -1,0 +1,29 @@
+---
+/**
+ * Hand-drawn marker underline. `hero` stretches under a headline phrase and draws itself in;
+ * `section` is the short flourish under section headings.
+ */
+export interface Props {
+  variant?: 'hero' | 'section';
+  class?: string;
+}
+
+const { variant = 'section', class: className } = Astro.props;
+---
+
+{variant === 'hero' ? (
+  <svg class={className} viewBox="0 0 300 20" preserveAspectRatio="none" fill="none" aria-hidden="true">
+    <path
+      d="M4 12C60 4 110 18 160 10C210 3 250 15 296 8"
+      pathLength="1"
+      stroke="currentColor"
+      stroke-width="5"
+      stroke-linecap="round"
+      class="motion-safe:animate-draw [stroke-dasharray:1]"
+    />
+  </svg>
+) : (
+  <svg class={className} viewBox="0 0 120 14" fill="none" aria-hidden="true">
+    <path d="M3 8C25 2 45 12 62 7C80 2 98 11 117 5" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
+  </svg>
+)}

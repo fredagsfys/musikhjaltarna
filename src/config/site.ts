@@ -1,11 +1,15 @@
 export const site = {
+  /** The company and sender. */
   name: 'Pianotopia',
+  /** The app being offered. */
+  product: 'Musikhjältarna',
+  legalName: 'Pianotopia AB',
   lang: 'sv',
   locale: 'sv_SE',
-  title: 'Pianotopia – Hjälpen mellan pianolektionerna',
+  title: 'Musikhjältarna – Hjälpen mellan pianolektionerna',
   description:
-    'Ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan pianolektionerna. Ett komplement till barnets pianolärare.',
-  themeColor: '#2f3dd1',
+    'Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan pianolektionerna. Ett komplement till barnets pianolärare.',
+  themeColor: '#fdfaf4',
   ogImage: '/og-image.png',
   offer: {
     price: 79,
@@ -27,6 +31,7 @@ export const routes = {
   purchase: '/kop',
   updates: '/kop/uppdatering',
   thanks: '/kop/tack',
+  declined: '/kop/nej-tack',
   about: '/om-pianotopia',
   contact: '/kontakt',
   terms: '/villkor',

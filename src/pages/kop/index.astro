@@ -4,13 +4,13 @@ import { routes } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 
 const inputClass =
-  'border-line bg-surface-muted focus:border-accent mt-1.5 block w-full rounded-xl border px-4 py-3 text-base outline-none';
+  'border-border bg-white focus:border-primary mt-1.5 block w-full rounded-xl border px-4 py-3 text-base outline-none';
 ---
 
 <!-- Köpflöde steg 1: Fånga fördjupad köpavsikt. Mätpunkt: köpintention. -->
 <FlowLayout title="Köp prenumeration">
   <h1 class="mt-6 text-2xl font-bold tracking-tight text-balance sm:text-3xl">Hjälpen mellan pianolektionerna</h1>
-  <p class="text-ink-muted mt-2">Prenumeration på övningsverktyget i appen</p>
+  <p class="text-text mt-2">Prenumeration på övningsverktyget i appen</p>
   <Price class="mt-4" />
 
   <form id="lead-form" class="mt-8 space-y-5 text-left" novalidate>
@@ -28,13 +28,13 @@ const inputClass =
     </div>
     <button
       type="submit"
-      class="bg-accent hover:bg-accent-strong min-h-12 w-full rounded-xl px-6 py-3 font-semibold text-white transition-colors disabled:opacity-60"
+      class="bg-primary hover:bg-primary-dark min-h-12 w-full rounded-xl px-6 py-3 font-semibold text-white transition-colors disabled:opacity-60"
     >
       Gå vidare till betalning
     </button>
   </form>
 
-  <a href={routes.home} class="text-ink-muted mt-6 inline-block text-sm underline underline-offset-4">
+  <a href={routes.home} class="text-text mt-6 inline-block text-sm underline underline-offset-4">
     Tillbaka till erbjudandet
   </a>
 </FlowLayout>

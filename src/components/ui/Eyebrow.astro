@@ -1,0 +1,14 @@
+---
+/** Small uppercase label above a heading, optionally led by a short gold rule. */
+export interface Props {
+  rule?: boolean;
+  class?: string;
+}
+
+const { rule = false, class: className } = Astro.props;
+---
+
+<p class:list={['text-eyebrow text-gold-brown inline-flex items-center gap-2.5 uppercase', className]}>
+  {rule && <span aria-hidden="true" class="bg-gold h-0.5 w-7" />}
+  <slot />
+</p>

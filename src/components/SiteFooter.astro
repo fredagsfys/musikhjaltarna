@@ -9,25 +9,25 @@ const links = [
 ];
 ---
 
-<footer class="border-line border-t py-10">
-  <div class="container-page flex flex-col items-center gap-4 text-sm">
+<footer class="border-border border-t py-10">
+  <div class="container-page gutter-x flex flex-col items-center gap-4 text-sm">
     <nav aria-label="Sidfot">
       <ul class="flex flex-wrap justify-center gap-x-2 gap-y-1">
         {links.map(({ href, label }, i) => (
           <li class="flex gap-2">
             {i > 0 && (
-              <span aria-hidden="true" class="text-ink-muted">
+              <span aria-hidden="true" class="text-text">
                 ·
               </span>
             )}
-            <a href={href} class="hover:text-accent underline-offset-4 hover:underline">
+            <a href={href} class="hover:text-primary underline-offset-4 hover:underline">
               {label}
             </a>
           </li>
         ))}
       </ul>
     </nav>
-    <p class="text-ink-muted">
+    <p class="text-text">
       © {new Date().getFullYear()} {site.name}
     </p>
   </div>

@@ -11,9 +11,9 @@ const { id, tone = 'default', class: className } = Astro.props;
 <section
   id={id}
   aria-labelledby={`${id}-title`}
-  class:list={['py-16 sm:py-24', tone === 'muted' && 'bg-surface-muted', className]}
+  class:list={['py-16 sm:py-24', tone === 'muted' && 'bg-white', className]}
 >
-  <div class="container-page">
+  <div class="container-page gutter-x">
     <slot />
   </div>
 </section>

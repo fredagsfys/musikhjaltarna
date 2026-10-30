@@ -1,0 +1,20 @@
+---
+import Icon from './Icon.astro';
+
+/** Mörkt guld checkmarks with Bläck text. Weight can be overridden via `class`. */
+export interface Props {
+  items: string[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<ul class:list={['text-ink flex flex-col gap-3 font-bold', className]}>
+  {items.map((item) => (
+    <li class="flex gap-4">
+      <Icon name="check" strokeWidth={2.5} class="text-gold-dark mt-0.5 size-[22px] shrink-0" />
+      {item}
+    </li>
+  ))}
+</ul>
