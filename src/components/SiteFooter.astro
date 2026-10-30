@@ -1,0 +1,34 @@
+---
+import { routes, site } from '~/config/site';
+
+const links = [
+  { href: routes.about, label: site.name },
+  { href: routes.contact, label: 'Kontakt' },
+  { href: routes.terms, label: 'Villkor' },
+  { href: routes.privacy, label: 'Integritet' },
+];
+---
+
+<footer class="border-line border-t py-10">
+  <div class="container-page flex flex-col items-center gap-4 text-sm">
+    <nav aria-label="Sidfot">
+      <ul class="flex flex-wrap justify-center gap-x-2 gap-y-1">
+        {links.map(({ href, label }, i) => (
+          <li class="flex gap-2">
+            {i > 0 && (
+              <span aria-hidden="true" class="text-ink-muted">
+                ·
+              </span>
+            )}
+            <a href={href} class="hover:text-accent underline-offset-4 hover:underline">
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <p class="text-ink-muted">
+      © {new Date().getFullYear()} {site.name}
+    </p>
+  </div>
+</footer>
