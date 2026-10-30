@@ -2,8 +2,18 @@
 import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
-import { routes, site } from '~/config/site';
+import { CTA_IDS, ctaSlug, routes, site, type CtaId } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
+
+/** `/kop` for direct visits, plus one path per buy button, e.g. `/kop/hero`. */
+export function getStaticPaths() {
+  return [
+    { params: { cta: undefined }, props: { ctaId: null } },
+    ...CTA_IDS.map((ctaId) => ({ params: { cta: ctaSlug(ctaId) }, props: { ctaId } })),
+  ];
+}
+
+const { ctaId } = Astro.props as { ctaId: CtaId | null };
 
 const inputClass =
   'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
@@ -11,7 +21,7 @@ const inputClass =
 
 <!-- Köpflöde steg 1: Fånga fördjupad köpavsikt. Mätpunkt: köpintention. -->
 <FlowLayout title="Köp prenumeration">
-  <form id="lead-form" class="flex flex-col gap-[22px]" novalidate>
+  <form id="lead-form" data-cta={ctaId} class="flex flex-col gap-[22px]" novalidate>
     <div class="flex flex-col items-center gap-2 text-center">
       <Eyebrow>{site.product}</Eyebrow>
       <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">Hjälpen mellan pianolektionerna</h1>
@@ -63,8 +73,7 @@ const inputClass =
   const nameInput = form.querySelector<HTMLInputElement>('[name="name"]')!;
   const emailInput = form.querySelector<HTMLInputElement>('[name="email"]')!;
   const error = form.querySelector<HTMLParagraphElement>('#form-error')!;
-  const ctaParam = new URLSearchParams(location.search).get('cta');
-  const ctaId = isCtaId(ctaParam) ? ctaParam : null;
+  const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();

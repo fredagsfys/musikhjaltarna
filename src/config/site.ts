@@ -25,7 +25,7 @@ export type CtaId = (typeof CTA_IDS)[number];
 export const isCtaId = (value: unknown): value is CtaId =>
   typeof value === 'string' && (CTA_IDS as readonly string[]).includes(value);
 
-/** All buy buttons lead to the same purchase step. */
+/** All buy buttons lead to the same purchase step, each through its own path (see `purchasePath`). */
 export const routes = {
   home: '/',
   purchase: '/kop',
@@ -37,3 +37,12 @@ export const routes = {
   terms: '/villkor',
   privacy: '/integritet',
 } as const;
+
+/** Path segment for a buy button, e.g. `kop_hero` → `hero`. */
+export const ctaSlug = (ctaId: CtaId) => ctaId.replace(/^kop_/, '');
+
+/**
+ * Each buy button opens its own purchase path, e.g. `/kop/hero`, so page-view analytics
+ * attribute clicks per section without query strings or custom events.
+ */
+export const purchasePath = (ctaId: CtaId) => `${routes.purchase}/${ctaSlug(ctaId)}`;
