@@ -1,0 +1,31 @@
+---
+import BuyButton from '~/components/ui/BuyButton.astro';
+import Placeholder from '~/components/ui/Placeholder.astro';
+import Section from '~/components/ui/Section.astro';
+
+const benefits = ['Roligt och enkelt att öva', 'Kräver lite tid', 'Föräldern behöver inte kunna spela'];
+---
+
+<!-- Sektion 3: Värdet i vardagen. Visa hur hjälpen passar ett fullt vardagsschema. -->
+<Section id="vardagen">
+  <h2 id="vardagen-title" class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+    Framsteg som ryms i vardagen
+  </h2>
+
+  <ul class="mt-10 grid gap-8 sm:grid-cols-3">
+    {benefits.map((benefit) => (
+      <li class="flex flex-col items-center text-center">
+        <div class="w-20">
+          <Placeholder label="Ikon" ratio="1 / 1" shape="circle" />
+        </div>
+        <span class="mt-4 max-w-[14rem] font-semibold text-balance">{benefit}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="text-ink-muted mt-10 max-w-prose text-pretty">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
+    aliqua.
+  </p>
+  <BuyButton ctaId="kop_vardag" class="mt-8" />
+</Section>
