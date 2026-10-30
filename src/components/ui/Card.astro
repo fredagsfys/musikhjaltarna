@@ -1,0 +1,22 @@
+---
+/** Card surface from the style guide. `price` is the PriceBox variant with a Ljust guld border. */
+export interface Props {
+  as?: 'div' | 'li' | 'article';
+  tone?: 'white' | 'bg';
+  variant?: 'default' | 'price';
+  class?: string;
+}
+
+const { as: Tag = 'div', tone = 'white', variant = 'default', class: className } = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'rounded-card',
+    tone === 'white' ? 'bg-white' : 'bg-bg',
+    variant === 'price' ? 'border-gold-light border-2' : 'border-border border',
+    className,
+  ]}
+>
+  <slot />
+</Tag>
