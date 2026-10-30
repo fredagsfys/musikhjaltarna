@@ -1,33 +1,64 @@
 ---
+import Star from '~/components/doodles/Star.astro';
+import Art from '~/components/ui/Art.astro';
+import Button from '~/components/ui/Button.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
-import Placeholder from '~/components/ui/Placeholder.astro';
+import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
 import { routes } from '~/config/site';
 ---
 
 <!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
 <Section id="pedagogen" tone="white">
-  <h2 id="pedagogen-title" class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-    Pedagogen bakom tjänsten
-  </h2>
-
-  <div class="mt-10 grid gap-8 sm:grid-cols-[14rem_1fr] sm:gap-12">
-    <figure class="max-w-56">
-      <Placeholder label="Porträtt" ratio="1 / 1" />
-      <figcaption class="text-text mt-3 text-center text-sm">Suzanna, pianopedagog</figcaption>
+  <div class="flex flex-wrap items-center gap-[clamp(2.5rem,6vw,5.5rem)]">
+    <figure class="flex max-w-[440px] min-w-0 flex-[1_1_340px] flex-col gap-3.5">
+      <div class="relative">
+        <svg
+          viewBox="0 0 440 550"
+          preserveAspectRatio="none"
+          class="text-gold absolute top-4 left-4 size-full"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M30 4C150 2 300 6 410 3C432 4 437 20 436 40C432 200 438 380 435 515C434 540 418 546 395 545C270 541 140 547 34 544C10 543 4 528 5 505C8 360 2 180 6 32C7 12 16 4 36 5"></path>
+        </svg>
+        <Star class="text-gold absolute bottom-[60px] -left-[34px] w-[34px] max-sm:hidden" />
+        <div class="bg-cream-warm border-border rounded-card shadow-card relative aspect-[4/5] overflow-hidden border">
+          <Art
+            name="suzana-and-gilbert"
+            alt="Suzanna, pianopedagog"
+            widths={[440, 880]}
+            sizes="(min-width: 768px) 440px, 90vw"
+            class="size-full object-cover object-[center_20%]"
+          />
+        </div>
+        <CharacterAvatar alt="" ring="thick" size={112} class="absolute -top-[18px] -right-[18px] w-28" />
+      </div>
+      <figcaption class="pt-2.5">
+        <span class="font-hand text-hand text-gold-brown">Lorem ipsum</span>
+        <br />
+        <strong class="text-ink">Suzanna</strong>, pianopedagog
+      </figcaption>
     </figure>
 
-    <div>
-      <p class="text-text max-w-prose text-lg text-pretty">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua.
-      </p>
-      <p class="mt-4">
-        <a href={routes.about} class="text-primary font-semibold underline underline-offset-4 hover:no-underline">
+    <div class="flex min-w-0 flex-[1_1_440px] flex-col gap-5">
+      <SectionHeading id="pedagogen-title" eyebrow="Lorem ipsum" title="Pedagogen bakom tjänsten">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+          magna aliqua.
+        </p>
+      </SectionHeading>
+      <div class="mt-2 flex flex-wrap items-center gap-6">
+        <BuyButton ctaId="kop_pedagog" />
+        <Button variant="link" href={routes.about}>
           Läs mer om Pianotopia
-        </a>
-      </p>
-      <BuyButton ctaId="kop_pedagog" class="mt-8" />
+        </Button>
+      </div>
     </div>
   </div>
 </Section>
