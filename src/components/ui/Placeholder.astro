@@ -18,7 +18,7 @@ const { label, ratio = '4 / 3', shape = 'rect', class: className } = Astro.props
   aria-label={`Platshållare: ${label}`}
   style={{ aspectRatio: ratio }}
   class:list={[
-    'bg-placeholder border-line text-ink-muted grid w-full place-items-center border p-3 text-center text-sm',
+    'bg-cream-warm border-border text-text grid w-full place-items-center border p-3 text-center text-sm',
     shape === 'circle' ? 'rounded-full' : 'rounded-2xl',
     className,
   ]}

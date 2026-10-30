@@ -12,16 +12,16 @@ const { title, description } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description}>
-  <header class="border-line border-b py-5">
-    <div class="container-page">
+  <header class="border-border border-b py-5">
+    <div class="container-page gutter-x">
       <a href={routes.home} class="text-sm font-semibold tracking-[0.4em] uppercase">
         {site.name}
       </a>
     </div>
   </header>
-  <main id="main" class="container-page max-w-3xl py-16 sm:py-24">
+  <main id="main" class="container-page gutter-x max-w-3xl py-16 sm:py-24">
     <h1 class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">{title}</h1>
-    <div class="text-ink-muted mt-6 space-y-4 text-lg text-pretty">
+    <div class="text-text mt-6 space-y-4 text-lg text-pretty">
       <slot />
     </div>
   </main>

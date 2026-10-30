@@ -1,5 +1,7 @@
 ---
 import '~/styles/global.css';
+import dmSerifUrl from '@fontsource/dm-serif-display/files/dm-serif-display-latin-400-normal.woff2?url';
+import nunitoSansUrl from '@fontsource-variable/nunito-sans/files/nunito-sans-latin-wght-normal.woff2?url';
 import SEO, { type Props as SEOProps } from '~/components/seo/SEO.astro';
 import { site } from '~/config/site';
 
@@ -14,6 +16,9 @@ export type Props = SEOProps;
     <meta name="theme-color" content={site.themeColor} />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Only the headline and body fonts are preloaded; the handwriting font is not on the LCP path. -->
+    <link rel="preload" href={dmSerifUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={nunitoSansUrl} as="font" type="font/woff2" crossorigin />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <SEO {...Astro.props} />
     <slot name="head" />
