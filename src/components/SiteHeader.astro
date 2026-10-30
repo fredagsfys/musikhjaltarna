@@ -1,0 +1,49 @@
+---
+import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
+import { routes, site } from '~/config/site';
+
+export interface Props {
+  /** Section navigation; off in the purchase flow. */
+  nav?: boolean;
+}
+
+const { nav = true } = Astro.props;
+// The section links collapse on small screens; the price link always stays visible.
+const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex px-3.5 py-2.5 no-underline';
+---
+
+<header class="gutter-x border-border border-b py-[18px]">
+  <div class="container-page flex flex-wrap items-center justify-between gap-4">
+    <a href={routes.home} class="text-ink hover:text-ink flex items-center gap-3 no-underline">
+      <CharacterAvatar alt="" size={48} class="w-12 shrink-0" />
+      <span class="flex flex-col leading-[1.1]">
+        <span class="font-display text-[1.375rem]">{site.name}</span>
+        <span class="text-gold-brown text-[0.8125rem] font-bold tracking-[0.04em]">{site.product}</span>
+      </span>
+    </a>
+    {nav && (
+      <nav aria-label="Huvudmeny">
+        <ul class="flex flex-wrap gap-2 text-[1rem] font-bold">
+          <li class="max-sm:hidden">
+            <a href="/#sa-fungerar-det" class={navLink}>
+              Så fungerar det
+            </a>
+          </li>
+          <li class="max-sm:hidden">
+            <a href="/#pedagogen" class={navLink}>
+              Pedagogen
+            </a>
+          </li>
+          <li>
+            <a
+              href="/#pris"
+              class="text-primary-dark border-gold rounded-pill hover:bg-white inline-flex border-[1.5px] px-3.5 py-[9px] no-underline"
+            >
+              {site.offer.price} kr/mån
+            </a>
+          </li>
+        </ul>
+      </nav>
+    )}
+  </div>
+</header>
