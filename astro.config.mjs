@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
@@ -19,6 +20,12 @@ export default defineConfig({
       }),
     },
   },
+  integrations: [
+    sitemap({
+      // The purchase flow is noindex and should never appear in the sitemap.
+      filter: (page) => !new URL(page).pathname.startsWith('/kop'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
