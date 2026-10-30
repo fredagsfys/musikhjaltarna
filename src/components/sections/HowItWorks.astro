@@ -1,35 +1,63 @@
 ---
+import PianoKeys from '~/components/doodles/PianoKeys.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
+import Card from '~/components/ui/Card.astro';
+import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import Section from '~/components/ui/Section.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
 
 const steps = ['Kom igång', 'Öva självständigt', 'Kom vidare'];
 ---
 
 <!-- Sektion 2: Konkretisera hjälpen. Visa hur barnet använder verktyget hemma. -->
 <Section id="sa-fungerar-det" tone="white">
-  <div class="grid gap-10 md:grid-cols-[3fr_2fr] md:items-center md:gap-14">
-    <div>
-      <h2 id="sa-fungerar-det-title" class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-        Så fungerar övningen
-      </h2>
-
-      <ol class="mt-8 grid grid-cols-3 gap-6 sm:gap-10">
-        {steps.map((step) => (
-          <li class="not-last:after:text-text relative text-center not-last:after:absolute not-last:after:top-[calc(50%-1.5rem)] not-last:after:-right-5 not-last:after:text-xl not-last:after:content-['→'] sm:not-last:after:-right-7">
-            <Placeholder label="Bild" ratio="1 / 1" />
-            <span class="mt-3 block text-sm font-semibold sm:text-base">{step}</span>
-          </li>
-        ))}
-      </ol>
-
-      <p class="text-text mt-8 max-w-prose text-pretty">
+  <div class="flex flex-col gap-12">
+    <SectionHeading id="sa-fungerar-det-title" eyebrow="Lorem ipsum" title="Så fungerar övningen" align="center">
+      <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
         magna aliqua.
       </p>
-      <BuyButton ctaId="kop_hjalpen" class="mt-8" />
-    </div>
+    </SectionHeading>
 
-    <Placeholder label="Exempel på övning i appen" ratio="1 / 1" />
+    <ol class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
+      {steps.map((step, i) => (
+        <Card as="li" tone="bg" class="flex flex-col gap-4 px-7 py-8">
+          <span
+            aria-hidden="true"
+            class="border-gold text-primary-dark font-display grid size-13 place-items-center rounded-full border-2 bg-white text-2xl"
+          >
+            {i + 1}
+          </span>
+          <h3 class="text-h3">{step}</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </Card>
+      ))}
+    </ol>
+
+    <Card
+      tone="bg"
+      class="relative flex flex-wrap items-center gap-[clamp(2rem,5vw,4rem)] p-[clamp(1.75rem,4vw,3.5rem)]"
+    >
+      <PianoKeys class="text-gold absolute -top-[42px] right-7 w-[150px] rotate-4 max-sm:hidden" />
+      <div class="flex min-w-0 flex-[1_1_360px] flex-col gap-4">
+        <Eyebrow>Exempel på övning i appen</Eyebrow>
+        <h3 class="text-h2 text-balance">Lorem ipsum dolor sit amet</h3>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+          magna aliqua.
+        </p>
+        <BuyButton ctaId="kop_hjalpen" class="mt-2 self-start" />
+      </div>
+      <div class="relative flex min-w-0 flex-[1_1_400px] justify-center">
+        <Placeholder label="Exempel på övning i appen" ratio="1 / 1" class="max-w-[460px]" />
+        <span
+          aria-hidden="true"
+          class="font-hand text-hand text-gold-brown absolute -bottom-10 -left-2.5 -rotate-4 max-sm:hidden"
+        >
+          Lorem ipsum dolor!
+        </span>
+      </div>
+    </Card>
   </div>
 </Section>
