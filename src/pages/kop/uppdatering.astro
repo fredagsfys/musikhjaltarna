@@ -50,7 +50,7 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
   optIn.addEventListener('click', async () => {
     optIn.disabled = true;
     try {
-      await submitLead({ type: 'updates_opt_in', email: lead!.email });
+      await submitLead({ type: 'updates_opt_in', lead: lead! });
     } catch (error) {
       console.error(error);
     }

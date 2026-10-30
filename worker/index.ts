@@ -14,6 +14,7 @@ interface Env {
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LEAD_TYPES = new Set(['purchase_intent', 'updates_opt_in']);
 const MAX_BODY_BYTES = 2048;
 
 // Purchase intent and update opt-in are stored as separate rows, as the spec requires.
@@ -41,22 +42,19 @@ class BadRequest extends Error {}
 
 const text = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 
+// Both types carry the full lead, so every row has name, e-mail and the CTA it came from.
 function leadStatement(db: D1Database, body: Record<string, unknown>) {
-  const insert = db.prepare('INSERT INTO leads (type, name, email, cta_id) VALUES (?, ?, ?, ?)');
+  if (typeof body.type !== 'string' || !LEAD_TYPES.has(body.type)) throw new BadRequest('Unknown lead type');
+  if (!body.lead || typeof body.lead !== 'object') throw new BadRequest('Missing lead');
 
-  if (body.type === 'purchase_intent' && body.lead && typeof body.lead === 'object') {
-    const lead = body.lead as Record<string, unknown>;
-    const name = text(lead.name, 200);
-    const email = text(lead.email, 254);
-    if (!name || !EMAIL.test(email)) throw new BadRequest('Invalid lead');
-    return insert.bind('purchase_intent', name, email, isCtaId(lead.ctaId) ? lead.ctaId : null);
-  }
-  if (body.type === 'updates_opt_in') {
-    const email = text(body.email, 254);
-    if (!EMAIL.test(email)) throw new BadRequest('Invalid e-mail');
-    return insert.bind('updates_opt_in', null, email, null);
-  }
-  throw new BadRequest('Unknown lead type');
+  const lead = body.lead as Record<string, unknown>;
+  const name = text(lead.name, 200);
+  const email = text(lead.email, 254);
+  if (!name || !EMAIL.test(email)) throw new BadRequest('Invalid lead');
+
+  return db
+    .prepare('INSERT INTO leads (type, name, email, cta_id) VALUES (?, ?, ?, ?)')
+    .bind(body.type, name, email, isCtaId(lead.ctaId) ? lead.ctaId : null);
 }
 
 async function recordLead(request: Request, env: Env) {

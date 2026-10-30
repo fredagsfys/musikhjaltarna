@@ -10,8 +10,14 @@ export interface Lead {
   ctaId: CtaId | null;
 }
 
-/** Purchase intent and update opt-in are recorded as separate submissions. */
-type LeadSubmission = { type: 'purchase_intent'; lead: Lead } | { type: 'updates_opt_in'; email: string };
+/**
+ * Purchase intent and update opt-in are recorded as separate submissions, each with the full
+ * lead so every row stands on its own.
+ */
+interface LeadSubmission {
+  type: 'purchase_intent' | 'updates_opt_in';
+  lead: Lead;
+}
 
 export function saveLead(lead: Lead) {
   try {
