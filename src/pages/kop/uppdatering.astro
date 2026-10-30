@@ -1,0 +1,57 @@
+---
+import { routes } from '~/config/site';
+import FlowLayout from '~/layouts/FlowLayout.astro';
+---
+
+<!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
+<FlowLayout title="Inte redo ännu">
+  <h1 class="mt-6 text-2xl font-bold tracking-tight text-balance sm:text-3xl">
+    Pianotopia är ännu inte redo för leverans
+  </h1>
+  <p class="text-ink-muted mt-3 text-pretty">
+    Tjänsten är under utveckling. Inget köp har genomförts och ingen betalning har skett.
+  </p>
+
+  <h2 class="mt-10 text-xl font-bold tracking-tight">Vill du hålla dig uppdaterad?</h2>
+  <p class="text-ink-muted mt-3 text-pretty">
+    Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
+  </p>
+
+  <button
+    id="opt-in"
+    type="button"
+    class="bg-accent hover:bg-accent-strong mt-8 min-h-12 w-full rounded-xl px-6 py-3 font-semibold text-white transition-colors disabled:opacity-60"
+  >
+    Ja, jag vill hållas uppdaterad
+  </button>
+  <a id="decline" href={routes.home} class="text-ink-muted mt-6 inline-block text-sm underline underline-offset-4">
+    Nej tack
+  </a>
+</FlowLayout>
+
+<script>
+  import { routes } from '~/config/site';
+  import { track } from '~/lib/analytics';
+  import { clearLead, loadLead, submitLead } from '~/lib/lead';
+
+  const lead = loadLead();
+  // This step only makes sense right after step 1.
+  if (!lead) location.replace(routes.purchase);
+
+  const optIn = document.querySelector<HTMLButtonElement>('#opt-in')!;
+  optIn.addEventListener('click', async () => {
+    optIn.disabled = true;
+    track('updates_opt_in');
+    try {
+      await submitLead({ type: 'updates_opt_in', email: lead!.email });
+    } catch (error) {
+      console.error(error);
+    }
+    location.assign(routes.thanks);
+  });
+
+  document.querySelector('#decline')!.addEventListener('click', () => {
+    track('updates_decline');
+    clearLead();
+  });
+</script>
