@@ -30,11 +30,15 @@ import { site } from '~/config/site';
       <TrustList class="mt-6" items={['Ett komplement till barnets pianolärare']} />
     </div>
 
-    <div class="relative mx-auto w-full max-w-[560px] min-w-0 pt-16">
-      <Placeholder label="Hero-bild" ratio="1 / 1.05" shape="arch" />
-      <div class="absolute top-0 right-2 flex flex-col items-end">
-        <SpeechNote lines={['Lorem ipsum', 'dolor sit amet']} class="-rotate-5" />
-        <CurvedArrow class="text-gold-brown mr-[40%] w-20" />
+    <!--
+      Geometry from the design file: a 500px stage, the arch inset 6% and 10% from the top, the note
+      overhanging by 10%. From 640px the stage is 90% wide so the overhang stays inside the page gutter.
+    -->
+    <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[10.2%] sm:w-[90%]">
+      <Placeholder label="Hero-bild" ratio="1 / 1.043" shape="arch" />
+      <div class="absolute top-0 right-0 flex rotate-5 flex-col items-end sm:-right-[10%]">
+        <SpeechNote lines={['Lorem ipsum', 'dolor sit amet']} />
+        <CurvedArrow class="text-gold mr-10 w-20" />
       </div>
     </div>
   </div>
