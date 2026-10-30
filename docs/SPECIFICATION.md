@@ -205,7 +205,7 @@ Köpavsikt (`purchase_intent`) och uppdateringsintresse (`updates_opt_in`) lagra
 
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
-3. **Lagring av leads.** Vilket verktyg tar emot formulärdata (t.ex. egen endpoint, Formspree, HubSpot, Brevo)?
-4. **Analysverktyg.** Vilket verktyg ska användas (t.ex. Plausible, GA4, PostHog)?
+3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
+4. ~~**Analysverktyg.**~~ Löst: egen mätning, `/api/events` i Cloudflare Workern, lagrat i D1 utan cookies.
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.
