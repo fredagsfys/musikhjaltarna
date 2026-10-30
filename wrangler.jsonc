@@ -21,6 +21,7 @@
     {
       "binding": "DB",
       "database_name": "musikhjaltarna",
+      "database_id": "e819cc7d-ff63-4b51-a9ca-ccf4f3aff25e",
     },
   ],
 }
