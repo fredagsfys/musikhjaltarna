@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -14,15 +14,6 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   prefetch: true,
-  env: {
-    schema: {
-      PUBLIC_LEAD_ENDPOINT: envField.string({
-        context: 'client',
-        access: 'public',
-        optional: true,
-      }),
-    },
-  },
   integrations: [
     sitemap({
       // The purchase flow is noindex and should never appear in the sitemap.
