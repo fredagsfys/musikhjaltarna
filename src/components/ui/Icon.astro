@@ -1,0 +1,46 @@
+---
+/** Stroke icons from the Variant D design file, 24×24. */
+const icons = {
+  'arrow-right': '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  smile:
+    '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  'home-heart':
+    '<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/><path d="M12 17s-3-1.8-3-3.6a1.6 1.6 0 013-.8 1.6 1.6 0 013 .8C15 15.2 12 17 12 17z"/>',
+  sunrise:
+    '<path d="M12 3v3"/><path d="M5.6 5.6l2.1 2.1"/><path d="M18.4 5.6l-2.1 2.1"/><path d="M3 13h3"/><path d="M18 13h3"/><path d="M8 17a4 4 0 118 0"/><path d="M4 21h16"/>',
+  music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  speaker: '<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/>',
+} as const;
+
+/** Filled icons. */
+const solid = {
+  star: '<path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7-6.3-3.6-6.3 3.6 1.5-7L2 9.3l7-.8z"/>',
+  play: '<path d="M7 4.5v15l12-7.5z"/>',
+} as const;
+
+export type IconName = keyof typeof icons | keyof typeof solid;
+
+export interface Props {
+  name: IconName;
+  strokeWidth?: number;
+  class?: string;
+}
+
+const { name, strokeWidth = 2.2, class: className } = Astro.props;
+const isSolid = name in solid;
+const markup = isSolid ? solid[name as keyof typeof solid] : icons[name as keyof typeof icons];
+---
+
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  fill={isSolid ? 'currentColor' : 'none'}
+  stroke={isSolid ? 'none' : 'currentColor'}
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={markup}
+/>
