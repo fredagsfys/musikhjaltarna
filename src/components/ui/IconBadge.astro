@@ -1,0 +1,18 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+/** Large icon in a gold-ringed circle, used to open a purchase-flow step. */
+export interface Props {
+  icon: IconName;
+  class?: string;
+}
+
+const { icon, class: className } = Astro.props;
+---
+
+<span
+  aria-hidden="true"
+  class:list={['bg-bg border-gold mx-auto grid size-[68px] place-items-center rounded-full border-2', className]}
+>
+  <Icon name={icon} class="text-primary-dark size-[30px]" />
+</span>

@@ -4,13 +4,14 @@ Erbjudande-sida och köpflöde för att testa köpavsikt för Pianotopia, ett ö
 roligt, enkelt och självständigt mellan pianolektionerna.
 
 Sidan följer wireframen _Landing page MH-1_. Se [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) för budskap,
-struktur, CTA-ID:n och mätplan. All copy markerad med _Lorem ipsum_ och alla grå rutor är platshållare.
+struktur, CTA-ID:n och mätplan. Designen är _Variant D, dov turkos_, se [`landing-page-design-requirements.md`](landing-page-design-requirements.md). All copy
+markerad med _Lorem ipsum_ och alla bilder är platshållare.
 
 ## Stack
 
 - [Astro 7](https://astro.build): statisk HTML, inget JavaScript utöver små skript för köpflödet och mätning
 - [Tailwind CSS 4](https://tailwindcss.com): designtokens i `src/styles/global.css`
-- Poppins, självhostad via Fontsource (inga externa anrop)
+- DM Serif Display, Nunito Sans och Caveat, självhostade via Fontsource (inga externa anrop)
 - SEO: canonical-URL:er, Open Graph/Twitter, JSON-LD (Organization, WebSite, Product/Offer), sitemap, `robots.txt`,
   `noindex` på köpflödet
 
@@ -38,13 +39,20 @@ Kopiera `.env.example` till `.env` och fyll i:
 src/
   config/site.ts          Namn, pris, CTA-ID:n och rutter
   components/sections/    De fem sektionerna på erbjudande-sidan
-  components/ui/          Knappar, platshållare och sektionsramverk
+  components/ui/          Designsystemets komponenter (knappar, rubriker, maskot, märken)
+  components/doodles/     Handritade SVG-detaljer (understrykning, stjärnor, noter)
+  assets/images/          Karaktärsbilder och foton, se README där
   components/seo/         Meta-taggar och JSON-LD
   layouts/                Base-, Page- och Flow-layout
   lib/analytics.ts        Händelser till dataLayer/Plausible
   lib/lead.ts             Lagring och inskick av köpavsikt och opt-in
   pages/                  /, /kop, /kop/uppdatering, /kop/tack och informationssidor
 ```
+
+## Bilder
+
+Lägg bilderna i `src/assets/images/` med namnen i [`src/assets/images/README.md`](src/assets/images/README.md).
+Komponenterna hittar dem automatiskt och Astro skapar AVIF/WebP i rätt storlekar. Tills dess visas platshållare.
 
 ## Mätning
 

@@ -1,0 +1,18 @@
+---
+/** Short handwritten note in Caveat, e.g. what a mascot says. One phrase per line. */
+export interface Props {
+  lines: string[];
+  class?: string;
+}
+
+const { lines, class: className } = Astro.props;
+---
+
+<p
+  aria-hidden="true"
+  class:list={['font-hand text-gold-brown flex flex-col items-end text-[1.625rem] leading-none font-bold', className]}
+>
+  {lines.map((line, i) => (
+    <span class:list={[i > 0 && 'leading-[1.1]']}>{line}</span>
+  ))}
+</p>
