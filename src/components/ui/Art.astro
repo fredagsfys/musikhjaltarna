@@ -1,0 +1,56 @@
+---
+import { Picture } from 'astro:assets';
+import { getImage, type ImageName } from '~/lib/images';
+
+/**
+ * Character art or photo from `src/assets/images/`, served as AVIF/WebP with the original
+ * as fallback. Until the file is added, a labelled placeholder is rendered instead.
+ */
+export interface Props {
+  name: ImageName;
+  /** Empty for decorative images. */
+  alt: string;
+  /** Rendered widths in px for the srcset. */
+  widths: number[];
+  sizes: string;
+  /** Placeholder silhouette on light (default) or dark backgrounds. */
+  tone?: 'light' | 'dark';
+  class?: string;
+}
+
+const { name, alt, widths, sizes, tone = 'light', class: className } = Astro.props;
+const image = getImage(name);
+// Placeholders show just the short name, e.g. "Gilbert G-klav" from a longer alt text.
+const label = alt.split(',')[0];
+---
+
+{image ? (
+  <Picture src={image} alt={alt} formats={['avif', 'webp']} widths={widths} sizes={sizes} class={className} />
+) : name === 'emblem' ? (
+  <svg
+    viewBox="0 0 100 100"
+    class:list={['bg-primary', className]}
+    role={alt ? 'img' : undefined}
+    aria-label={alt ? `Platshållare: ${alt}` : undefined}
+    aria-hidden={alt ? undefined : 'true'}
+  >
+    <text x="50" y="62" text-anchor="middle" class="font-display fill-white text-[34px]">
+      MH
+    </text>
+  </svg>
+) : (
+  <svg
+    viewBox="0 0 200 240"
+    preserveAspectRatio="xMidYMax meet"
+    class:list={[tone === 'light' ? 'text-ink/10' : 'text-white/25', className]}
+    role={alt ? 'img' : undefined}
+    aria-label={alt ? `Platshållare: ${alt}` : undefined}
+    aria-hidden={alt ? undefined : 'true'}
+  >
+    <circle cx="100" cy="76" r="46" fill="currentColor" />
+    <path d="M26 240c0-62 33-100 74-100s74 38 74 100z" fill="currentColor" />
+    <text x="100" y="81" text-anchor="middle" class="fill-text font-sans text-[12px] font-bold">
+      {label}
+    </text>
+  </svg>
+)}
