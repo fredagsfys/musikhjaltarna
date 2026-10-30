@@ -1,0 +1,15 @@
+---
+/** Short handwritten note in Caveat, e.g. what a mascot says. One phrase per line. */
+export interface Props {
+  lines: string[];
+  class?: string;
+}
+
+const { lines, class: className } = Astro.props;
+---
+
+<p aria-hidden="true" class:list={['font-hand text-hand text-gold-brown flex flex-col items-end', className]}>
+  {lines.map((line) => (
+    <span>{line}</span>
+  ))}
+</p>

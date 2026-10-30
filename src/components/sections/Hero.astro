@@ -1,8 +1,10 @@
 ---
+import CurvedArrow from '~/components/doodles/CurvedArrow.astro';
 import AccentHeading from '~/components/ui/AccentHeading.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
+import SpeechNote from '~/components/ui/SpeechNote.astro';
 import TrustList from '~/components/ui/TrustList.astro';
 import { site } from '~/config/site';
 ---
@@ -28,6 +30,12 @@ import { site } from '~/config/site';
       <TrustList class="mt-6" items={['Ett komplement till barnets pianolärare']} />
     </div>
 
-    <Placeholder label="Hero-bild" ratio="1 / 1" class="mx-auto max-w-[560px] min-w-0" />
+    <div class="relative mx-auto w-full max-w-[560px] min-w-0 pt-16">
+      <Placeholder label="Hero-bild" ratio="1 / 1" />
+      <div class="absolute top-0 right-2 flex flex-col items-end">
+        <SpeechNote lines={['Lorem ipsum', 'dolor sit amet']} class="-rotate-5" />
+        <CurvedArrow class="text-gold-brown mr-[40%] w-20" />
+      </div>
+    </div>
   </div>
 </section>
