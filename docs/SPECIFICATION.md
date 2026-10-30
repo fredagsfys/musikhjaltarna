@@ -32,7 +32,7 @@ pianolektionerna. Ett komplement till barnets pianolärare.
 
 ## Del A – Erbjudande-sidan (`/`)
 
-Samtliga köpknappar har texten **"Köp · 79 kr/månad"** och leder till **samma köpsteg** (`/kop`).
+Samtliga köpknappar har texten **"Köp · 79 kr/månad"** och leder till **samma köpsteg**, via en egen sökväg per knapp (`/kop/hero`, `/kop/hjalpen`, `/kop/vardag`, `/kop/pedagog`, `/kop/avslut`).
 Varje knapp har ett eget CTA-ID så att det går att mäta vilken sektion som konverterar.
 
 ### Sektion 1 – Hero: Löftet och tjänsten
@@ -136,7 +136,7 @@ Varje knapp har ett eget CTA-ID så att det går att mäta vilken sektion som ko
 
 Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 
-### Steg 1 – Fånga fördjupad köpavsikt (`/kop`)
+### Steg 1 – Fånga fördjupad köpavsikt (`/kop/<sektion>`)
 
 | Element       | Innehåll                                  |
 | ------------- | ----------------------------------------- |
@@ -190,14 +190,16 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 
 ## Mätplan
 
-| Event             | När                                       | Data                      |
-| ----------------- | ----------------------------------------- | ------------------------- |
-| `cta_click`       | Klick på någon köpknapp                   | `cta_id`                  |
-| `purchase_intent` | Steg 1 skickas in                         | `cta_id`, `name`, `email` |
-| `updates_opt_in`  | "Ja, jag vill hållas uppdaterad" i steg 2 | `email`                   |
-| `updates_decline` | "Nej tack" i steg 2                       | –                         |
+| Mätpunkt                | Mäts som                                                                                | Var           |
+| ----------------------- | --------------------------------------------------------------------------------------- | ------------- |
+| Klick på köpknapp       | Sidvisning av `/kop/hero`, `/kop/hjalpen`, `/kop/vardag`, `/kop/pedagog`, `/kop/avslut` | Web Analytics |
+| Köpavsikt (steg 1)      | Sidvisning av `/kop/uppdatering`                                                        | Web Analytics |
+| Ja till information     | Sidvisning av `/kop/tack`                                                               | Web Analytics |
+| Nej tack                | Sidvisning av `/kop/nej-tack`                                                           | Web Analytics |
+| Namn och e-post (leads) | Rad i tabellen `leads`, med köpknappens `cta_id`                                        | Cloudflare D1 |
 
-Köpavsikt (`purchase_intent`) och uppdateringsintresse (`updates_opt_in`) lagras och redovisas var för sig.
+Varje köpknapp leder till en egen sida (`/kop/<sektion>`), så klick per CTA-ID syns som sidvisningar.
+Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 
 ---
 
@@ -205,7 +207,7 @@ Köpavsikt (`purchase_intent`) och uppdateringsintresse (`updates_opt_in`) lagra
 
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
-3. **Lagring av leads.** Vilket verktyg tar emot formulärdata (t.ex. egen endpoint, Formspree, HubSpot, Brevo)?
-4. **Analysverktyg.** Vilket verktyg ska användas (t.ex. Plausible, GA4, PostHog)?
+3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
+4. ~~**Analysverktyg.**~~ Löst: Cloudflare Web Analytics (sidvisningar, utan cookies).
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.

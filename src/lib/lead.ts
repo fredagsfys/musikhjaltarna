@@ -1,7 +1,8 @@
-import { PUBLIC_LEAD_ENDPOINT } from 'astro:env/client';
 import type { CtaId } from '~/config/site';
 
 const STORAGE_KEY = 'pianotopia:lead';
+/** Stored by the Worker in D1 (see worker/index.ts). */
+const ENDPOINT = '/api/leads';
 
 export interface Lead {
   name: string;
@@ -38,17 +39,10 @@ export function clearLead() {
 }
 
 export async function submitLead(submission: LeadSubmission) {
-  const body = JSON.stringify({ ...submission, submittedAt: new Date().toISOString() });
-
-  if (!PUBLIC_LEAD_ENDPOINT) {
-    console.info('[lead] PUBLIC_LEAD_ENDPOINT is not set; submission not sent:', body);
-    return;
-  }
-
-  const response = await fetch(PUBLIC_LEAD_ENDPOINT, {
+  const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body,
+    body: JSON.stringify(submission),
     keepalive: true,
   });
   if (!response.ok) throw new Error(`Lead submission failed: ${response.status}`);

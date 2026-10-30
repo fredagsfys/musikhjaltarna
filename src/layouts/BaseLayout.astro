@@ -22,6 +22,17 @@ export type Props = SEOProps;
     <link rel="sitemap" href="/sitemap-index.xml" />
     <SEO {...Astro.props} />
     <slot name="head" />
+    {
+      /* Cookieless page-view analytics; production only, so local testing doesn't count. */
+      import.meta.env.PROD && (
+        <script
+          is:inline
+          type="module"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: site.webAnalyticsToken })}
+        />
+      )
+    }
   </head>
   <body class="min-h-dvh">
     <a
@@ -31,14 +42,5 @@ export type Props = SEOProps;
       Hoppa till innehållet
     </a>
     <slot />
-
-    <script>
-      import { track } from '~/lib/analytics';
-
-      document.addEventListener('click', (event) => {
-        const cta = (event.target as Element).closest<HTMLElement>('[data-cta-id]');
-        if (cta) track('cta_click', { cta_id: cta.dataset.ctaId });
-      });
-    </script>
   </body>
 </html>

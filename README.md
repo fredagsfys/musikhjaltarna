@@ -28,10 +28,12 @@ npm run preview
 
 Kopiera `.env.example` till `.env` och fyll i:
 
-| Variabel               | Beskrivning                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------- |
-| `SITE_URL`             | Domän för canonical, sitemap och Open Graph. Standard: `https://musikhjaltarna.se`.          |
-| `PUBLIC_LEAD_ENDPOINT` | Tar emot formulärdata som JSON (POST). Om den saknas loggas inskicken i webbläsarens konsol. |
+| Variabel   | Beskrivning                                                                         |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `SITE_URL` | Domän för canonical, sitemap och Open Graph. Standard: `https://musikhjaltarna.se`. |
+
+`npm run dev` visar sajten utan API. För att testa hela köpflödet med lagring lokalt:
+`npm run build && npx wrangler dev`, som kör Workern mot en lokal databas.
 
 ## Struktur
 
@@ -56,29 +58,43 @@ Komponenterna hittar dem automatiskt och Astro skapar AVIF/WebP i rätt storleka
 
 ## Mätning
 
-| Event             | När                              |
-| ----------------- | -------------------------------- |
-| `cta_click`       | Klick på köpknapp (`cta_id`)     |
-| `purchase_intent` | Steg 1 skickas in (`cta_id`)     |
-| `updates_opt_in`  | "Ja, jag vill hållas uppdaterad" |
-| `updates_decline` | "Nej tack"                       |
+| Mätpunkt                | Mäts som                                                                                | Var           |
+| ----------------------- | --------------------------------------------------------------------------------------- | ------------- |
+| Klick på köpknapp       | Sidvisning av `/kop/hero`, `/kop/hjalpen`, `/kop/vardag`, `/kop/pedagog`, `/kop/avslut` | Web Analytics |
+| Köpavsikt (steg 1)      | Sidvisning av `/kop/uppdatering`                                                        | Web Analytics |
+| Ja till information     | Sidvisning av `/kop/tack`                                                               | Web Analytics |
+| Nej tack                | Sidvisning av `/kop/nej-tack`                                                           | Web Analytics |
+| Namn och e-post (leads) | Rad i tabellen `leads`, med köpknappens `cta_id`                                        | Cloudflare D1 |
 
-Händelserna skickas till `window.dataLayer` och till Plausible om det är installerat. Personuppgifter skickas aldrig
-till analysverktyget, bara till `PUBLIC_LEAD_ENDPOINT`.
+Varje köpknapp leder till en egen sida, så att Cloudflare Web Analytics kan räkna klick per sektion utan cookies, egna
+händelser eller query strings. Mätskriptet läggs in i alla sidor i produktionsbygget (`site.webAnalyticsToken` i
+`src/config/site.ts`), och tratten syns i Cloudflare under Analytics & Logs → Web Analytics → _Top paths_.
+
+Namn och e-post sparas av ett litet API i [`worker/index.ts`](worker/index.ts) i D1-databasen `musikhjaltarna`.
+Köpavsikt och uppdateringsintresse sparas som separata rader. Inga cookies, IP-adresser eller webbläsaruppgifter sparas.
+Leads läses i Cloudflare under Storage & Databases → D1 → `musikhjaltarna` → Console:
+
+```sql
+SELECT created_at, type, name, email, cta_id FROM leads ORDER BY created_at DESC;
+
+-- Köpavsikt per köpknapp
+SELECT cta_id, COUNT(*) AS antal FROM leads WHERE type = 'purchase_intent' GROUP BY cta_id;
+```
 
 ## Driftsättning
 
-Sajten driftsätts som statiska filer på Cloudflare Workers, konfigurerat i [`wrangler.jsonc`](wrangler.jsonc).
-Ingen Worker-kod behövs. Sidorna byggs som `kop.html` och serveras som `/kop`, och okända adresser får `404.html`.
+Sajten driftsätts på Cloudflare Workers, konfigurerat i [`wrangler.jsonc`](wrangler.jsonc). Sidorna serveras som
+statiska filer (`kop.html` som `/kop`, okända adresser får `404.html`). Bara `/api/*` körs av Workern, som skriver
+leads till D1-databasen `musikhjaltarna`. Tabellen skapas vid första anropet.
 
 Inställningar i Cloudflare (Workers Builds):
 
-| Inställning                  | Värde                                     |
-| ---------------------------- | ----------------------------------------- |
-| Build command                | `npm run build`                           |
-| Deploy command               | `npx wrangler deploy`                     |
-| Non-production branch deploy | `npx wrangler versions upload`            |
-| Miljövariabler               | `NODE_VERSION=24`, `PUBLIC_LEAD_ENDPOINT` |
+| Inställning                  | Värde                          |
+| ---------------------------- | ------------------------------ |
+| Build command                | `npm run build`                |
+| Deploy command               | `npx wrangler deploy`          |
+| Non-production branch deploy | `npx wrangler versions upload` |
+| Miljövariabler               | `NODE_VERSION=24`              |
 
 `name` i `wrangler.jsonc` måste vara samma som Workerns namn i Cloudflare. Testa lokalt utan att logga in med
 `npx wrangler deploy --dry-run` efter en build.

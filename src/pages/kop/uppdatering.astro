@@ -40,7 +40,6 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
 
 <script>
   import { routes } from '~/config/site';
-  import { track } from '~/lib/analytics';
   import { clearLead, loadLead, submitLead } from '~/lib/lead';
 
   const lead = loadLead();
@@ -50,7 +49,6 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
   const optIn = document.querySelector<HTMLButtonElement>('#opt-in')!;
   optIn.addEventListener('click', async () => {
     optIn.disabled = true;
-    track('updates_opt_in');
     try {
       await submitLead({ type: 'updates_opt_in', email: lead!.email });
     } catch (error) {
@@ -60,7 +58,6 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
   });
 
   document.querySelector('#decline')!.addEventListener('click', () => {
-    track('updates_decline');
     clearLead();
   });
 </script>
