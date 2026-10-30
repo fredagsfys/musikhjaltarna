@@ -1,0 +1,25 @@
+---
+import Squiggle from '~/components/doodles/Squiggle.astro';
+import Eyebrow from './Eyebrow.astro';
+
+/** Eyebrow, serif h2 and gold flourish. Supporting copy goes in the slot. */
+export interface Props {
+  id: string;
+  eyebrow: string;
+  title: string;
+  align?: 'start' | 'center';
+  class?: string;
+}
+
+const { id, eyebrow, title, align = 'start', class: className } = Astro.props;
+const centered = align === 'center';
+---
+
+<div class:list={['flex flex-col gap-4', centered && 'mx-auto max-w-[700px] items-center text-center', className]}>
+  <Eyebrow>{eyebrow}</Eyebrow>
+  <h2 id={id} class="text-h2 text-balance">
+    {title}
+  </h2>
+  <Squiggle class="text-gold h-3.5 w-[110px]" />
+  <slot />
+</div>
