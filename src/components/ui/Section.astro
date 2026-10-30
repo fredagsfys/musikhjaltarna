@@ -1,0 +1,21 @@
+---
+/** Full-width band, alternating Krämvit and Vit. Decorative doodles go in the `decor` slot. */
+export interface Props {
+  id: string;
+  tone?: 'bg' | 'white';
+  class?: string;
+}
+
+const { id, tone = 'bg', class: className } = Astro.props;
+---
+
+<section
+  id={id}
+  aria-labelledby={`${id}-title`}
+  class:list={['gutter-x section-y relative overflow-x-clip', tone === 'white' ? 'bg-white' : 'bg-bg', className]}
+>
+  <slot name="decor" />
+  <div class="container-page relative">
+    <slot />
+  </div>
+</section>

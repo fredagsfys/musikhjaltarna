@@ -1,0 +1,32 @@
+---
+/** Hand-drawn piano keyboard. The white background lets it overlap a panel edge. */
+export interface Props {
+  class?: string;
+}
+---
+
+<svg
+  class={Astro.props.class}
+  viewBox="0 0 220 90"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.4"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <path d="M6 8C70 5 150 6 214 9L212 84C150 86 70 85 8 83Z" class="fill-surface"></path>
+  <path d="M37 9L36 83"></path>
+  <path d="M68 9L69 84"></path>
+  <path d="M99 8L98 84"></path>
+  <path d="M130 8L131 84"></path>
+  <path d="M161 9L160 84"></path>
+  <path d="M192 9L193 83"></path>
+  <g fill="currentColor" stroke-width="1.5">
+    <path d="M30 9L44 9L43 52L31 51Z"></path>
+    <path d="M61 9L75 9L74 51L62 52Z"></path>
+    <path d="M123 9L137 8L136 52L124 51Z"></path>
+    <path d="M154 9L168 9L167 51L155 52Z"></path>
+    <path d="M185 9L199 9L198 52L186 51Z"></path>
+  </g>
+</svg>

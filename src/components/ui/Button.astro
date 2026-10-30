@@ -1,0 +1,42 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+
+type Variant = 'primary' | 'secondary' | 'link';
+
+/** Renders an `<a>` when `href` is set, otherwise a `<button>`. */
+export type Props = Omit<HTMLAttributes<'a'>, 'type'> &
+  Pick<HTMLAttributes<'button'>, 'type' | 'disabled'> & {
+    variant?: Variant;
+    /** Trailing arrow. Defaults to on for `primary` and `link`. */
+    arrow?: boolean;
+  };
+
+const { variant = 'primary', arrow = variant !== 'secondary', class: className, ...attrs } = Astro.props;
+const Tag = attrs.href ? 'a' : 'button';
+
+const pill =
+  'rounded-pill text-button min-h-15 gap-4 px-8 no-underline transition-[background-color,color,scale] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60';
+const variants: Record<Variant, string> = {
+  primary: `${pill} bg-primary text-white hover:bg-primary-dark hover:text-white`,
+  secondary: `${pill} border-2 border-primary text-primary-dark hover:bg-primary hover:text-white`,
+  link: 'text-primary-dark hover:text-primary-dark min-h-11 gap-2 font-bold hover:underline',
+};
+---
+
+<Tag
+  {...attrs}
+  class:list={['group inline-flex cursor-pointer items-center justify-center', variants[variant], className]}
+>
+  <slot />
+  {arrow && (
+    <Icon
+      name="arrow-right"
+      strokeWidth={2}
+      class:list={[
+        'shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-1',
+        variant === 'link' ? 'size-5' : 'size-6',
+      ]}
+    />
+  )}
+</Tag>

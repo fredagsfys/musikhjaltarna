@@ -1,0 +1,35 @@
+---
+import SiteHeader from '~/components/SiteHeader.astro';
+import MusicNotes from '~/components/doodles/MusicNotes.astro';
+import Star from '~/components/doodles/Star.astro';
+import Art from '~/components/ui/Art.astro';
+import Card from '~/components/ui/Card.astro';
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+  title: string;
+}
+---
+
+<BaseLayout title={Astro.props.title} noindex>
+  <div class="flex min-h-dvh flex-col">
+    <SiteHeader nav={false} />
+    <main id="main" class="flex flex-1 items-center justify-center overflow-x-clip px-[clamp(1rem,4vw,2.5rem)] py-16">
+      <div class="relative mt-12 w-full max-w-[520px]">
+        <MusicNotes class="text-gold absolute top-10 -left-[70px] w-14 -rotate-12 max-sm:hidden" />
+        <Star class="text-gold absolute -right-14 bottom-20 w-[30px] max-sm:hidden" />
+        <!-- Gilbert peeks out from behind the card. -->
+        <Art
+          name="gilbert-thumbs-up"
+          alt=""
+          widths={[110, 220]}
+          sizes="110px"
+          class="absolute -top-24 -right-9 w-[110px]"
+        />
+        <Card class="shadow-card relative p-[clamp(1.75rem,5vw,3rem)]">
+          <slot />
+        </Card>
+      </div>
+    </main>
+  </div>
+</BaseLayout>

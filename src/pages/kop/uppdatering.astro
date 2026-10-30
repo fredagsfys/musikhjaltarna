@@ -1,0 +1,66 @@
+---
+import Squiggle from '~/components/doodles/Squiggle.astro';
+import Button from '~/components/ui/Button.astro';
+import IconBadge from '~/components/ui/IconBadge.astro';
+import { routes } from '~/config/site';
+import FlowLayout from '~/layouts/FlowLayout.astro';
+---
+
+<!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
+<FlowLayout title="Inte redo ännu">
+  <div class="flex flex-col gap-6 text-center">
+    <IconBadge icon="sunrise" />
+    <div class="flex flex-col gap-2.5">
+      <h1 class="text-[clamp(1.75rem,4vw,2.125rem)] leading-[1.12] text-balance">
+        Pianotopia är ännu inte redo för leverans
+      </h1>
+      <p class="text-pretty">Tjänsten är under utveckling. Inget köp har genomförts och ingen betalning har skett.</p>
+    </div>
+    <Squiggle class="text-gold mx-auto h-3.5 w-[100px]" />
+    <div class="flex flex-col gap-2.5">
+      <h2 class="text-h3">Vill du hålla dig uppdaterad?</h2>
+      <p class="text-pretty">
+        Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2">
+      <Button id="opt-in" type="button">
+        Ja, jag vill hållas uppdaterad
+      </Button>
+      <a
+        id="decline"
+        href={routes.declined}
+        class="text-primary-dark inline-flex min-h-12 items-center justify-center self-center font-bold underline"
+      >
+        Nej tack
+      </a>
+    </div>
+  </div>
+</FlowLayout>
+
+<script>
+  import { routes } from '~/config/site';
+  import { track } from '~/lib/analytics';
+  import { clearLead, loadLead, submitLead } from '~/lib/lead';
+
+  const lead = loadLead();
+  // This step only makes sense right after step 1.
+  if (!lead) location.replace(routes.purchase);
+
+  const optIn = document.querySelector<HTMLButtonElement>('#opt-in')!;
+  optIn.addEventListener('click', async () => {
+    optIn.disabled = true;
+    track('updates_opt_in');
+    try {
+      await submitLead({ type: 'updates_opt_in', email: lead!.email });
+    } catch (error) {
+      console.error(error);
+    }
+    location.assign(routes.thanks);
+  });
+
+  document.querySelector('#decline')!.addEventListener('click', () => {
+    track('updates_decline');
+    clearLead();
+  });
+</script>

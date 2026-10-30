@@ -1,0 +1,69 @@
+/*
+ * Variant D "Dov turkos" design tokens, mapped 1:1 to section 2 of
+ * landing-page-design-requirements.md (colors and fonts are exact values from the style guide).
+ */
+@theme {
+  /* Only the 12 style-guide colors exist; Tailwind's default palette is removed. */
+  --color-*: initial;
+  --color-primary: #3b7f80; /* Dov turkos */
+  --color-primary-dark: #2b6061; /* Mörk turkos */
+  --color-gold: #d9a441; /* Honungsguld, decorative only */
+  --color-gold-light: #e9cf8e; /* Ljust guld, decorative only */
+  --color-gold-dark: #a97a1f; /* Mörkt guld, icons only */
+  --color-gold-brown: #8c6416; /* Guldbrun */
+  --color-ink: #1e2a2b; /* Bläck */
+  --color-text: #4f5a5b; /* Grå text */
+  --color-bg: #fdfaf4; /* Krämvit */
+  --color-white: #ffffff; /* Vit */
+  --color-border: #ede3cf; /* Sandkant */
+  --color-cream-warm: #f6eedc; /* Varm kräm */
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Nunito Sans Variable', system-ui, sans-serif;
+  --font-hand: 'Caveat', cursive;
+
+  /*
+   * h1 follows the spec's clamp but is also capped by the text column width (container query
+   * units): the accent phrase never wraps, and at 44px it would overflow a 320px screen.
+   */
+  --text-h1: min(clamp(2.75rem, 1.8rem + 4.2vw, 4.75rem), 15cqi);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.01em;
+  --text-h2: clamp(2.125rem, 1.6rem + 2.4vw, 3.25rem);
+  --text-h2--line-height: 1.1;
+  --text-h3: clamp(1.5rem, 1.45rem + 0.3vw, 1.625rem);
+  --text-h3--line-height: 1.1;
+  --text-lead: clamp(1.1875rem, 1.1rem + 0.5vw, 1.375rem);
+  --text-lead--line-height: 1.6;
+  --text-body: clamp(1.0625rem, 1rem + 0.2vw, 1.125rem);
+  --text-body--line-height: 1.6;
+  --text-button: 1.1875rem;
+  --text-button--line-height: 1;
+  --text-button--font-weight: 800;
+  --text-eyebrow: 0.9375rem;
+  --text-eyebrow--line-height: 1.3;
+  --text-eyebrow--letter-spacing: 0.08em;
+  --text-eyebrow--font-weight: 800;
+  --text-hand: clamp(1.5rem, 1.45rem + 0.3vw, 1.625rem);
+  --text-hand--line-height: 1.1;
+  --text-hand--font-weight: 700;
+
+  --radius-pill: 999px;
+  --radius-card: 20px;
+  --radius-tile: 12px;
+  --radius-arch: 999px 999px 0 0;
+
+  --shadow-card: 0 8px 24px rgb(30 42 43 / 0.08);
+
+  /* Applied only through `motion-safe:`, so all motion is off under prefers-reduced-motion. */
+  --animate-draw: draw 700ms ease-out 300ms both;
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}

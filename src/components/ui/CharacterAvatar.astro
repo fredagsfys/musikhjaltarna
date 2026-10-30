@@ -1,0 +1,27 @@
+---
+import type { ImageName } from '~/lib/images';
+import Art from './Art.astro';
+
+/** Circular character image with a Honungsguld ring: `thin` (2px) or `thick` (5px). */
+export interface Props {
+  name?: ImageName;
+  /** Empty when decorative, e.g. next to the brand name. */
+  alt: string;
+  ring?: 'thin' | 'thick';
+  /** Rendered size in px, for the srcset. */
+  size?: number;
+  class?: string;
+}
+
+const { name = 'emblem', alt, ring = 'thin', size = 140, class: className } = Astro.props;
+---
+
+<div
+  class:list={[
+    'bg-cream-warm aspect-square overflow-hidden rounded-full',
+    ring === 'thick' ? 'border-gold border-[5px]' : 'shadow-[0_0_0_2px_var(--color-gold)]',
+    className,
+  ]}
+>
+  <Art name={name} alt={alt} widths={[size, size * 2]} sizes={`${size}px`} class="size-full object-cover" />
+</div>

@@ -1,0 +1,65 @@
+---
+import MusicNote from '~/components/doodles/MusicNote.astro';
+import Art from '~/components/ui/Art.astro';
+import BuyButton from '~/components/ui/BuyButton.astro';
+import Card from '~/components/ui/Card.astro';
+import Icon, { type IconName } from '~/components/ui/Icon.astro';
+import Section from '~/components/ui/Section.astro';
+import SectionHeading from '~/components/ui/SectionHeading.astro';
+
+const benefits: { icon: IconName; title: string }[] = [
+  { icon: 'smile', title: 'Roligt och enkelt att öva' },
+  { icon: 'clock', title: 'Kräver lite tid' },
+  { icon: 'home-heart', title: 'Föräldern behöver inte kunna spela' },
+];
+const rayAngles = [-50, -20, 10, 40];
+---
+
+<!-- Sektion 3: Värdet i vardagen. Visa hur hjälpen passar ett fullt vardagsschema. -->
+<Section id="vardagen">
+  <MusicNote slot="decor" class="text-gold absolute top-9 right-[5%] w-9 rotate-12 max-sm:hidden" />
+
+  <div class="flex flex-wrap items-center gap-[clamp(2.5rem,5vw,4.5rem)]">
+    <div class="flex min-w-0 flex-[1_1_340px] flex-col gap-5">
+      <SectionHeading id="vardagen-title" eyebrow="Lorem ipsum" title="Framsteg som ryms i vardagen">
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+          magna aliqua.
+        </p>
+      </SectionHeading>
+      <div class="flex flex-wrap items-end gap-5">
+        <BuyButton ctaId="kop_vardag" />
+        <div class="relative">
+          <svg
+            viewBox="0 0 140 140"
+            class="text-gold absolute -inset-3.5 size-[calc(100%+28px)] overflow-visible"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            {rayAngles.map((angle) => (
+              <path d="M70 6Q74 0 70 -6" transform={`rotate(${angle} 70 70)`} />
+            ))}
+          </svg>
+          <Art name="gilbert-thumbs-up" alt="" widths={[120, 240]} sizes="120px" class="relative w-[120px]" />
+        </div>
+      </div>
+    </div>
+
+    <ul class="flex min-w-0 flex-[1.3_1_460px] flex-col gap-4">
+      {benefits.map(({ icon, title }) => (
+        <Card as="li" class="flex items-start gap-5 p-6">
+          <span class="bg-bg border-gold-light rounded-tile grid size-14 shrink-0 place-items-center border-2">
+            <Icon name={icon} class="text-primary size-7" />
+          </span>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-h3">{title}</h3>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          </div>
+        </Card>
+      ))}
+    </ul>
+  </div>
+</Section>

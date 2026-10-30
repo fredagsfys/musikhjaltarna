@@ -1,0 +1,7 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+
+# Edited by hand outside the codebase; keep its formatting as written.
+landing-page-design-requirements.md

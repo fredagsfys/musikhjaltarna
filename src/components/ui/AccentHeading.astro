@@ -1,0 +1,27 @@
+---
+import Squiggle from '~/components/doodles/Squiggle.astro';
+
+/**
+ * Serif headline where one phrase is teal and underlined with the gold squiggle.
+ * The accent never wraps, so the underline always follows it as the headline reflows.
+ * Place inside an `@container` so the h1 size can adapt to the column.
+ */
+export interface Props {
+  as?: 'h1' | 'h2';
+  id?: string;
+  /** Text before the accent phrase. */
+  text: string;
+  accent: string;
+  class?: string;
+}
+
+const { as: Tag = 'h1', id, text, accent, class: className } = Astro.props;
+---
+
+<Tag id={id} class:list={['text-h1', className]}>
+  {text}{' '}
+  <span class="text-primary relative inline-block whitespace-nowrap">
+    {accent}
+    <Squiggle variant="hero" class="text-gold absolute -bottom-2.5 -left-[2%] h-[18px] w-[104%]" />
+  </span>
+</Tag>

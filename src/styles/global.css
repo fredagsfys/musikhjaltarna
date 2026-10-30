@@ -1,0 +1,57 @@
+@import '@fontsource/dm-serif-display/latin-400.css';
+@import '@fontsource-variable/nunito-sans/wght.css';
+@import '@fontsource/caveat/latin-700.css';
+@import 'tailwindcss';
+@import './tokens.css';
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 75rem;
+}
+
+/* Page gutter: 24px on mobile, 32px from tablet. */
+@utility gutter-x {
+  padding-inline: 1.5rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility section-y {
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    @apply bg-bg text-text text-body font-sans antialiased;
+  }
+
+  /* DM Serif Display only ships in 400; never let the browser fake a bold. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink font-normal;
+    font-synthesis: none;
+  }
+
+  a {
+    @apply text-primary-dark hover:text-ink;
+  }
+
+  :focus-visible {
+    @apply outline-gold-dark outline-3 outline-offset-3;
+  }
+}

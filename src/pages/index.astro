@@ -1,0 +1,68 @@
+---
+import JsonLd from '~/components/seo/JsonLd.astro';
+import EverydayValue from '~/components/sections/EverydayValue.astro';
+import Hero from '~/components/sections/Hero.astro';
+import HowItWorks from '~/components/sections/HowItWorks.astro';
+import Pedagogue from '~/components/sections/Pedagogue.astro';
+import Subscription from '~/components/sections/Subscription.astro';
+import SiteFooter from '~/components/SiteFooter.astro';
+import SiteHeader from '~/components/SiteHeader.astro';
+import { site } from '~/config/site';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+const siteUrl = Astro.site!.href;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}#organization`,
+      name: site.name,
+      url: siteUrl,
+      logo: new URL('/favicon.svg', siteUrl).href,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}#website`,
+      name: site.name,
+      url: siteUrl,
+      inLanguage: site.lang,
+      publisher: { '@id': `${siteUrl}#organization` },
+    },
+    {
+      '@type': 'Product',
+      name: site.product,
+      description: site.description,
+      brand: { '@id': `${siteUrl}#organization` },
+      offers: {
+        '@type': 'Offer',
+        url: siteUrl,
+        price: site.offer.price,
+        priceCurrency: site.offer.currency,
+        // The service is not yet available; it is offered ahead of launch.
+        availability: 'https://schema.org/PreOrder',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: site.offer.price,
+          priceCurrency: site.offer.currency,
+          referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
+        },
+      },
+    },
+  ],
+};
+---
+
+<BaseLayout>
+  <JsonLd slot="head" data={structuredData} />
+  <SiteHeader />
+  <main id="main">
+    <Hero />
+    <HowItWorks />
+    <EverydayValue />
+    <Pedagogue />
+    <Subscription />
+  </main>
+  <SiteFooter />
+</BaseLayout>
