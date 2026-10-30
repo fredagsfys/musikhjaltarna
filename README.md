@@ -68,5 +68,17 @@ till analysverktyget, bara till `PUBLIC_LEAD_ENDPOINT`.
 
 ## Driftsättning
 
-`dist/` är helt statisk och kan hostas på t.ex. Cloudflare Pages, Netlify eller Vercel. Sidorna byggs som
-`kop.html` och serveras som `/kop`.
+Sajten driftsätts som statiska filer på Cloudflare Workers, konfigurerat i [`wrangler.jsonc`](wrangler.jsonc).
+Ingen Worker-kod behövs. Sidorna byggs som `kop.html` och serveras som `/kop`, och okända adresser får `404.html`.
+
+Inställningar i Cloudflare (Workers Builds):
+
+| Inställning                  | Värde                                                 |
+| ---------------------------- | ----------------------------------------------------- |
+| Build command                | `npm run build`                                       |
+| Deploy command               | `npx wrangler deploy`                                 |
+| Non-production branch deploy | `npx wrangler versions upload`                        |
+| Miljövariabler               | `NODE_VERSION=24`, `SITE_URL`, `PUBLIC_LEAD_ENDPOINT` |
+
+`name` i `wrangler.jsonc` måste vara samma som Workerns namn i Cloudflare. Testa lokalt utan att logga in med
+`npx wrangler deploy --dry-run` efter en build.
