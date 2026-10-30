@@ -1,0 +1,12 @@
+---
+import { routes } from '~/config/site';
+import FlowLayout from '~/layouts/FlowLayout.astro';
+---
+
+<FlowLayout title="Sidan hittades inte">
+  <h1 class="mt-6 text-2xl font-bold tracking-tight sm:text-3xl">Sidan hittades inte</h1>
+  <p class="text-ink-muted mt-3">Sidan du letar efter finns inte eller har flyttats.</p>
+  <a href={routes.home} class="text-accent mt-6 inline-block font-semibold underline underline-offset-4">
+    Till startsidan
+  </a>
+</FlowLayout>
