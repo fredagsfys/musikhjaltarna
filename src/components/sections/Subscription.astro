@@ -1,0 +1,29 @@
+---
+import BuyButton from '~/components/ui/BuyButton.astro';
+import Price from '~/components/ui/Price.astro';
+import Section from '~/components/ui/Section.astro';
+
+const details = ['Vad som ingår', 'Praktiska förutsättningar', 'Abonnemangsvillkor'];
+---
+
+<!-- Sektion 5: Samla erbjudandet. Bekräfta innehåll och pris, besvara kvarvarande frågor. -->
+<Section id="prenumeration">
+  <h2 id="prenumeration-title" class="text-3xl font-bold tracking-tight text-balance sm:text-4xl">
+    Din prenumeration
+  </h2>
+  <p class="text-ink-muted mt-3 text-lg text-pretty">Övningsverktyg i appen för hjälp mellan pianolektionerna.</p>
+  <Price class="mt-6" />
+
+  <div class="mt-10 grid gap-6 sm:grid-cols-3">
+    {details.map((title) => (
+      <article class="border-line rounded-2xl border p-6">
+        <h3 class="font-semibold">{title}</h3>
+        <p class="text-ink-muted mt-2 text-sm text-pretty">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </article>
+    ))}
+  </div>
+
+  <div class="mt-10 text-center">
+    <BuyButton ctaId="kop_avslut" />
+  </div>
+</Section>
