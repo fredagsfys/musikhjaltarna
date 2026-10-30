@@ -1,0 +1,19 @@
+---
+import { routes, site } from '~/config/site';
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+  title: string;
+}
+---
+
+<BaseLayout title={Astro.props.title} noindex>
+  <main id="main" class="bg-surface-muted grid min-h-dvh place-items-center px-4 py-12">
+    <div class="border-line w-full max-w-lg rounded-3xl border bg-white p-8 text-center shadow-sm sm:p-12">
+      <a href={routes.home} class="text-sm font-semibold tracking-[0.4em] uppercase">
+        {site.name}
+      </a>
+      <slot />
+    </div>
+  </main>
+</BaseLayout>
