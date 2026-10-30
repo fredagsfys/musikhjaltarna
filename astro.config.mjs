@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL ?? 'https://pianotopia.se',
+  site: process.env.SITE_URL ?? 'https://musikhjaltarna.se',
   trailingSlash: 'never',
   build: {
     // `/kop.html` is served as `/kop`, matching canonical URLs and the sitemap.

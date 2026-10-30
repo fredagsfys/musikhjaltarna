@@ -3,7 +3,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   // Must match the Worker name in the Cloudflare dashboard.
-  "name": "pianotopia-landing",
+  "name": "musikhjaltarna",
   "compatibility_date": "2026-10-30",
   "assets": {
     "directory": "./dist",
