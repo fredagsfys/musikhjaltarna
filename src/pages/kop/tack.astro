@@ -1,0 +1,19 @@
+---
+import FlowLayout from '~/layouts/FlowLayout.astro';
+---
+
+<!-- Köpflöde steg 3: Gör fortsättningen tydlig. -->
+<FlowLayout title="Tack för ditt intresse">
+  <h1 class="mt-6 text-2xl font-bold tracking-tight text-balance sm:text-3xl">Tack för ditt intresse!</h1>
+  <p class="text-ink-muted mt-3 text-pretty">
+    Vi skickar mer information till <span id="lead-email">den e-postadress du angav</span>.
+  </p>
+</FlowLayout>
+
+<script>
+  import { clearLead, loadLead } from '~/lib/lead';
+
+  const lead = loadLead();
+  if (lead) document.querySelector('#lead-email')!.textContent = lead.email;
+  clearLead();
+</script>
