@@ -1,32 +1,41 @@
 ---
+import Squiggle from '~/components/doodles/Squiggle.astro';
+import Button from '~/components/ui/Button.astro';
+import IconBadge from '~/components/ui/IconBadge.astro';
 import { routes } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 ---
 
 <!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
 <FlowLayout title="Inte redo ännu">
-  <h1 class="mt-6 text-2xl font-bold tracking-tight text-balance sm:text-3xl">
-    Pianotopia är ännu inte redo för leverans
-  </h1>
-  <p class="text-text mt-3 text-pretty">
-    Tjänsten är under utveckling. Inget köp har genomförts och ingen betalning har skett.
-  </p>
-
-  <h2 class="mt-10 text-xl font-bold tracking-tight">Vill du hålla dig uppdaterad?</h2>
-  <p class="text-text mt-3 text-pretty">
-    Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
-  </p>
-
-  <button
-    id="opt-in"
-    type="button"
-    class="bg-primary hover:bg-primary-dark mt-8 min-h-12 w-full rounded-xl px-6 py-3 font-semibold text-white transition-colors disabled:opacity-60"
-  >
-    Ja, jag vill hållas uppdaterad
-  </button>
-  <a id="decline" href={routes.home} class="text-text mt-6 inline-block text-sm underline underline-offset-4">
-    Nej tack
-  </a>
+  <div class="flex flex-col gap-6 text-center">
+    <IconBadge icon="sunrise" />
+    <div class="flex flex-col gap-2.5">
+      <h1 class="text-[clamp(1.75rem,4vw,2.125rem)] leading-[1.12] text-balance">
+        Pianotopia är ännu inte redo för leverans
+      </h1>
+      <p class="text-pretty">Tjänsten är under utveckling. Inget köp har genomförts och ingen betalning har skett.</p>
+    </div>
+    <Squiggle class="text-gold mx-auto h-3.5 w-[100px]" />
+    <div class="flex flex-col gap-2.5">
+      <h2 class="text-h3">Vill du hålla dig uppdaterad?</h2>
+      <p class="text-pretty">
+        Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
+      </p>
+    </div>
+    <div class="flex flex-col gap-2">
+      <Button id="opt-in" type="button">
+        Ja, jag vill hållas uppdaterad
+      </Button>
+      <a
+        id="decline"
+        href={routes.declined}
+        class="text-primary-dark inline-flex min-h-12 items-center justify-center self-center font-bold underline"
+      >
+        Nej tack
+      </a>
+    </div>
+  </div>
 </FlowLayout>
 
 <script>
