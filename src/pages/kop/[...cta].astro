@@ -64,7 +64,6 @@ const inputClass =
 
 <script>
   import { isCtaId, routes } from '~/config/site';
-  import { track } from '~/lib/analytics';
   import { saveLead, submitLead, type Lead } from '~/lib/lead';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,11 +88,10 @@ const inputClass =
 
     form.querySelector('button')!.disabled = true;
     saveLead(lead);
-    track('purchase_intent', { cta_id: ctaId ?? undefined });
     try {
       await submitLead({ type: 'purchase_intent', lead });
     } catch (err) {
-      // Don't block the visitor; the intent is still tracked as an event.
+      // Don't block the visitor; the step 2 page view still records the intent.
       console.error(err);
     }
     location.assign(routes.updates);
