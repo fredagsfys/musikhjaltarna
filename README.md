@@ -74,8 +74,16 @@ Namn och e-post sparas av ett litet API i [`worker/index.ts`](worker/index.ts) i
 Köpavsikt och uppdateringsintresse sparas som separata rader. Inga cookies, IP-adresser eller webbläsaruppgifter sparas.
 Leads läses i Cloudflare under Storage & Databases → D1 → `musikhjaltarna` → Console:
 
+En rad med typen `updates_opt_in` markerar bara att e-postadressen vill ha uppdateringar, så namn och köpknapp
+lagras en gång, på raden för köpavsikt.
+
 ```sql
-SELECT created_at, type, name, email, cta_id FROM leads ORDER BY created_at DESC;
+-- En rad per person, med om personen vill ha uppdateringar (1/0)
+SELECT p.created_at, p.name, p.email, p.cta_id,
+       EXISTS (SELECT 1 FROM leads o WHERE o.type = 'updates_opt_in' AND o.email = p.email) AS vill_ha_uppdateringar
+FROM leads p
+WHERE p.type = 'purchase_intent'
+ORDER BY p.created_at DESC;
 
 -- Köpavsikt per köpknapp
 SELECT cta_id, COUNT(*) AS antal FROM leads WHERE type = 'purchase_intent' GROUP BY cta_id;
