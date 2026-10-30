@@ -207,5 +207,5 @@ Köpavsikt (`purchase_intent`) och uppdateringsintresse (`updates_opt_in`) lagra
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
 3. **Lagring av leads.** Vilket verktyg tar emot formulärdata (t.ex. egen endpoint, Formspree, HubSpot, Brevo)?
 4. **Analysverktyg.** Vilket verktyg ska användas (t.ex. Plausible, GA4, PostHog)?
-5. **Domän.** Slutlig domän för canonical-URL:er och sitemap.
+5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.

@@ -30,7 +30,7 @@ Kopiera `.env.example` till `.env` och fyll i:
 
 | Variabel               | Beskrivning                                                                                  |
 | ---------------------- | -------------------------------------------------------------------------------------------- |
-| `SITE_URL`             | Slutlig domän. Används för canonical, sitemap och Open Graph.                                |
+| `SITE_URL`             | Domän för canonical, sitemap och Open Graph. Standard: `https://musikhjaltarna.se`.          |
 | `PUBLIC_LEAD_ENDPOINT` | Tar emot formulärdata som JSON (POST). Om den saknas loggas inskicken i webbläsarens konsol. |
 
 ## Struktur
@@ -73,12 +73,12 @@ Ingen Worker-kod behövs. Sidorna byggs som `kop.html` och serveras som `/kop`, 
 
 Inställningar i Cloudflare (Workers Builds):
 
-| Inställning                  | Värde                                                 |
-| ---------------------------- | ----------------------------------------------------- |
-| Build command                | `npm run build`                                       |
-| Deploy command               | `npx wrangler deploy`                                 |
-| Non-production branch deploy | `npx wrangler versions upload`                        |
-| Miljövariabler               | `NODE_VERSION=24`, `SITE_URL`, `PUBLIC_LEAD_ENDPOINT` |
+| Inställning                  | Värde                                     |
+| ---------------------------- | ----------------------------------------- |
+| Build command                | `npm run build`                           |
+| Deploy command               | `npx wrangler deploy`                     |
+| Non-production branch deploy | `npx wrangler versions upload`            |
+| Miljövariabler               | `NODE_VERSION=24`, `PUBLIC_LEAD_ENDPOINT` |
 
 `name` i `wrangler.jsonc` måste vara samma som Workerns namn i Cloudflare. Testa lokalt utan att logga in med
 `npx wrangler deploy --dry-run` efter en build.
