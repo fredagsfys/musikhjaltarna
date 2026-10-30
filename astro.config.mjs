@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
@@ -9,6 +9,15 @@ export default defineConfig({
   build: {
     // `/kop.html` is served as `/kop`, matching canonical URLs and the sitemap.
     format: 'file',
+  },
+  env: {
+    schema: {
+      PUBLIC_LEAD_ENDPOINT: envField.string({
+        context: 'client',
+        access: 'public',
+        optional: true,
+      }),
+    },
   },
   vite: {
     plugins: [tailwindcss()],
