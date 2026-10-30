@@ -3,10 +3,12 @@
 export interface Props {
   label: string;
   ratio?: string;
+  /** `arch` is the hero frame: domed top, straight sides, softly rounded bottom and a solid outline. */
+  shape?: 'card' | 'arch';
   class?: string;
 }
 
-const { label, ratio = '4 / 3', class: className } = Astro.props;
+const { label, ratio = '4 / 3', shape = 'card', class: className } = Astro.props;
 ---
 
 <div
@@ -14,7 +16,8 @@ const { label, ratio = '4 / 3', class: className } = Astro.props;
   aria-label={`Platshållare: ${label}`}
   style={{ aspectRatio: ratio }}
   class:list={[
-    'bg-cream-warm border-gold-light text-text rounded-card grid w-full place-items-center border-2 border-dashed p-4 text-center font-bold',
+    'bg-cream-warm border-gold-light text-text grid w-full place-items-center border-2 p-4 text-center font-bold',
+    shape === 'arch' ? 'rounded-[48%_48%_40px_40px]' : 'rounded-card border-dashed',
     className,
   ]}
 >
