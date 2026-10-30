@@ -10,7 +10,10 @@ export default defineConfig({
   build: {
     // `/kop.html` is served as `/kop`, matching canonical URLs and the sitemap.
     format: 'file',
+    // The stylesheet is small; inlining it removes a render-blocking request.
+    inlineStylesheets: 'always',
   },
+  prefetch: true,
   env: {
     schema: {
       PUBLIC_LEAD_ENDPOINT: envField.string({
