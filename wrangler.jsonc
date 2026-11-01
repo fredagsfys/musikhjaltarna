@@ -24,4 +24,15 @@
       "database_id": "e819cc7d-ff63-4b51-a9ca-ccf4f3aff25e",
     },
   ],
+  // Branch previews (`npx wrangler preview`) don't inherit bindings. They get their own database,
+  // so test submissions in a preview never reach real registrations.
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "musikhjaltarna-preview",
+        "database_id": "7dc608b6-c7af-44e3-836a-b9910f4ebc79",
+      },
+    ],
+  },
 }
