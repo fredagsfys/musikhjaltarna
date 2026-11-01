@@ -63,7 +63,8 @@ const schema = z.strictObject({
     boxes: z.array(z.strictObject({ title: text, items: z.array(text).min(1) })).min(1),
     trust: text,
   }),
-  footer: z.strictObject({ contact: text, terms: text, privacy: text }),
+  footer: z.strictObject({ contact: text, terms: text, privacy: text, consentSettings: text }),
+  consent: z.strictObject({ title: text, text, privacyLink: text, accept: text, decline: text }),
   purchase: z.strictObject({
     title: text,
     subtitle: text,

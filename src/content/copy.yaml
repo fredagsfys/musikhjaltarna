@@ -117,6 +117,17 @@ footer:
   contact: Kontakt
   terms: Villkor
   privacy: Integritet
+  # Öppnar valet om mätning igen.
+  consentSettings: Integritetsinställningar
+
+# Frågan om mätning, längst ner på sidan tills besökaren har valt.
+# "accept" och "decline" ska vara lika tydliga; ingen av dem får framhävas.
+consent:
+  title: Får vi mäta hur sidan används?
+  text: Vi vill se hur sidan används, till exempel vilka delar som visas och vilka knappar som klickas, för att förstå om tjänsten är intressant. Mätningen görs med PostHog och Cloudflare inom EU, utan cookies och utan ditt namn eller din e-post. Du kan ändra ditt val när som helst längst ner på sidan.
+  privacyLink: Så hanterar vi personuppgifter
+  accept: Godkänn
+  decline: Neka
 
 # Köpsteget (/kop)
 purchase:
