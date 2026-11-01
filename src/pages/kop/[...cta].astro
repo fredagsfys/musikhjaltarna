@@ -2,7 +2,7 @@
 import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
-import { CTA_IDS, ctaSlug, routes, site, type CtaId } from '~/config/site';
+import { CTA_IDS, CTA_SECTION, ctaSlug, routes, site, type CtaId } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 
 /** `/kop` for direct visits, plus one path per buy button, e.g. `/kop/hero`. */
@@ -14,6 +14,8 @@ export function getStaticPaths() {
 }
 
 const { ctaId } = Astro.props as { ctaId: CtaId | null };
+// Without history to go back to, return to the section of the button the visitor came from.
+const backHref = ctaId ? `${routes.home}#${CTA_SECTION[ctaId]}` : routes.home;
 
 const errorClass = 'text-ink text-[0.9375rem] font-bold';
 const messages = {
@@ -92,7 +94,7 @@ const inputClass =
     <Button id="kop_skicka" type="submit" data-busy-label="Skickar…">
       <span data-label>Gå vidare till betalning</span>
     </Button>
-    <Button id="kop_tillbaka" variant="link" arrow={false} href={routes.home} class="self-center">
+    <Button id="kop_tillbaka" variant="link" arrow={false} href={backHref} class="self-center">
       Tillbaka till erbjudandet
     </Button>
   </form>
@@ -140,6 +142,15 @@ const inputClass =
   // Going back from step 2 restores this page as it was left, mid-send; make the form usable again.
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) setSending(false);
+  });
+
+  // Coming from the offer page, go back in history so the browser restores the scroll position.
+  document.querySelector('#kop_tillbaka')!.addEventListener('click', (event) => {
+    const from = document.referrer ? new URL(document.referrer) : null;
+    if (from?.origin === location.origin && from.pathname === routes.home && history.length > 1) {
+      event.preventDefault();
+      history.back();
+    }
   });
 
   form.addEventListener('submit', async (event) => {
