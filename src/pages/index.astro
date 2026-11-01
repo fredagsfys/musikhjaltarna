@@ -67,3 +67,22 @@ const structuredData = {
   </main>
   <SiteFooter />
 </BaseLayout>
+
+<script>
+  import { CTA_SECTION, isCtaId } from '~/config/site';
+  import { trackExposure } from '~/lib/exposure';
+  import { track, whenVisible } from '~/lib/tracking';
+
+  whenVisible(() => {
+    track('offer_view');
+    const exposure = trackExposure();
+
+    // Every buy click is kept as behaviour; reports count it once per session (brief B §7).
+    document.addEventListener('click', (event) => {
+      const button = (event.target as Element).closest<HTMLElement>('[data-cta-id]');
+      const ctaId = button?.dataset.ctaId;
+      if (!isCtaId(ctaId)) return;
+      track('purchase_click', { cta_id: ctaId, section_id: CTA_SECTION[ctaId], ...exposure.clickContext() });
+    });
+  });
+</script>
