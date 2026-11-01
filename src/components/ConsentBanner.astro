@@ -26,7 +26,8 @@ const content = copy.consent;
         {content.title}
       </h2>
       <p id="samtycke-text" class="text-text text-[0.9375rem]">
-        {content.text}{' '}
+        <span class="md:hidden">{content.textShort}</span>
+        <span class="hidden md:inline">{content.text}</span>{' '}
         <a href={routes.privacy} class="text-primary-dark font-bold">
           {content.privacyLink}
         </a>
