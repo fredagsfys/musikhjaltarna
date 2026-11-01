@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "astro": "astro",
     "export:registrations": "node scripts/export-registrations.mjs",
-    "delete:registration": "node scripts/delete-registration.mjs"
+    "delete:registration": "node scripts/delete-registration.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@cloudflare/workers-types": "^5.20261030.1",
+    "@playwright/test": "^1.64.1",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "typescript": "^6.0.3",
