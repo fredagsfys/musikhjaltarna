@@ -24,6 +24,7 @@ const COLUMNS = [
   'message_id',
   'ad_id',
   'page_version',
+  'analytics_consent',
   'is_test',
 ];
 

@@ -198,7 +198,7 @@ test('the export gives correct registrations with update status', async ({ page 
   const csv = exportCsv(testInfo.outputPath('registrations.csv'));
   const [header, ...lines] = csv.replace(/^﻿/, '').trim().split(/\r\n/);
   expect(header).toBe(
-    'id,created_at,name,email,cta_id,update_status,update_status_at,update_info_version,utm_source,utm_medium,utm_campaign,utm_content,message_id,ad_id,page_version,is_test',
+    'id,created_at,name,email,cta_id,update_status,update_status_at,update_info_version,utm_source,utm_medium,utm_campaign,utm_content,message_id,ad_id,page_version,analytics_consent,is_test',
   );
   const line = lines.find((l) => l.includes(email));
   expect(line).toMatch(new RegExp(`,Export Test,${email.replaceAll('.', '\\.')},kop_pedagog,ja,`));
