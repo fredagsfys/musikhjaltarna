@@ -9,6 +9,8 @@ import { copy } from '~/content/copy';
 import Button from './ui/Button.astro';
 
 const content = copy.consent;
+// Keeps words like "e-post" whole at line breaks.
+const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
 ---
 
 <div
@@ -26,14 +28,13 @@ const content = copy.consent;
         {content.title}
       </h2>
       <p id="samtycke-text" class="text-text text-[0.9375rem]">
-        <span class="md:hidden">{content.textShort}</span>
-        <span class="hidden md:inline">{content.text}</span>{' '}
+        {text}{' '}
         <a href={routes.privacy} class="text-primary-dark font-bold">
           {content.privacyLink}
         </a>
       </p>
     </div>
-    <div class="grid shrink-0 grid-cols-2 gap-3">
+    <div class="grid shrink-0 grid-cols-2 gap-3 md:ml-auto">
       <Button id="samtycke_neka" type="button" variant="secondary" class="flex-1">
         {content.decline}
       </Button>

@@ -28,7 +28,8 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
 
 - **The banner** is shown at the bottom of every page until the visitor decides. "Neka" and "Godkänn" look the same and
   are the same size. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
-  behind it. Its texts are in `copy.yaml` under `consent`.
+  behind it. It asks briefly, with "Läs mer" linking to the privacy page, where measurement is described. Its texts are
+  in `copy.yaml` under `consent`; the description is under `pages.integritet`.
 - **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
 - **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
@@ -48,7 +49,8 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
   address.
 - In the browser, the site keeps only the choice itself and, with consent, the ad source (`sessionStorage`,
   `musikhjaltarna:source`, gone when the tab closes).
-- The privacy page (`/integritet`) should describe PostHog and Cloudflare Web Analytics, what is measured and why.
+- The privacy page (`/integritet`) describes what is measured, with which tools and why. The rest of that page is still
+  placeholder text for the client.
 
 ## Sessions and versions
 

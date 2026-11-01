@@ -121,7 +121,7 @@ test.describe('before the visitor has decided', () => {
       await page.keyboard.press(testInfo.project.name.includes('safari') ? 'Alt+Tab' : 'Tab');
       order.push(await focused());
     }
-    expect(order.slice(1)).toEqual(['Så hanterar vi personuppgifter', 'samtycke_neka', 'samtycke_godkann']);
+    expect(order.slice(1)).toEqual(['Läs mer', 'samtycke_neka', 'samtycke_godkann']);
     await page.keyboard.press('Enter');
     await expect(page.locator(banner)).toBeHidden();
     await analytics.waitFor('offer_view');
