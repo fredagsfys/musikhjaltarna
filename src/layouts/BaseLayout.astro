@@ -49,5 +49,18 @@ export type Props = SEOProps;
       Hoppa till innehållet
     </a>
     <slot />
+
+    <script>
+      import { adSource, startTracking, track } from '~/lib/tracking';
+
+      adSource();
+      void startTracking();
+      // Links to Pianotopia's website carry data-link-id and data-link-placement (brief B §4).
+      document.addEventListener('click', (event) => {
+        const link = (event.target as Element).closest<HTMLElement>('[data-link-id]');
+        if (!link) return;
+        track('external_link_click', { link_id: link.dataset.linkId, placement: link.dataset.linkPlacement });
+      });
+    </script>
   </body>
 </html>

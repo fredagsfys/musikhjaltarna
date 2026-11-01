@@ -28,7 +28,12 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
       <Button variant="link" arrow={false} href={routes.home}>
         {content.back}
       </Button>
-      <Button variant="link" href={copy.links.website}>
+      <Button
+        variant="link"
+        href={copy.links.website}
+        data-link-id="pianotopia_website"
+        data-link-placement="confirmation"
+      >
         {content.website}
       </Button>
     </div>
