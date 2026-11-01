@@ -99,52 +99,7 @@ Rules behind the events:
 
 ## Reports
 
-PostHog → _SQL editor_. Every query filters on production; drop `utm_source` grouping for totals.
-
-**Funnel per source** (sessions reaching each step):
-
-```sql
-SELECT
-  properties.utm_source AS source,
-  properties.message_id AS message,
-  count(DISTINCT if(event = 'offer_view', $session_id, NULL)) AS visits,
-  count(DISTINCT if(event = 'purchase_click', $session_id, NULL)) AS clicked,
-  count(DISTINCT if(event = 'checkout_start', $session_id, NULL)) AS started,
-  count(DISTINCT if(event = 'purchase_intent_submit', properties.registration_id, NULL)) AS registrations,
-  count(DISTINCT if(event = 'updates_choice' AND properties.choice = 'ja', properties.registration_id, NULL)) AS ja,
-  round(clicked / visits * 100, 1) AS click_rate,
-  round(registrations / visits * 100, 1) AS intent_rate
-FROM events
-WHERE properties.environment = 'production' AND timestamp > now() - INTERVAL 30 DAY
-GROUP BY source, message
-ORDER BY visits DESC
-```
-
-**Sections reached** (share of visits that viewed each section):
-
-```sql
-SELECT
-  properties.section_id AS section,
-  count(DISTINCT $session_id) AS sessions,
-  round(avg(toFloat(properties.exposure_ms)) / 1000, 1) AS avg_seconds
-FROM events
-WHERE event IN ('section_view', 'section_exposure_end') AND properties.environment = 'production'
-GROUP BY section
-ORDER BY section
-```
-
-**Clicks per buy button** (once per session and button):
-
-```sql
-SELECT properties.cta_id AS cta, count(DISTINCT $session_id) AS sessions
-FROM events
-WHERE event = 'purchase_click' AND properties.environment = 'production'
-GROUP BY cta
-ORDER BY sessions DESC
-```
-
-For registrations and choices, D1 is the record: the export (`ADMIN.md`) lists each registration with its source,
-page version and update status. PostHog's counts can be lower (see below); they should never be higher.
+All reports from brief B §8, with filters and the session rates, are in [`REPORTS.md`](REPORTS.md).
 
 ## Measurement loss
 
@@ -157,6 +112,35 @@ Expect PostHog to count fewer events than actually happened:
 - **Bots:** PostHog drops events from browsers that identify as automated.
 - **In-app browsers:** Facebook and Instagram use the phone's browser engine; the tests cover both (Safari and
   Chromium). Every event is sent immediately in its own request, so navigation doesn't drop queued events.
+
+## Verification
+
+The verification scenarios from brief B §10 run as automated tests in `tests/tracking.spec.ts`. They run on desktop
+Chrome, desktop Safari, iPhone 15 (Safari) and Pixel 7 (Chrome).
+
+| Scenario                                                                          | Result                                                                                                      |
+| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| An ad-tagged link to a registration keeps the source and message through the flow | Passes: the same source on `offer_view`, `checkout_view` and the D1 registration                            |
+| Each of the five buy buttons records its own CTA id, which follows along          | Passes (`tests/acceptance.spec.ts`)                                                                         |
+| Down the whole page, back to the hero, then buy                                   | Passes: `cta_id` `kop_hero`, `max_section_seen` `sektion_prenumeration`, `last_section_seen` `sektion_hero` |
+| A visit without a click keeps the sections seen and the maximum scroll            | Passes                                                                                                      |
+| A form error and failed storage are recorded, without a purchase intent           | Passes: `checkout_error` with `validation` and `save_failed`; no `purchase_intent_submit`                   |
+| A double click or a resend gives one registration and one intent                  | Passes                                                                                                      |
+| Ja, nej and no choice give three separate outcomes                                | Passes (`tests/acceptance.spec.ts`)                                                                         |
+| With analytics blocked, the purchase flow works                                   | Passes; the loss is described above                                                                         |
+| Changing a heading or button text keeps events and fixed ids working              | Passes: ids are fixed in code, independent of `copy.yaml` (`tests/acceptance.spec.ts`)                      |
+
+Checked by hand: events from a branch preview arrive in the PostHog project, tagged `environment = preview`.
+
+### Known limitations
+
+- **Hero buy button on laptops:** at 1280×720 it starts just below the fold. A desktop visitor who doesn't scroll is
+  not counted as having seen it.
+- **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
+- **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
+- **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).
+- **The report queries** are written for PostHog's SQL and should be checked against real data once traffic starts.
+- **Still to do by hand:** a visit through the Facebook and Instagram in-app browsers on a real phone.
 
 ## Testing
 
