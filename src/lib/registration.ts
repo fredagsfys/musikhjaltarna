@@ -1,6 +1,8 @@
 import type { CtaId } from '~/config/site';
 
 const STORAGE_KEY = 'musikhjaltarna:registration';
+/** Set by the inline script in BaseLayout when a page is opened with `?test`. */
+const TEST_KEY = 'musikhjaltarna:test';
 
 /** One submission of the purchase form. The id is reused for retries, so the server never stores it twice. */
 export interface Registration {
@@ -12,6 +14,15 @@ export interface Registration {
 }
 
 export type UpdateStatus = 'ja' | 'nej';
+
+/** True when this browser session is an internal test, so its registrations are flagged (brief A §7). */
+export function isTestSession() {
+  try {
+    return sessionStorage.getItem(TEST_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 export function saveRegistration(registration: Registration) {
   try {

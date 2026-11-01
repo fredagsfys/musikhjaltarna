@@ -96,7 +96,13 @@ const inputClass =
 
 <script>
   import { isCtaId, routes } from '~/config/site';
-  import { loadRegistration, saveRegistration, submitRegistration, type Registration } from '~/lib/registration';
+  import {
+    isTestSession,
+    loadRegistration,
+    saveRegistration,
+    submitRegistration,
+    type Registration,
+  } from '~/lib/registration';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -152,7 +158,7 @@ const inputClass =
       name,
       email,
       ctaId,
-      isTest: false,
+      isTest: isTestSession(),
     };
     saveRegistration(registration);
     setSending(true);
