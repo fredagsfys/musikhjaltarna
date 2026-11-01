@@ -48,7 +48,7 @@ const infoVersion = createHash('sha256')
 
 <script>
   import { routes } from '~/config/site';
-  import { loadRegistration, submitUpdateStatus, type UpdateStatus } from '~/lib/registration';
+  import { completeRegistration, loadRegistration, submitUpdateStatus, type UpdateStatus } from '~/lib/registration';
 
   const registration = loadRegistration();
   // This step only makes sense right after step 1.
@@ -86,7 +86,8 @@ const infoVersion = createHash('sha256')
       error.hidden = false;
       return;
     }
-    // Only confirm once the choice is stored.
+    // Only confirm once the choice is stored, and end this registration right away.
+    completeRegistration(registration.email);
     location.assign(next);
   }
 
