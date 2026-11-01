@@ -13,6 +13,7 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${PORT}` },
   projects: [
     { name: 'desktop-chrome', use: { ...devices['Desktop Chrome'] } },
+    { name: 'desktop-safari', use: { ...devices['Desktop Safari'] } },
     // Safari's engine; the Facebook and Instagram in-app browsers on iOS use it too.
     { name: 'mobile-safari', use: { ...devices['iPhone 15'] } },
     // Chromium on Android, which the in-app browsers there are built on.

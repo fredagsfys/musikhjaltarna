@@ -23,12 +23,18 @@ async function stored(email: string) {
   return registrationsFor(email);
 }
 
+/** Waits for the URL and for the page's scripts, which attach the click handlers, before the next step. */
+async function arrivedAt(page: Page, path: string) {
+  await expect(page).toHaveURL(path);
+  await page.waitForLoadState('domcontentloaded');
+}
+
 async function submitPurchase(page: Page, ctaSlug: string, name: string, email: string) {
   await page.goto(`/kop/${ctaSlug}`);
   await page.fill('#kop_namn', name);
   await page.fill('#kop_epost', email);
   await page.click('#kop_skicka');
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
 }
 
 test('all five buy buttons open the same step with the right CTA origin', async ({ page }) => {
@@ -46,7 +52,7 @@ test('all five buy buttons open the same step with the right CTA origin', async 
   await page.fill('#kop_namn', 'CTA Test');
   await page.fill('#kop_epost', email);
   await page.click('#kop_skicka');
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
   expect((await stored(email))[0].cta_id).toBe('kop_pedagog');
 });
 
@@ -106,12 +112,12 @@ test('failed storage shows an error and a retry option', async ({ page }) => {
   await expect(page.locator('#kop_skicka')).toBeEnabled();
 
   await page.click('#kop_skicka');
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
 
   await page.route('**/update-status', (route) => route.abort(), { times: 1 });
   await page.click('#uppdatering_ja');
   await expect(page.locator('#uppdatering-fel')).toBeVisible();
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
   await page.click('#uppdatering_ja');
   await expect(page).toHaveURL('/kop/tack');
   await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('ja');
@@ -158,7 +164,7 @@ test('double click and reload create no duplicate registrations', async ({ page 
   await page.fill('#kop_namn', 'Dupe Test');
   await page.fill('#kop_epost', email);
   await page.locator('#kop_skicka').dblclick();
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
 
   await page.reload();
   await page.goBack();
@@ -166,7 +172,7 @@ test('double click and reload create no duplicate registrations', async ({ page 
   await page.fill('#kop_namn', 'Dupe Test');
   await page.fill('#kop_epost', email);
   await page.click('#kop_skicka');
-  await expect(page).toHaveURL('/kop/uppdatering');
+  await arrivedAt(page, '/kop/uppdatering');
 
   await stored(email);
   // Give any late duplicate time to land before counting.
@@ -218,4 +224,43 @@ test('the export gives correct registrations with update status', async ({ page 
   expect(header).toBe('id,created_at,name,email,cta_id,update_status,update_status_at,update_info_version,is_test');
   const line = lines.find((l) => l.includes(email));
   expect(line).toMatch(new RegExp(`,Export Test,${email.replaceAll('.', '\\.')},kop_pedagog,ja,`));
+});
+
+test('the purchase flow works with the keyboard and shows a clear focus indicator', async ({ page }, testInfo) => {
+  test.skip(
+    !testInfo.project.name.endsWith('chrome'),
+    'Safari only tabs to links with "Press Tab to highlight each item" turned on.',
+  );
+
+  /** Presses Tab until the element is focused, checking each focused control has a visible outline. */
+  async function tabTo(selector: string) {
+    for (let i = 0; i < 25; i++) {
+      await page.keyboard.press('Tab');
+      const focused = await page.evaluate((target) => {
+        const element = document.activeElement as HTMLElement;
+        const style = getComputedStyle(element);
+        return {
+          isTarget: element.matches(target),
+          outline: style.outlineStyle,
+          width: parseFloat(style.outlineWidth),
+        };
+      }, selector);
+      expect(focused.outline, `focus outline while tabbing to ${selector}`).not.toBe('none');
+      expect(focused.width).toBeGreaterThanOrEqual(2);
+      if (focused.isTarget) return;
+    }
+    throw new Error(`Could not reach ${selector} with Tab`);
+  }
+
+  await page.goto('/kop/hero');
+  await tabTo('#kop_namn');
+  await page.keyboard.type('Tangent Bord');
+  await tabTo('#kop_epost');
+  await page.keyboard.type(uniqueEmail('keyboard'));
+  await page.keyboard.press('Enter');
+  await arrivedAt(page, '/kop/uppdatering');
+
+  await tabTo('#uppdatering_ja');
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('/kop/tack');
 });
