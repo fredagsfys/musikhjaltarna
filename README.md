@@ -111,12 +111,14 @@ format-checks every push and pull request.
 
 Cloudflare settings (Workers Builds):
 
-| Setting                      | Value                          |
-| ---------------------------- | ------------------------------ |
-| Build command                | `npm run build`                |
-| Deploy command               | `npx wrangler deploy`          |
-| Non-production branch deploy | `npx wrangler versions upload` |
-| Environment variables        | `NODE_VERSION=24`              |
+| Setting                      | Value                  |
+| ---------------------------- | ---------------------- |
+| Build command                | `npm run build`        |
+| Deploy command               | `npx wrangler deploy`  |
+| Non-production branch deploy | `npx wrangler preview` |
+| Environment variables        | `NODE_VERSION=24`      |
 
-`name` in `wrangler.jsonc` must match the Worker name in Cloudflare. Test the config locally without logging in with
+Branch previews use their own D1 database, `musikhjaltarna-preview` (the `previews` block in `wrangler.jsonc`), so
+submissions in a preview never reach real registrations. `name` in `wrangler.jsonc` must match the Worker name in
+Cloudflare. Test the config locally without logging in with
 `npx wrangler deploy --dry-run` after a build.
