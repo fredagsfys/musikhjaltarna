@@ -15,13 +15,26 @@ export function getStaticPaths() {
 
 const { ctaId } = Astro.props as { ctaId: CtaId | null };
 
+const errorClass = 'text-ink text-[0.9375rem] font-bold';
+const messages = {
+  nameMissing: 'Fyll i ditt namn.',
+  emailMissing: 'Fyll i din e-postadress.',
+  emailInvalid: 'Kontrollera e-postadressen, till exempel namn@exempel.se.',
+};
+
 const inputClass =
   'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
 ---
 
 <!-- Köpflöde steg 1: Fånga fördjupad köpavsikt. Mätpunkt: köpintention. -->
 <FlowLayout title="Köp prenumeration">
-  <form id="lead-form" data-cta={ctaId} class="flex flex-col gap-[22px]" novalidate>
+  <form
+    id="lead-form"
+    data-cta={ctaId}
+    data-messages={JSON.stringify(messages)}
+    class="flex flex-col gap-[22px]"
+    novalidate
+  >
     <div id="kop_sammanfattning" class="flex flex-col gap-[22px]">
       <div class="flex flex-col items-center gap-2 text-center">
         <Eyebrow>{site.product}</Eyebrow>
@@ -36,20 +49,25 @@ const inputClass =
     </div>
 
     <div class="flex flex-col gap-4">
-      <label class="flex flex-col gap-1.5 text-[1rem] font-bold">
-        Namn
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_namn" class="text-[1rem] font-bold">
+          Namn
+        </label>
         <input
           id="kop_namn"
           name="name"
           type="text"
           autocomplete="name"
           required
-          aria-describedby="form-error"
+          aria-describedby="kop_namn-fel"
           class={inputClass}
         />
-      </label>
-      <label class="flex flex-col gap-1.5 text-[1rem] font-bold">
-        E-post
+        <p id="kop_namn-fel" hidden class={errorClass}></p>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_epost" class="text-[1rem] font-bold">
+          E-post
+        </label>
         <input
           id="kop_epost"
           name="email"
@@ -57,16 +75,14 @@ const inputClass =
           inputmode="email"
           autocomplete="email"
           required
-          aria-describedby="form-error"
+          aria-describedby="kop_epost-fel"
           class={inputClass}
         />
-      </label>
-      <p id="form-error" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
-        Fyll i ditt namn och en giltig e-postadress.
-      </p>
+        <p id="kop_epost-fel" hidden class={errorClass}></p>
+      </div>
     </div>
 
-    <p id="kop_skicka-fel" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
+    <p id="kop_skicka-fel" role="alert" hidden class={errorClass}>
       Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
     </p>
     <Button id="kop_skicka" type="submit" data-busy-label="Skickar…">
@@ -87,12 +103,23 @@ const inputClass =
   const form = document.querySelector<HTMLFormElement>('#lead-form')!;
   const nameInput = form.querySelector<HTMLInputElement>('#kop_namn')!;
   const emailInput = form.querySelector<HTMLInputElement>('#kop_epost')!;
-  const error = form.querySelector<HTMLParagraphElement>('#form-error')!;
+  const messages = JSON.parse(form.dataset.messages!) as Record<
+    'nameMissing' | 'emailMissing' | 'emailInvalid',
+    string
+  >;
   const sendError = form.querySelector<HTMLParagraphElement>('#kop_skicka-fel')!;
   const submit = form.querySelector<HTMLButtonElement>('#kop_skicka')!;
   const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
   const idleLabel = submitLabel.textContent;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
+
+  /** Shows (or clears) the message under a field and marks the field invalid for assistive tech. */
+  function setFieldError(input: HTMLInputElement, message: string | null) {
+    const error = form.querySelector<HTMLElement>(`#${input.id}-fel`)!;
+    input.setAttribute('aria-invalid', String(message !== null));
+    error.textContent = message ?? '';
+    error.hidden = message === null;
+  }
 
   function setSending(sending: boolean) {
     submit.disabled = sending;
@@ -111,14 +138,13 @@ const inputClass =
 
     const name = nameInput.value.trim();
     const email = emailInput.value.trim();
-    const nameValid = name.length > 0;
-    const emailValid = EMAIL.test(email);
-    nameInput.setAttribute('aria-invalid', String(!nameValid));
-    emailInput.setAttribute('aria-invalid', String(!emailValid));
-    error.hidden = nameValid && emailValid;
+    const nameError = name ? null : messages.nameMissing;
+    const emailError = !email ? messages.emailMissing : EMAIL.test(email) ? null : messages.emailInvalid;
+    setFieldError(nameInput, nameError);
+    setFieldError(emailInput, emailError);
     sendError.hidden = true;
-    if (!nameValid) return nameInput.focus();
-    if (!emailValid) return emailInput.focus();
+    if (nameError) return nameInput.focus();
+    if (emailError) return emailInput.focus();
 
     // Reuse the id of an earlier attempt in this session, so retries and resubmits update one registration.
     const registration: Registration = {
