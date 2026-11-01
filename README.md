@@ -78,17 +78,13 @@ Components pick them up automatically and Astro generates AVIF/WebP in the right
 
 ## Measurement
 
-| Measurement point        | Measured as                                                                            | Where         |
-| ------------------------ | -------------------------------------------------------------------------------------- | ------------- |
-| Click on a buy button    | Page view of `/kop/hero`, `/kop/hjalpen`, `/kop/vardag`, `/kop/pedagog`, `/kop/avslut` | Web Analytics |
-| Purchase intent (step 1) | Page view of `/kop/uppdatering`                                                        | Web Analytics |
-| Yes to updates           | Page view of `/kop/tack`                                                               | Web Analytics |
-| No thanks                | Page view of `/kop/nej-tack`                                                           | Web Analytics |
-| Registration and choice  | Row in `registrations`, with the buy button's `cta_id` and `update_status`             | Cloudflare D1 |
+Behaviour on the page is tracked in **PostHog Cloud EU**, cookieless: which sections are seen and for how long, which
+buy buttons are seen and clicked, every step of the purchase flow, and the ad each visit came from. Registrations and
+update choices are stored in **Cloudflare D1**, with the same ad source and page version. Page views also show in
+Cloudflare Web Analytics.
 
-Each buy button leads to its own page, so Cloudflare Web Analytics counts clicks per section without cookies, custom
-events or query strings. The beacon is added to every page in production builds (`site.webAnalyticsToken` in
-`src/config/site.ts`), and the funnel shows in Cloudflare under Analytics & Logs → Web Analytics → _Top paths_.
+The event catalogue, how to tag ads, report queries and known measurement loss are in
+[`docs/TRACKING.md`](docs/TRACKING.md).
 
 Each submission of the purchase form is one row in `registrations` (see [`docs/ADMIN.md`](docs/ADMIN.md)). Its
 `update_status` starts as `inget_val` and becomes `ja` or `nej` on the same row. Retries, double clicks and resubmits

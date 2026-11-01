@@ -190,15 +190,18 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 
 ## Mätplan
 
-| Mätpunkt                | Mäts som                                                                                | Var           |
-| ----------------------- | --------------------------------------------------------------------------------------- | ------------- |
-| Klick på köpknapp       | Sidvisning av `/kop/hero`, `/kop/hjalpen`, `/kop/vardag`, `/kop/pedagog`, `/kop/avslut` | Web Analytics |
-| Köpavsikt (steg 1)      | Sidvisning av `/kop/uppdatering`                                                        | Web Analytics |
-| Ja till information     | Sidvisning av `/kop/tack`                                                               | Web Analytics |
-| Nej tack                | Sidvisning av `/kop/nej-tack`                                                           | Web Analytics |
-| Namn och e-post (leads) | Rad i tabellen `leads`, med köpknappens `cta_id`                                        | Cloudflare D1 |
+Mätningen följer spårningsbriefen (B) och beskrivs i [`TRACKING.md`](TRACKING.md).
 
-Varje köpknapp leder till en egen sida (`/kop/<sektion>`), så klick per CTA-ID syns som sidvisningar.
+| Mätpunkt                      | Mäts som                                                             | Var              |
+| ----------------------------- | -------------------------------------------------------------------- | ---------------- |
+| Exponering per sektion        | `section_view` och `section_exposure_end`                            | PostHog Cloud EU |
+| Visning och klick på köpknapp | `cta_view` och `purchase_click`, med köpknappens `cta_id`            | PostHog Cloud EU |
+| Köpflödet                     | `checkout_view`, `checkout_start`, `checkout_error`, `checkout_back` | PostHog Cloud EU |
+| Köpavsikt (steg 1)            | `purchase_intent_submit`, när registreringen är sparad               | PostHog och D1   |
+| Ja eller nej till information | `updates_choice`, när valet är sparat                                | PostHog och D1   |
+| Annonskälla                   | UTM-parametrar, `message_id` och `ad_id` från annonslänken           | PostHog och D1   |
+| Sidvisningar                  | Sidvisning per adress                                                | Web Analytics    |
+
 Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 
 ---
@@ -208,6 +211,6 @@ Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
 3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
-4. ~~**Analysverktyg.**~~ Löst: Cloudflare Web Analytics (sidvisningar, utan cookies).
+4. ~~**Analysverktyg.**~~ Löst: PostHog Cloud EU för händelser, utan cookies, och Cloudflare Web Analytics för sidvisningar. Om det krävs samtycke ska kunden bekräfta före publicering.
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.

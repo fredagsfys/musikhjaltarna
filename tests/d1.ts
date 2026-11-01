@@ -12,6 +12,13 @@ export interface RegistrationRow {
   update_status: 'inget_val' | 'ja' | 'nej';
   update_status_at: string | null;
   update_info_version: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+  message_id: string | null;
+  ad_id: string | null;
+  page_version: string | null;
   is_test: number;
 }
 

@@ -28,7 +28,12 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
       <Button variant="link" arrow={false} href={routes.home}>
         {content.back}
       </Button>
-      <Button variant="link" href={copy.links.website}>
+      <Button
+        variant="link"
+        href={copy.links.website}
+        data-link-id="pianotopia_website"
+        data-link-placement="confirmation"
+      >
         {content.website}
       </Button>
     </div>
@@ -36,8 +41,13 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
 </FlowLayout>
 
 <script>
-  import { takeConfirmedEmail } from '~/lib/registration';
+  import { takeConfirmation } from '~/lib/registration';
+  import { track, whenVisible } from '~/lib/tracking';
 
-  const email = takeConfirmedEmail();
-  if (email) document.querySelector('#lead-email')!.textContent = email;
+  const confirmation = takeConfirmation();
+  // Only after a stored "ja": a direct visit shows the generic text and sends nothing.
+  if (confirmation) {
+    document.querySelector('#lead-email')!.textContent = confirmation.email;
+    whenVisible(() => track('updates_confirmation_view', { registration_id: confirmation.registrationId }));
+  }
 </script>

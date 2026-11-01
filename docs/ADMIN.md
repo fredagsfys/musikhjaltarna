@@ -9,7 +9,8 @@ Content editing is covered separately in [`EDITING.md`](EDITING.md) (Swedish).
 | ------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
 | Site and API              | Cloudflare Workers with static assets (`musikhjaltarna`) | Pages are static files; only `/api/*` runs `worker/index.ts`    |
 | Registrations             | Cloudflare D1 database `musikhjaltarna`                  | Table `registrations`, created by the Worker on first use       |
-| Funnel and page views     | Cloudflare Web Analytics                                 | Cookieless; beacon in every page (`site.webAnalyticsToken`)     |
+| Events and funnel         | PostHog Cloud EU, project `330450`                       | Cookieless; see [`TRACKING.md`](TRACKING.md)                    |
+| Page views                | Cloudflare Web Analytics                                 | Cookieless; beacon in every page (`site.webAnalyticsToken`)     |
 | DNS, HTTPS, redirects     | Cloudflare (zone `musikhjaltarna.se`)                    | `www` and `http://` redirect to `https://musikhjaltarna.se`     |
 | Domain registration       | Loopia (registrar for `.se`)                             | Nameservers point to Cloudflare; DNSSEC record from Cloudflare  |
 | Code, content and deploys | GitHub `fredagsfys/musikhjaltarna`                       | A push to `main` deploys through Cloudflare Workers Builds      |
@@ -85,6 +86,7 @@ At the expected volume of a purchase-intent test, the platform runs within free 
 | Cloudflare Workers         | Free: static asset requests are free and unlimited; Worker requests (`/api/*` only) up to 100,000 a day | 0 kr                |
 | Cloudflare D1              | Free: 5 GB storage, 5 million rows read and 100,000 rows written a day                                  | 0 kr                |
 | Cloudflare Web Analytics   | Free                                                                                                    | 0 kr                |
+| PostHog Cloud EU           | Free: 1 million events a month                                                                          | 0 kr                |
 | Cloudflare DNS and HTTPS   | Free                                                                                                    | 0 kr                |
 | GitHub and GitHub Actions  | Free for public repositories                                                                            | 0 kr                |
 | Domain `musikhjaltarna.se` | Yearly registration at Loopia                                                                           | Loopia's price list |
