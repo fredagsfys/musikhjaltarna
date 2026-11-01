@@ -6,7 +6,10 @@ import BuyButton from '~/components/ui/BuyButton.astro';
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
-import { SECTION_IDS, site } from '~/config/site';
+import { SECTION_IDS } from '~/config/site';
+import { copy } from '~/content/copy';
+
+const { pedagogue: content } = copy;
 ---
 
 <!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
@@ -31,7 +34,7 @@ import { SECTION_IDS, site } from '~/config/site';
         <div class="bg-cream-warm border-border rounded-card shadow-card relative aspect-[4/5] overflow-hidden border">
           <Art
             name="suzana-and-gilbert"
-            alt="Suzanna, pianopedagog"
+            alt={content.photoAlt}
             widths={[440, 880]}
             sizes="(min-width: 768px) 440px, 90vw"
             class="size-full object-cover object-[center_20%]"
@@ -40,23 +43,20 @@ import { SECTION_IDS, site } from '~/config/site';
         <CharacterAvatar alt="" ring="thick" size={112} class="absolute -top-[18px] -right-[18px] w-28" />
       </div>
       <figcaption class="pt-2.5">
-        <span class="font-hand text-hand text-gold-brown">Lorem ipsum</span>
+        <span class="font-hand text-hand text-gold-brown">{content.captionNote}</span>
         <br />
-        <strong class="text-ink">Suzanna</strong>, pianopedagog
+        <strong class="text-ink">{content.captionName}</strong>, {content.captionRole}
       </figcaption>
     </figure>
 
     <div class="flex min-w-0 flex-[1_1_440px] flex-col gap-5">
-      <SectionHeading id={`${SECTION_IDS.pedagog}-title`} eyebrow="Lorem ipsum" title="Pedagogen bakom tjänsten">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua.
-        </p>
+      <SectionHeading id={`${SECTION_IDS.pedagog}-title`} eyebrow={content.eyebrow} title={content.title}>
+        <p>{content.text}</p>
       </SectionHeading>
       <div class="mt-2 flex flex-wrap items-center gap-6">
         <BuyButton ctaId="kop_pedagog" />
-        <Button variant="link" href={site.website}>
-          Läs mer om Pianotopia
+        <Button variant="link" href={copy.links.website}>
+          {content.readMore}
         </Button>
       </div>
     </div>

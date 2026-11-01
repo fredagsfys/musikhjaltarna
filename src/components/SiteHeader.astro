@@ -1,6 +1,7 @@
 ---
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import { routes, SECTION_IDS, site } from '~/config/site';
+import { copy, priceLabelShort } from '~/content/copy';
 
 export interface Props {
   /** Section navigation; off in the purchase flow. */
@@ -26,12 +27,12 @@ const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex
         <ul class="flex flex-wrap gap-2 text-[1rem] font-bold">
           <li class="max-sm:hidden">
             <a href={`/#${SECTION_IDS.hjalpen}`} class={navLink}>
-              Så fungerar det
+              {copy.header.navHowItWorks}
             </a>
           </li>
           <li class="max-sm:hidden">
             <a href={`/#${SECTION_IDS.pedagog}`} class={navLink}>
-              Pedagogen
+              {copy.header.navPedagogue}
             </a>
           </li>
           <li>
@@ -39,7 +40,7 @@ const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex
               href={`/#${SECTION_IDS.prenumeration}`}
               class="text-primary-dark border-gold rounded-pill hover:bg-white inline-flex border-[1.5px] px-3.5 py-[9px] no-underline"
             >
-              {site.offer.price} kr/mån
+              {priceLabelShort}
             </a>
           </li>
         </ul>

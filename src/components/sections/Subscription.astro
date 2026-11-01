@@ -8,9 +8,9 @@ import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import TrustList from '~/components/ui/TrustList.astro';
 import { SECTION_IDS, site } from '~/config/site';
+import { copy } from '~/content/copy';
 
-const placeholderItems = ['Lorem ipsum dolor sit amet', 'Consectetur adipiscing elit', 'Sed do eiusmod tempor'];
-const details = ['Vad som ingår', 'Praktiska förutsättningar', 'Abonnemangsvillkor'];
+const { subscription: content, offer } = copy;
 ---
 
 <!-- Sektion 5: Samla erbjudandet. Bekräfta innehåll och pris, besvara kvarvarande frågor. -->
@@ -21,8 +21,8 @@ const details = ['Vad som ingår', 'Praktiska förutsättningar', 'Abonnemangsvi
   <div class="mx-auto flex max-w-[1100px] flex-col gap-8">
     <SectionHeading
       id={`${SECTION_IDS.prenumeration}-title`}
-      eyebrow="Lorem ipsum"
-      title="Din prenumeration"
+      eyebrow={content.eyebrow}
+      title={content.title}
       align="center"
     />
 
@@ -32,7 +32,7 @@ const details = ['Vad som ingår', 'Praktiska förutsättningar', 'Abonnemangsvi
           <CharacterAvatar alt="" size={72} class="w-[72px] shrink-0" />
           <div class="flex flex-col gap-0.5">
             <h3 class="text-h3">{site.product}</h3>
-            <p>Övningsverktyg i appen för hjälp mellan pianolektionerna.</p>
+            <p>{content.description}</p>
           </div>
         </div>
         <div class="relative px-[26px] py-3.5">
@@ -49,24 +49,24 @@ const details = ['Vad som ingår', 'Praktiska förutsättningar', 'Abonnemangsvi
             <path d="M20 50C20 15 90 6 140 10C195 15 212 40 205 62C196 88 120 96 70 90C30 85 12 70 22 48C30 32 60 22 90 20"></path>
           </svg>
           <p class="font-display text-ink relative text-[clamp(3rem,5vw,4.25rem)] leading-none">
-            <data value={site.offer.price}>{site.offer.price} kr</data>
-            <span class="font-sans text-xl font-bold text-text">/månad</span>
+            <data value={offer.price}>{offer.price} kr</data>
+            <span class="font-sans text-xl font-bold text-text">/{offer.period}</span>
           </p>
         </div>
       </div>
 
       <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
-        {details.map((title) => (
+        {content.boxes.map((box) => (
           <Card tone="bg" variant="price" class="flex flex-col gap-4 p-6">
-            <h4 class="text-h3">{title}</h4>
-            <TrustList class="font-normal" items={placeholderItems} />
+            <h4 class="text-h3">{box.title}</h4>
+            <TrustList class="font-normal" items={box.items} />
           </Card>
         ))}
       </div>
 
       <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
         <BuyButton ctaId="kop_avslut" />
-        <TrustList items={['Ett komplement till barnets pianolärare']} />
+        <TrustList items={[content.trust]} />
       </div>
     </Card>
   </div>

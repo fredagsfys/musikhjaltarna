@@ -2,15 +2,16 @@
 import Squiggle from '~/components/doodles/Squiggle.astro';
 import Button from '~/components/ui/Button.astro';
 import IconBadge from '~/components/ui/IconBadge.astro';
-import { createHash } from 'node:crypto';
+import { copy } from '~/content/copy';
 import FlowLayout from '~/layouts/FlowLayout.astro';
+import { createHash } from 'node:crypto';
 
-const updateInfo = {
-  question: 'Vill du hålla dig uppdaterad?',
-  body: 'Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.',
-};
+const { updates: content } = copy;
 /** Identifies the update information shown; stored with the choice (brief A §7) and changes with the text. */
-const infoVersion = createHash('sha256').update(JSON.stringify(updateInfo)).digest('hex').slice(0, 8);
+const infoVersion = createHash('sha256')
+  .update(JSON.stringify([content.question, content.info]))
+  .digest('hex')
+  .slice(0, 8);
 ---
 
 <!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
@@ -18,33 +19,28 @@ const infoVersion = createHash('sha256').update(JSON.stringify(updateInfo)).dige
   <div id="uppdatering" data-info-version={infoVersion} class="flex flex-col gap-6 text-center">
     <IconBadge icon="sunrise" />
     <div class="flex flex-col gap-2.5">
-      <h1 class="text-[clamp(1.75rem,4vw,2.125rem)] leading-[1.12] text-balance">
-        Pianotopia är ännu inte redo för leverans
-      </h1>
-      <p class="text-pretty">
-        Tjänsten är under utveckling. Inget köp har genomförts, ingen betalning har skett och inget abonnemang har
-        startats.
-      </p>
+      <h1 class="text-[clamp(1.75rem,4vw,2.125rem)] leading-[1.12] text-balance">{content.title}</h1>
+      <p class="text-pretty">{content.status}</p>
     </div>
     <Squiggle class="text-gold mx-auto h-3.5 w-[100px]" />
     <div class="flex flex-col gap-2.5">
-      <h2 class="text-h3">{updateInfo.question}</h2>
-      <p class="text-pretty">{updateInfo.body}</p>
+      <h2 class="text-h3">{content.question}</h2>
+      <p class="text-pretty">{content.info}</p>
     </div>
     <div class="flex flex-col gap-2">
       <p id="uppdatering-fel" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
-        Det gick inte att spara ditt val just nu. Försök igen.
+        {content.error}
       </p>
-      <Button id="uppdatering_ja" type="button" data-busy-label="Sparar…">
-        <span data-label>Ja, jag vill hållas uppdaterad</span>
+      <Button id="uppdatering_ja" type="button" data-busy-label={content.saving}>
+        <span data-label>{content.yes}</span>
       </Button>
       <button
         id="uppdatering_nej"
         type="button"
-        data-busy-label="Sparar…"
+        data-busy-label={content.saving}
         class="text-primary-dark hover:text-ink inline-flex min-h-12 cursor-pointer items-center justify-center self-center font-bold underline disabled:opacity-60"
       >
-        <span data-label>Nej tack</span>
+        <span data-label>{content.no}</span>
       </button>
     </div>
   </div>

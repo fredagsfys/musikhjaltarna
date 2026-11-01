@@ -1,0 +1,17 @@
+---
+import { copy } from '~/content/copy';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+/** /kontakt, /villkor and /integritet, with their text from src/content/copy.yaml. */
+export function getStaticPaths() {
+  return Object.entries(copy.pages).map(([info, page]) => ({ params: { info }, props: { page } }));
+}
+
+const { page } = Astro.props;
+---
+
+<PageLayout title={page.title} description={page.description}>
+  {page.body.map((paragraph) => (
+    <p>{paragraph}</p>
+  ))}
+</PageLayout>

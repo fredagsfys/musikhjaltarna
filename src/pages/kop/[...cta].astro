@@ -3,6 +3,7 @@ import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
 import { CTA_IDS, CTA_SECTION, ctaSlug, routes, site, type CtaId } from '~/config/site';
+import { copy } from '~/content/copy';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 
 /** `/kop` for direct visits, plus one path per buy button, e.g. `/kop/hero`. */
@@ -18,11 +19,7 @@ const { ctaId } = Astro.props as { ctaId: CtaId | null };
 const backHref = ctaId ? `${routes.home}#${CTA_SECTION[ctaId]}` : routes.home;
 
 const errorClass = 'text-ink text-[0.9375rem] font-bold';
-const messages = {
-  nameMissing: 'Fyll i ditt namn.',
-  emailMissing: 'Fyll i din e-postadress.',
-  emailInvalid: 'Kontrollera e-postadressen, till exempel namn@exempel.se.',
-};
+const { purchase: content } = copy;
 
 const inputClass =
   'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
@@ -33,27 +30,27 @@ const inputClass =
   <form
     id="lead-form"
     data-cta={ctaId}
-    data-messages={JSON.stringify(messages)}
+    data-messages={JSON.stringify(content.errors)}
     class="flex flex-col gap-[22px]"
     novalidate
   >
     <div id="kop_sammanfattning" class="flex flex-col gap-[22px]">
       <div class="flex flex-col items-center gap-2 text-center">
         <Eyebrow>{site.product}</Eyebrow>
-        <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">Hjälpen mellan pianolektionerna</h1>
-        <p>Prenumeration på övningsverktyget i appen</p>
+        <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">{content.title}</h1>
+        <p>{content.subtitle}</p>
       </div>
 
       <Card tone="bg" variant="price" class="flex items-center justify-between gap-3 px-[22px] py-4">
-        <span class="font-bold">Per månad</span>
-        <span class="font-display text-[2rem] leading-none">{site.offer.price} kr</span>
+        <span class="font-bold">{content.pricePeriod}</span>
+        <span class="font-display text-[2rem] leading-none">{copy.offer.price} kr</span>
       </Card>
     </div>
 
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-1.5">
         <label for="kop_namn" class="text-[1rem] font-bold">
-          Namn
+          {content.nameLabel}
         </label>
         <input
           id="kop_namn"
@@ -68,7 +65,7 @@ const inputClass =
       </div>
       <div class="flex flex-col gap-1.5">
         <label for="kop_epost" class="text-[1rem] font-bold">
-          E-post
+          {content.emailLabel}
         </label>
         <input
           id="kop_epost"
@@ -85,17 +82,16 @@ const inputClass =
     </div>
 
     <p id="kop_integritet" class="text-[0.9375rem] text-pretty">
-      Vi använder ditt namn och din e-postadress för att registrera ditt intresse.{' '}
-      <a href={routes.privacy}>Läs mer om hur vi hanterar personuppgifter</a>.
+      {content.privacy} <a href={routes.privacy}>{content.privacyLink}</a>.
     </p>
     <p id="kop_skicka-fel" role="alert" hidden class={errorClass}>
-      Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
+      {content.errors.sendFailed}
     </p>
-    <Button id="kop_skicka" type="submit" data-busy-label="Skickar…">
-      <span data-label>Gå vidare till betalning</span>
+    <Button id="kop_skicka" type="submit" data-busy-label={content.submitting}>
+      <span data-label>{content.submit}</span>
     </Button>
     <Button id="kop_tillbaka" variant="link" arrow={false} href={backHref} class="self-center">
-      Tillbaka till erbjudandet
+      {content.back}
     </Button>
   </form>
 </FlowLayout>

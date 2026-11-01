@@ -7,27 +7,20 @@ import Placeholder from '~/components/ui/Placeholder.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import { SECTION_IDS } from '~/config/site';
+import { copy } from '~/content/copy';
 
-const steps = ['Kom igång', 'Öva självständigt', 'Kom vidare'];
+const { howItWorks: content } = copy;
 ---
 
 <!-- Sektion 2: Konkretisera hjälpen. Visa hur barnet använder verktyget hemma. -->
 <Section id={SECTION_IDS.hjalpen} tone="white">
   <div class="flex flex-col gap-12">
-    <SectionHeading
-      id={`${SECTION_IDS.hjalpen}-title`}
-      eyebrow="Lorem ipsum"
-      title="Så fungerar övningen"
-      align="center"
-    >
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua.
-      </p>
+    <SectionHeading id={`${SECTION_IDS.hjalpen}-title`} eyebrow={content.eyebrow} title={content.title} align="center">
+      <p>{content.intro}</p>
     </SectionHeading>
 
     <ol class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
-      {steps.map((step, i) => (
+      {content.steps.map((step, i) => (
         <Card as="li" tone="bg" class="flex flex-col gap-4 px-7 py-8">
           <span
             aria-hidden="true"
@@ -35,8 +28,8 @@ const steps = ['Kom igång', 'Öva självständigt', 'Kom vidare'];
           >
             {i + 1}
           </span>
-          <h3 class="text-h3">{step}</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <h3 class="text-h3">{step.title}</h3>
+          <p>{step.text}</p>
         </Card>
       ))}
     </ol>
@@ -47,21 +40,18 @@ const steps = ['Kom igång', 'Öva självständigt', 'Kom vidare'];
     >
       <PianoKeys class="text-gold absolute -top-[42px] right-7 w-[150px] rotate-4 max-sm:hidden" />
       <div class="flex min-w-0 flex-[1_1_360px] flex-col gap-4">
-        <Eyebrow>Exempel på övning i appen</Eyebrow>
-        <h3 class="text-h2 text-balance">Lorem ipsum dolor sit amet</h3>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua.
-        </p>
+        <Eyebrow>{content.example.eyebrow}</Eyebrow>
+        <h3 class="text-h2 text-balance">{content.example.title}</h3>
+        <p>{content.example.text}</p>
         <BuyButton ctaId="kop_hjalpen" class="mt-2 self-start" />
       </div>
       <div class="relative flex min-w-0 flex-[1_1_400px] justify-center">
-        <Placeholder label="Exempel på övning i appen" ratio="1 / 1" class="max-w-[460px]" />
+        <Placeholder label={content.example.imageLabel} ratio="1 / 1" class="max-w-[460px]" />
         <span
           aria-hidden="true"
           class="font-hand text-hand text-gold-brown absolute -bottom-10 -left-2.5 -rotate-4 max-sm:hidden"
         >
-          Lorem ipsum dolor!
+          {content.example.note}
         </span>
       </div>
     </Card>

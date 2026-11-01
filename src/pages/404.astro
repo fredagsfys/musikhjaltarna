@@ -2,16 +2,19 @@
 import Button from '~/components/ui/Button.astro';
 import IconBadge from '~/components/ui/IconBadge.astro';
 import { routes } from '~/config/site';
+import { copy } from '~/content/copy';
+
+const { notFound: content } = copy;
 import FlowLayout from '~/layouts/FlowLayout.astro';
 ---
 
-<FlowLayout title="Sidan hittades inte">
+<FlowLayout title={content.title}>
   <div class="flex flex-col items-center gap-[18px] text-center">
     <IconBadge icon="music" />
-    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1]">Sidan hittades inte</h1>
-    <p>Sidan du letar efter finns inte eller har flyttats.</p>
+    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1]">{content.title}</h1>
+    <p>{content.text}</p>
     <Button variant="link" arrow={false} href={routes.home}>
-      Till startsidan
+      {content.link}
     </Button>
   </div>
 </FlowLayout>

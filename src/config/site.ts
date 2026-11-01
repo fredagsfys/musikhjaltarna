@@ -1,23 +1,18 @@
+/**
+ * Technical site settings. Texts, price and links editors may change live in src/content/copy.yaml.
+ * Kept free of content imports: the Worker imports this file too.
+ */
 export const site = {
   /** The company and sender. */
   name: 'Pianotopia',
   /** The app being offered. */
   product: 'Musikhjältarna',
   legalName: 'Pianotopia AB',
-  /** Pianotopia's regular website; opened in the same tab (brief A §3). */
-  website: 'https://pianotopia.se',
   lang: 'sv',
   locale: 'sv_SE',
-  title: 'Musikhjältarna – Hjälpen mellan pianolektionerna',
-  description:
-    'Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan pianolektionerna. Ett komplement till barnets pianolärare.',
+  currency: 'SEK',
   themeColor: '#fdfaf4',
   ogImage: '/og-image.png',
-  offer: {
-    price: 79,
-    currency: 'SEK',
-    priceLabel: '79 kr/månad',
-  },
   /** Cloudflare Web Analytics site token. Public by design: it appears in every page's HTML. */
   webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
 } as const;

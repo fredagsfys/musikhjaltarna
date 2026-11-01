@@ -8,6 +8,7 @@ import Subscription from '~/components/sections/Subscription.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
 import SiteHeader from '~/components/SiteHeader.astro';
 import { site } from '~/config/site';
+import { copy } from '~/content/copy';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
 const siteUrl = Astro.site!.href;
@@ -33,19 +34,19 @@ const structuredData = {
     {
       '@type': 'Product',
       name: site.product,
-      description: site.description,
+      description: copy.seo.description,
       brand: { '@id': `${siteUrl}#organization` },
       offers: {
         '@type': 'Offer',
         url: siteUrl,
-        price: site.offer.price,
-        priceCurrency: site.offer.currency,
+        price: copy.offer.price,
+        priceCurrency: site.currency,
         // The service is not yet available; it is offered ahead of launch.
         availability: 'https://schema.org/PreOrder',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
-          price: site.offer.price,
-          priceCurrency: site.offer.currency,
+          price: copy.offer.price,
+          priceCurrency: site.currency,
           referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
         },
       },
