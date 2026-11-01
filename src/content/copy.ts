@@ -66,7 +66,6 @@ const schema = z.strictObject({
   footer: z.strictObject({ contact: text, terms: text, privacy: text, consentSettings: text }),
   consent: z.strictObject({
     title: text,
-    text,
     privacyLink: text,
     acceptAll: text,
     manage: text,

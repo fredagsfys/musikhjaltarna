@@ -27,7 +27,6 @@ const actions = 'grid shrink-0 gap-3 sm:grid-cols-2 md:ml-auto';
   role="dialog"
   aria-modal="false"
   aria-labelledby="samtycke-rubrik"
-  aria-describedby="samtycke-text"
   hidden
   class="gutter-x pointer-events-none fixed inset-x-0 bottom-0 z-40 pb-4"
 >
@@ -36,12 +35,9 @@ const actions = 'grid shrink-0 gap-3 sm:grid-cols-2 md:ml-auto';
       <h2 id="samtycke-rubrik" class="font-display text-ink text-xl">
         {content.title}
       </h2>
-      <p id="samtycke-text" class="text-text text-[0.9375rem]">
-        {unbroken(content.text)}{' '}
-        <a href={routes.privacy} class="text-primary-dark font-bold">
-          {content.privacyLink}
-        </a>
-      </p>
+      <a href={routes.privacy} class="text-primary-dark self-start text-[0.9375rem] font-bold">
+        {content.privacyLink}
+      </a>
     </div>
     <div class={actions}>
       <Button id="samtycke_godkann" type="button" arrow={false}>
@@ -99,8 +95,6 @@ const actions = 'grid shrink-0 gap-3 sm:grid-cols-2 md:ml-auto';
     ask.hidden = layer !== 'ask';
     settings.hidden = layer !== 'settings';
     banner.setAttribute('aria-labelledby', layer === 'ask' ? 'samtycke-rubrik' : 'samtycke-installningar-rubrik');
-    if (layer === 'ask') banner.setAttribute('aria-describedby', 'samtycke-text');
-    else banner.removeAttribute('aria-describedby');
     // The box is ticked only when the visitor has already accepted; it never starts ticked otherwise.
     analytics.checked = consent() === 'granted';
     banner.hidden = false;
