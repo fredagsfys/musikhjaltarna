@@ -4,6 +4,8 @@ export const site = {
   /** The app being offered. */
   product: 'Musikhjältarna',
   legalName: 'Pianotopia AB',
+  /** Pianotopia's regular website; opened in the same tab (brief A §3). */
+  website: 'https://pianotopia.se',
   lang: 'sv',
   locale: 'sv_SE',
   title: 'Musikhjältarna – Hjälpen mellan pianolektionerna',
@@ -52,7 +54,6 @@ export const routes = {
   updates: '/kop/uppdatering',
   thanks: '/kop/tack',
   declined: '/kop/nej-tack',
-  about: '/om-pianotopia',
   contact: '/kontakt',
   terms: '/villkor',
   privacy: '/integritet',

@@ -6,7 +6,7 @@ import BuyButton from '~/components/ui/BuyButton.astro';
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
-import { routes, SECTION_IDS } from '~/config/site';
+import { SECTION_IDS, site } from '~/config/site';
 ---
 
 <!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
@@ -55,7 +55,7 @@ import { routes, SECTION_IDS } from '~/config/site';
       </SectionHeading>
       <div class="mt-2 flex flex-wrap items-center gap-6">
         <BuyButton ctaId="kop_pedagog" />
-        <Button variant="link" href={routes.about}>
+        <Button variant="link" href={site.website}>
           Läs mer om Pianotopia
         </Button>
       </div>

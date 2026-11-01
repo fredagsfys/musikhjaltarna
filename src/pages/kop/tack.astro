@@ -1,7 +1,7 @@
 ---
 import Art from '~/components/ui/Art.astro';
 import Button from '~/components/ui/Button.astro';
-import { routes } from '~/config/site';
+import { routes, site } from '~/config/site';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 ---
 
@@ -19,9 +19,14 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
       </strong>
       .
     </p>
-    <Button variant="link" arrow={false} href={routes.home}>
-      Tillbaka till erbjudandet
-    </Button>
+    <div class="flex flex-wrap items-center justify-center gap-x-6">
+      <Button variant="link" arrow={false} href={routes.home}>
+        Tillbaka till erbjudandet
+      </Button>
+      <Button variant="link" href={site.website}>
+        Till Pianotopias webbplats
+      </Button>
+    </div>
   </div>
 </FlowLayout>
 
