@@ -2,13 +2,20 @@
 import Squiggle from '~/components/doodles/Squiggle.astro';
 import Button from '~/components/ui/Button.astro';
 import IconBadge from '~/components/ui/IconBadge.astro';
-import { routes } from '~/config/site';
+import { createHash } from 'node:crypto';
 import FlowLayout from '~/layouts/FlowLayout.astro';
+
+const updateInfo = {
+  question: 'Vill du hålla dig uppdaterad?',
+  body: 'Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.',
+};
+/** Identifies the update information shown; stored with the choice (brief A §7) and changes with the text. */
+const infoVersion = createHash('sha256').update(JSON.stringify(updateInfo)).digest('hex').slice(0, 8);
 ---
 
 <!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
 <FlowLayout title="Inte redo ännu">
-  <div class="flex flex-col gap-6 text-center">
+  <div id="uppdatering" data-info-version={infoVersion} class="flex flex-col gap-6 text-center">
     <IconBadge icon="sunrise" />
     <div class="flex flex-col gap-2.5">
       <h1 class="text-[clamp(1.75rem,4vw,2.125rem)] leading-[1.12] text-balance">
@@ -18,46 +25,73 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
     </div>
     <Squiggle class="text-gold mx-auto h-3.5 w-[100px]" />
     <div class="flex flex-col gap-2.5">
-      <h2 class="text-h3">Vill du hålla dig uppdaterad?</h2>
-      <p class="text-pretty">
-        Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
-      </p>
+      <h2 class="text-h3">{updateInfo.question}</h2>
+      <p class="text-pretty">{updateInfo.body}</p>
     </div>
     <div class="flex flex-col gap-2">
-      <Button id="uppdatering_ja" type="button">
-        Ja, jag vill hållas uppdaterad
+      <p id="uppdatering-fel" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
+        Det gick inte att spara ditt val just nu. Försök igen.
+      </p>
+      <Button id="uppdatering_ja" type="button" data-busy-label="Sparar…">
+        <span data-label>Ja, jag vill hållas uppdaterad</span>
       </Button>
-      <a
+      <button
         id="uppdatering_nej"
-        href={routes.declined}
-        class="text-primary-dark inline-flex min-h-12 items-center justify-center self-center font-bold underline"
+        type="button"
+        data-busy-label="Sparar…"
+        class="text-primary-dark hover:text-ink inline-flex min-h-12 cursor-pointer items-center justify-center self-center font-bold underline disabled:opacity-60"
       >
-        Nej tack
-      </a>
+        <span data-label>Nej tack</span>
+      </button>
     </div>
   </div>
 </FlowLayout>
 
 <script>
   import { routes } from '~/config/site';
-  import { clearLead, loadLead, submitLead } from '~/lib/lead';
+  import { loadRegistration, submitUpdateStatus, type UpdateStatus } from '~/lib/registration';
 
-  const lead = loadLead();
+  const registration = loadRegistration();
   // This step only makes sense right after step 1.
-  if (!lead) location.replace(routes.purchase);
+  if (!registration) location.replace(routes.purchase);
 
-  const optIn = document.querySelector<HTMLButtonElement>('#uppdatering_ja')!;
-  optIn.addEventListener('click', async () => {
-    optIn.disabled = true;
-    try {
-      await submitLead({ type: 'updates_opt_in', email: lead!.email });
-    } catch (error) {
-      console.error(error);
+  const root = document.querySelector<HTMLElement>('#uppdatering')!;
+  const error = document.querySelector<HTMLParagraphElement>('#uppdatering-fel')!;
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('#uppdatering_ja, #uppdatering_nej')];
+
+  function setSaving(active: HTMLButtonElement | null) {
+    for (const button of buttons) {
+      const label = button.querySelector<HTMLElement>('[data-label]')!;
+      label.dataset.idle ??= label.textContent ?? '';
+      button.disabled = active !== null;
+      button.setAttribute('aria-busy', String(button === active));
+      label.textContent = button === active ? (button.dataset.busyLabel ?? label.dataset.idle) : label.dataset.idle;
     }
-    location.assign(routes.thanks);
+  }
+
+  // Going back from the confirmation restores this page mid-save; make the choices usable again.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) setSaving(null);
   });
 
-  document.querySelector('#uppdatering_nej')!.addEventListener('click', () => {
-    clearLead();
-  });
+  async function choose(button: HTMLButtonElement, status: UpdateStatus, next: string) {
+    if (!registration || button.disabled) return;
+    error.hidden = true;
+    setSaving(button);
+    try {
+      await submitUpdateStatus(registration.id, status, root.dataset.infoVersion ?? '');
+    } catch (err) {
+      // Keep the visitor here so they can try again.
+      console.error(err);
+      setSaving(null);
+      error.hidden = false;
+      return;
+    }
+    // Only confirm once the choice is stored.
+    location.assign(next);
+  }
+
+  const [yes, no] = buttons;
+  yes.addEventListener('click', () => choose(yes, 'ja', routes.thanks));
+  no.addEventListener('click', () => choose(no, 'nej', routes.declined));
 </script>

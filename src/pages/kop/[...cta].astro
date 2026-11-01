@@ -66,8 +66,11 @@ const inputClass =
       </p>
     </div>
 
-    <Button id="kop_skicka" type="submit">
-      Gå vidare till betalning
+    <p id="kop_skicka-fel" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
+      Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
+    </p>
+    <Button id="kop_skicka" type="submit" data-busy-label="Skickar…">
+      <span data-label>Gå vidare till betalning</span>
     </Button>
     <Button id="kop_tillbaka" variant="link" arrow={false} href={routes.home} class="self-center">
       Tillbaka till erbjudandet
@@ -77,36 +80,66 @@ const inputClass =
 
 <script>
   import { isCtaId, routes } from '~/config/site';
-  import { saveLead, submitLead, type Lead } from '~/lib/lead';
+  import { loadRegistration, saveRegistration, submitRegistration, type Registration } from '~/lib/registration';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const form = document.querySelector<HTMLFormElement>('#lead-form')!;
-  const nameInput = form.querySelector<HTMLInputElement>('[name="name"]')!;
-  const emailInput = form.querySelector<HTMLInputElement>('[name="email"]')!;
+  const nameInput = form.querySelector<HTMLInputElement>('#kop_namn')!;
+  const emailInput = form.querySelector<HTMLInputElement>('#kop_epost')!;
   const error = form.querySelector<HTMLParagraphElement>('#form-error')!;
+  const sendError = form.querySelector<HTMLParagraphElement>('#kop_skicka-fel')!;
+  const submit = form.querySelector<HTMLButtonElement>('#kop_skicka')!;
+  const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
+  const idleLabel = submitLabel.textContent;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
+
+  function setSending(sending: boolean) {
+    submit.disabled = sending;
+    submit.setAttribute('aria-busy', String(sending));
+    submitLabel.textContent = sending ? (submit.dataset.busyLabel ?? idleLabel) : idleLabel;
+  }
+
+  // Going back from step 2 restores this page as it was left, mid-send; make the form usable again.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) setSending(false);
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submit.disabled) return;
 
-    const lead: Lead = { name: nameInput.value.trim(), email: emailInput.value.trim(), ctaId };
-    const nameValid = lead.name.length > 0;
-    const emailValid = EMAIL.test(lead.email);
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const nameValid = name.length > 0;
+    const emailValid = EMAIL.test(email);
     nameInput.setAttribute('aria-invalid', String(!nameValid));
     emailInput.setAttribute('aria-invalid', String(!emailValid));
     error.hidden = nameValid && emailValid;
+    sendError.hidden = true;
     if (!nameValid) return nameInput.focus();
     if (!emailValid) return emailInput.focus();
 
-    form.querySelector('button')!.disabled = true;
-    saveLead(lead);
+    // Reuse the id of an earlier attempt in this session, so retries and resubmits update one registration.
+    const registration: Registration = {
+      id: loadRegistration()?.id ?? crypto.randomUUID(),
+      name,
+      email,
+      ctaId,
+      isTest: false,
+    };
+    saveRegistration(registration);
+    setSending(true);
     try {
-      await submitLead({ type: 'purchase_intent', lead });
+      await submitRegistration(registration);
     } catch (err) {
-      // Don't block the visitor; the step 2 page view still records the intent.
+      // Stay on the form with the input intact, so the visitor can try again.
       console.error(err);
+      setSending(false);
+      sendError.hidden = false;
+      return;
     }
+    // Only move on once the registration is stored.
     location.assign(routes.updates);
   });
 </script>
