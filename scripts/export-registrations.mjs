@@ -17,6 +17,13 @@ const COLUMNS = [
   'update_status',
   'update_status_at',
   'update_info_version',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'message_id',
+  'ad_id',
+  'page_version',
   'is_test',
 ];
 
