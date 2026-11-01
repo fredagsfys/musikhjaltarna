@@ -6,11 +6,11 @@ import BuyButton from '~/components/ui/BuyButton.astro';
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
-import { routes } from '~/config/site';
+import { routes, SECTION_IDS } from '~/config/site';
 ---
 
 <!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
-<Section id="pedagogen" tone="white">
+<Section id={SECTION_IDS.pedagog} tone="white">
   <div class="flex flex-wrap items-center gap-[clamp(2.5rem,6vw,5.5rem)]">
     <figure class="flex max-w-[440px] min-w-0 flex-[1_1_340px] flex-col gap-3.5">
       <div class="relative">
@@ -47,7 +47,7 @@ import { routes } from '~/config/site';
     </figure>
 
     <div class="flex min-w-0 flex-[1_1_440px] flex-col gap-5">
-      <SectionHeading id="pedagogen-title" eyebrow="Lorem ipsum" title="Pedagogen bakom tjänsten">
+      <SectionHeading id={`${SECTION_IDS.pedagog}-title`} eyebrow="Lorem ipsum" title="Pedagogen bakom tjänsten">
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
           magna aliqua.

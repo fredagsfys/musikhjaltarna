@@ -6,18 +6,22 @@ import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import SpeechNote from '~/components/ui/SpeechNote.astro';
 import TrustList from '~/components/ui/TrustList.astro';
-import { site } from '~/config/site';
+import { SECTION_IDS, site } from '~/config/site';
 ---
 
 <!-- Sektion 1: Löftet och tjänsten. Barnets framsteg är huvudlöftet. -->
-<section id="hero" aria-labelledby="hero-title" class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16">
+<section
+  id={SECTION_IDS.hero}
+  aria-labelledby={`${SECTION_IDS.hero}-title`}
+  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16"
+>
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12">
     <div class="@container min-w-0">
       <Eyebrow rule>
         {site.name} · {site.product}
       </Eyebrow>
       <AccentHeading
-        id="hero-title"
+        id={`${SECTION_IDS.hero}-title`}
         text="Hjälpen mellan lektionerna som gör att barnet"
         accent="kommer vidare."
         class="mt-6"

@@ -20,12 +20,30 @@ export const site = {
   webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
 } as const;
 
+/** Fixed section ids from brief A. They are part of the measurement setup; content edits must not change them. */
+export const SECTION_IDS = {
+  hero: 'sektion_hero',
+  hjalpen: 'sektion_hjalpen',
+  vardag: 'sektion_vardag',
+  pedagog: 'sektion_pedagog',
+  prenumeration: 'sektion_prenumeration',
+} as const;
+
 /** Every buy button has its own ID so conversion can be attributed per section. */
 export const CTA_IDS = ['kop_hero', 'kop_hjalpen', 'kop_vardag', 'kop_pedagog', 'kop_avslut'] as const;
 export type CtaId = (typeof CTA_IDS)[number];
 
 export const isCtaId = (value: unknown): value is CtaId =>
   typeof value === 'string' && (CTA_IDS as readonly string[]).includes(value);
+
+/** The section each buy button sits in. */
+export const CTA_SECTION: Record<CtaId, string> = {
+  kop_hero: SECTION_IDS.hero,
+  kop_hjalpen: SECTION_IDS.hjalpen,
+  kop_vardag: SECTION_IDS.vardag,
+  kop_pedagog: SECTION_IDS.pedagog,
+  kop_avslut: SECTION_IDS.prenumeration,
+};
 
 /** All buy buttons lead to the same purchase step, each through its own path (see `purchasePath`). */
 export const routes = {

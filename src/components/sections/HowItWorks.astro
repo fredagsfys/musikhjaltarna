@@ -6,14 +6,20 @@ import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
+import { SECTION_IDS } from '~/config/site';
 
 const steps = ['Kom igång', 'Öva självständigt', 'Kom vidare'];
 ---
 
 <!-- Sektion 2: Konkretisera hjälpen. Visa hur barnet använder verktyget hemma. -->
-<Section id="sa-fungerar-det" tone="white">
+<Section id={SECTION_IDS.hjalpen} tone="white">
   <div class="flex flex-col gap-12">
-    <SectionHeading id="sa-fungerar-det-title" eyebrow="Lorem ipsum" title="Så fungerar övningen" align="center">
+    <SectionHeading
+      id={`${SECTION_IDS.hjalpen}-title`}
+      eyebrow="Lorem ipsum"
+      title="Så fungerar övningen"
+      align="center"
+    >
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
         magna aliqua.

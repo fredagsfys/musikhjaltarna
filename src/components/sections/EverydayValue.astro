@@ -6,6 +6,7 @@ import Card from '~/components/ui/Card.astro';
 import Icon, { type IconName } from '~/components/ui/Icon.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
+import { SECTION_IDS } from '~/config/site';
 
 const benefits: { icon: IconName; title: string }[] = [
   { icon: 'smile', title: 'Roligt och enkelt att öva' },
@@ -16,12 +17,12 @@ const rayAngles = [-50, -20, 10, 40];
 ---
 
 <!-- Sektion 3: Värdet i vardagen. Visa hur hjälpen passar ett fullt vardagsschema. -->
-<Section id="vardagen">
+<Section id={SECTION_IDS.vardag}>
   <MusicNote slot="decor" class="text-gold absolute top-9 right-[5%] w-9 rotate-12 max-sm:hidden" />
 
   <div class="flex flex-wrap items-center gap-[clamp(2.5rem,5vw,4.5rem)]">
     <div class="flex min-w-0 flex-[1_1_340px] flex-col gap-5">
-      <SectionHeading id="vardagen-title" eyebrow="Lorem ipsum" title="Framsteg som ryms i vardagen">
+      <SectionHeading id={`${SECTION_IDS.vardag}-title`} eyebrow="Lorem ipsum" title="Framsteg som ryms i vardagen">
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
           magna aliqua.
