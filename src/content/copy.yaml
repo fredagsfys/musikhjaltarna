@@ -127,8 +127,13 @@ consent:
   text: Utan cookies och utan ditt namn eller din e-post.
   # Länkar till integritetssidan, där mätningen beskrivs.
   privacyLink: Läs mer
-  accept: Godkänn
-  decline: Neka
+  acceptAll: Godkänn alla
+  manage: Hantera inställningar
+  # Inställningarna, som också öppnas från Integritetsinställningar i sidfoten.
+  settingsTitle: Integritetsinställningar
+  analyticsLabel: Mätning av hur sidan används
+  analyticsDescription: Visar vilka delar av sidan som ses och vilka knappar som klickas, så att vi förstår om tjänsten är intressant. Utan cookies och utan ditt namn eller din e-post.
+  save: Spara val
 
 # Köpsteget (/kop)
 purchase:

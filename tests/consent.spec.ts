@@ -1,6 +1,6 @@
 /**
- * The analytics consent from brief B §9: nothing is measured until the visitor accepts, declining is as
- * easy as accepting, and the choice can be changed at any time.
+ * The analytics consent from brief B §9: nothing is measured until the visitor accepts, declining is
+ * possible from the settings layer with an unticked box, and the choice can be changed at any time.
  */
 import { CONSENT_KEY, CONSENT_VERSION } from '../src/lib/consent';
 import { registrationsFor } from './d1';
@@ -28,18 +28,16 @@ test.describe('before the visitor has decided', () => {
     expect(storage).toEqual([]);
   });
 
-  test('accept and decline are equally prominent', async ({ page }) => {
+  test('the settings offer measurement as an unticked choice', async ({ page }) => {
     await page.goto('/');
-    const accept = page.locator('#samtycke_godkann');
-    const decline = page.locator('#samtycke_neka');
-    const style = (el: Element) => {
-      const { backgroundColor, color, borderColor, fontSize, fontWeight } = getComputedStyle(el);
-      return { backgroundColor, color, borderColor, fontSize, fontWeight };
-    };
-    expect(await accept.evaluate(style)).toEqual(await decline.evaluate(style));
-    const [a, d] = [await accept.boundingBox(), await decline.boundingBox()];
-    expect(Math.abs(a!.height - d!.height)).toBeLessThan(1);
-    expect(Math.abs(a!.width - d!.width)).toBeLessThan(2);
+    await expect(page.locator('#samtycke_godkann')).toHaveText('Godkänn alla');
+    await page.click('#samtycke_hantera');
+    await expect(page.getByRole('dialog', { name: 'Integritetsinställningar' })).toBeVisible();
+    const box = page.locator('#samtycke_matning');
+    await expect(box).toBeFocused();
+    await expect(box).not.toBeChecked();
+    await expect(page.locator('#samtycke_spara')).toBeVisible();
+    await expect(page.locator('#samtycke_godkann_alla')).toBeVisible();
   });
 
   test('accepting sends what happened on this page and keeps the ad source', async ({ page, analytics }) => {
@@ -72,7 +70,8 @@ test.describe('before the visitor has decided', () => {
   test('declining sends nothing, now or later, and the flow still works', async ({ page, analytics }) => {
     await page.goto('/?utm_source=facebook');
     await page.waitForTimeout(2500);
-    await page.click('#samtycke_neka');
+    await page.click('#samtycke_hantera');
+    await page.click('#samtycke_spara'); // Saved without ticking measurement.
     await expect(page.locator(banner)).toBeHidden();
 
     const email = uniqueEmail('nekad');
@@ -113,15 +112,22 @@ test.describe('before the visitor has decided', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator(banner)).toBeVisible();
-    // Skip link, then the privacy link and the two choices, first in the page.
+    // Skip link, then the privacy link and the two buttons, first in the page.
+    const tab = () => page.keyboard.press(testInfo.project.name.includes('safari') ? 'Alt+Tab' : 'Tab');
     const focused = () =>
       page.evaluate(() => document.activeElement?.id || document.activeElement?.textContent?.trim());
     const order: (string | undefined)[] = [];
     for (let i = 0; i < 4; i++) {
-      await page.keyboard.press(testInfo.project.name.includes('safari') ? 'Alt+Tab' : 'Tab');
+      await tab();
       order.push(await focused());
     }
-    expect(order.slice(1)).toEqual(['Läs mer', 'samtycke_neka', 'samtycke_godkann']);
+    expect(order.slice(1)).toEqual(['Läs mer', 'samtycke_godkann', 'samtycke_hantera']);
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#samtycke_matning')).toBeFocused();
+    await page.keyboard.press('Space');
+    await tab(); // Läs mer
+    await tab();
+    expect(await focused()).toBe('samtycke_spara');
     await page.keyboard.press('Enter');
     await expect(page.locator(banner)).toBeHidden();
     await analytics.waitFor('offer_view');
@@ -136,8 +142,11 @@ test('the choice can be withdrawn from the footer', async ({ page, analytics }) 
   const settings = page.getByRole('button', { name: 'Integritetsinställningar' });
   await settings.click();
   await expect(page.locator(banner)).toBeVisible();
-  await expect(page.locator('#samtycke_neka')).toBeFocused();
-  await page.click('#samtycke_neka');
+  const box = page.locator('#samtycke_matning');
+  await expect(box).toBeFocused();
+  await expect(box).toBeChecked();
+  await box.uncheck();
+  await page.click('#samtycke_spara');
   await expect(page.locator(banner)).toBeHidden();
   await expect(settings).toBeFocused();
 

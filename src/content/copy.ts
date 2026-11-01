@@ -64,7 +64,17 @@ const schema = z.strictObject({
     trust: text,
   }),
   footer: z.strictObject({ contact: text, terms: text, privacy: text, consentSettings: text }),
-  consent: z.strictObject({ title: text, text, privacyLink: text, accept: text, decline: text }),
+  consent: z.strictObject({
+    title: text,
+    text,
+    privacyLink: text,
+    acceptAll: text,
+    manage: text,
+    settingsTitle: text,
+    analyticsLabel: text,
+    analyticsDescription: text,
+    save: text,
+  }),
   purchase: z.strictObject({
     title: text,
     subtitle: text,

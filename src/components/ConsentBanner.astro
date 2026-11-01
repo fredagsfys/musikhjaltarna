@@ -1,8 +1,14 @@
 ---
 /**
- * The choice about analytics (brief B §9; src/lib/consent.ts). Shown until the visitor decides, and
- * again from "Integritetsinställningar" in the footer. Accepting and declining are equally prominent,
- * and the page stays usable while it is open.
+ * The choice about analytics (brief B §9; src/lib/consent.ts), in two layers:
+ *
+ * 1. A short question with "Godkänn alla" and "Hantera inställningar".
+ * 2. Settings: what is measured, an opt-in checkbox that starts unticked, "Spara val" and "Godkänn alla".
+ *    Saving without ticking the box declines.
+ *
+ * Declining is only on the second layer, by the client's choice; see docs/TRACKING.md#consent for the
+ * regulatory risk. "Integritetsinställningar" in the footer opens the settings layer. The page stays
+ * usable while the banner is open.
  */
 import { routes } from '~/config/site';
 import { copy } from '~/content/copy';
@@ -10,7 +16,10 @@ import Button from './ui/Button.astro';
 
 const content = copy.consent;
 // Keeps words like "e-post" whole at line breaks.
-const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
+const unbroken = (text: string) => text.replace(/(\p{L})-(\p{L})/gu, '$1‑$2');
+const card =
+  'container-page rounded-card border-border shadow-card pointer-events-auto flex flex-col gap-5 border bg-white p-5 md:flex-row md:items-center md:gap-8 md:p-6';
+const actions = 'grid shrink-0 gap-3 sm:grid-cols-2 md:ml-auto';
 ---
 
 <div
@@ -22,24 +31,50 @@ const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
   hidden
   class="gutter-x pointer-events-none fixed inset-x-0 bottom-0 z-40 pb-4"
 >
-  <div class="container-page rounded-card border-border shadow-card pointer-events-auto flex flex-col gap-5 border bg-white p-5 md:flex-row md:items-center md:gap-8 md:p-6">
+  <div data-layer="ask" class={card}>
     <div class="flex flex-col gap-2">
       <h2 id="samtycke-rubrik" class="font-display text-ink text-xl">
         {content.title}
       </h2>
       <p id="samtycke-text" class="text-text text-[0.9375rem]">
-        {text}{' '}
+        {unbroken(content.text)}{' '}
         <a href={routes.privacy} class="text-primary-dark font-bold">
           {content.privacyLink}
         </a>
       </p>
     </div>
-    <div class="grid shrink-0 grid-cols-2 gap-3 md:ml-auto">
-      <Button id="samtycke_neka" type="button" variant="secondary" class="flex-1">
-        {content.decline}
+    <div class={actions}>
+      <Button id="samtycke_godkann" type="button" arrow={false}>
+        {content.acceptAll}
       </Button>
-      <Button id="samtycke_godkann" type="button" variant="secondary" class="flex-1">
-        {content.accept}
+      <Button id="samtycke_hantera" type="button" variant="secondary">
+        {content.manage}
+      </Button>
+    </div>
+  </div>
+
+  <div data-layer="settings" hidden class={card}>
+    <div class="flex flex-col gap-3">
+      <h2 id="samtycke-installningar-rubrik" tabindex="-1" class="font-display text-ink text-xl">
+        {content.settingsTitle}
+      </h2>
+      <label class="text-text flex items-start gap-3 text-[0.9375rem]">
+        <input id="samtycke_matning" type="checkbox" class="accent-primary mt-1 size-5 shrink-0" />
+        <span>
+          <strong class="text-ink">{content.analyticsLabel}</strong>
+          <span class="block">{unbroken(content.analyticsDescription)}</span>
+        </span>
+      </label>
+      <a href={routes.privacy} class="text-primary-dark self-start text-[0.9375rem] font-bold">
+        {content.privacyLink}
+      </a>
+    </div>
+    <div class={actions}>
+      <Button id="samtycke_spara" type="button" variant="secondary">
+        {content.save}
+      </Button>
+      <Button id="samtycke_godkann_alla" type="button" arrow={false}>
+        {content.acceptAll}
       </Button>
     </div>
   </div>
@@ -49,6 +84,9 @@ const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
   import { consent, setConsent, type ConsentChoice } from '~/lib/consent';
 
   const banner = document.querySelector<HTMLElement>('#samtycke')!;
+  const ask = banner.querySelector<HTMLElement>('[data-layer="ask"]')!;
+  const settings = banner.querySelector<HTMLElement>('[data-layer="settings"]')!;
+  const analytics = banner.querySelector<HTMLInputElement>('#samtycke_matning')!;
   let returnFocus: HTMLElement | null = null;
 
   // While the banner is open, the page gets room at the bottom, so nothing stays hidden behind it.
@@ -57,7 +95,14 @@ const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
   };
   new ResizeObserver(reserveSpace).observe(banner);
 
-  function show() {
+  function show(layer: 'ask' | 'settings') {
+    ask.hidden = layer !== 'ask';
+    settings.hidden = layer !== 'settings';
+    banner.setAttribute('aria-labelledby', layer === 'ask' ? 'samtycke-rubrik' : 'samtycke-installningar-rubrik');
+    if (layer === 'ask') banner.setAttribute('aria-describedby', 'samtycke-text');
+    else banner.removeAttribute('aria-describedby');
+    // The box is ticked only when the visitor has already accepted; it never starts ticked otherwise.
+    analytics.checked = consent() === 'granted';
     banner.hidden = false;
     reserveSpace();
   }
@@ -70,16 +115,23 @@ const text = content.text.replace(/(\p{L})-(\p{L})/gu, '$1\u2011$2');
     returnFocus = null;
   }
 
-  if (consent() === null) show();
-  document.querySelector('#samtycke_godkann')!.addEventListener('click', () => choose('granted'));
-  document.querySelector('#samtycke_neka')!.addEventListener('click', () => choose('denied'));
+  if (consent() === null) show('ask');
+  banner.querySelector('#samtycke_godkann')!.addEventListener('click', () => choose('granted'));
+  banner.querySelector('#samtycke_godkann_alla')!.addEventListener('click', () => choose('granted'));
+  banner
+    .querySelector('#samtycke_spara')!
+    .addEventListener('click', () => choose(analytics.checked ? 'granted' : 'denied'));
+  banner.querySelector('#samtycke_hantera')!.addEventListener('click', () => {
+    show('settings');
+    analytics.focus();
+  });
 
-  // "Integritetsinställningar" in the footer opens the choice again, to change or withdraw it.
+  // "Integritetsinställningar" in the footer opens the settings, to change or withdraw the choice.
   document.addEventListener('click', (event) => {
     const opener = (event.target as Element).closest<HTMLElement>('[data-consent-settings]');
     if (!opener) return;
     returnFocus = opener;
-    show();
-    banner.querySelector<HTMLElement>(consent() === 'granted' ? '#samtycke_neka' : '#samtycke_godkann')!.focus();
+    show('settings');
+    analytics.focus();
   });
 </script>

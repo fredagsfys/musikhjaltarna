@@ -26,20 +26,29 @@ works as usual and the events are lost (see [Measurement loss](#measurement-loss
 Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/consent.ts` and
 `src/components/ConsentBanner.astro`; tests: `tests/consent.spec.ts`.
 
-- **The banner** is shown at the bottom of every page until the visitor decides. "Neka" and "Godkänn" look the same and
-  are the same size. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
-  behind it. It asks briefly, with "Läs mer" linking to the privacy page, where measurement is described. Its texts are
-  in `copy.yaml` under `consent`; the description is under `pages.integritet`.
+- **The banner** is shown at the bottom of every page until the visitor decides. It asks briefly, with "Läs mer"
+  linking to the privacy page, where measurement is described, and offers **Godkänn alla** (primary) and **Hantera
+  inställningar**. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
+  behind it.
+- **Settings** describe the measurement and offer it as a checkbox that is never pre-ticked, with **Spara val** and
+  **Godkänn alla**. Saving without ticking the box declines.
+- **Texts** are in `copy.yaml` under `consent`; the full description is under `pages.integritet`.
 - **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
 - **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
 - **Declined:** nothing is sent, now or on later pages, and registrations get no ad source.
-- **Change of mind:** _Integritetsinställningar_ in the footer opens the banner again. Declining after accepting stops
-  all measurement from that moment.
+- **Change of mind:** _Integritetsinställningar_ in the footer opens the settings. Unticking and saving stops all
+  measurement from that moment.
 - **Remembered** in `localStorage` (`musikhjaltarna:consent`) for 12 months. Bump `CONSENT_VERSION` in
   `src/lib/consent.ts` when the analytics tools or their purpose change: everyone is asked again.
 - **On each registration** D1 stores `analytics_consent` (`granted`, `denied`, or empty if undecided). This
   separates the registrations PostHog can see from those it can't.
+
+**Regulatory risk, accepted by the client (2026-11-02):** declining is only on the second layer. The European Data
+Protection Board's cookie banner taskforce (2023) found that most EU data protection authorities treat a first layer
+without a reject option as an infringement, and IMY (Sweden) expects declining to be as easy as accepting. To lower the
+risk, add a "Neka" button to the first layer, in the same style as "Hantera inställningar", in
+`src/components/ConsentBanner.astro`.
 
 ### Privacy
 
