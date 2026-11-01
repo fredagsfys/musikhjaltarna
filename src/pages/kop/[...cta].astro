@@ -107,6 +107,7 @@ const inputClass =
     submitRegistration,
     type Registration,
   } from '~/lib/registration';
+  import { consent } from '~/lib/consent';
   import { adSource, pageVersion, track, whenVisible } from '~/lib/tracking';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -183,7 +184,8 @@ const inputClass =
       email,
       ctaId,
       isTest: isTestSession(),
-      source: adSource(),
+      source: consent() === 'granted' ? adSource() : {},
+      analyticsConsent: consent(),
       pageVersion: pageVersion(),
       intentTracked: previous?.intentTracked,
     };

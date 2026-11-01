@@ -29,17 +29,6 @@ export type Props = SEOProps;
         if (new URLSearchParams(location.search).has('test')) sessionStorage.setItem('musikhjaltarna:test', '1');
       } catch {}
     </script>
-    {
-      /* Cookieless page-view analytics; production only, so local testing doesn't count. */
-      import.meta.env.PROD && (
-        <script
-          is:inline
-          type="module"
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={JSON.stringify({ token: site.webAnalyticsToken })}
-        />
-      )
-    }
   </head>
   <body class="min-h-dvh">
     <a
@@ -51,10 +40,9 @@ export type Props = SEOProps;
     <slot />
 
     <script>
-      import { adSource, startTracking, track } from '~/lib/tracking';
+      import { initTracking, track } from '~/lib/tracking';
 
-      adSource();
-      void startTracking();
+      initTracking();
       // Links to Pianotopia's website carry data-link-id and data-link-placement (brief B §4).
       document.addEventListener('click', (event) => {
         const link = (event.target as Element).closest<HTMLElement>('[data-link-id]');
