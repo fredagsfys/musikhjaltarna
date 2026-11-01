@@ -2,7 +2,8 @@
 import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
-import { CTA_IDS, ctaSlug, routes, site, type CtaId } from '~/config/site';
+import { CTA_IDS, CTA_SECTION, ctaSlug, routes, site, type CtaId } from '~/config/site';
+import { copy } from '~/content/copy';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 
 /** `/kop` for direct visits, plus one path per buy button, e.g. `/kop/hero`. */
@@ -14,6 +15,11 @@ export function getStaticPaths() {
 }
 
 const { ctaId } = Astro.props as { ctaId: CtaId | null };
+// Without history to go back to, return to the section of the button the visitor came from.
+const backHref = ctaId ? `${routes.home}#${CTA_SECTION[ctaId]}` : routes.home;
+
+const errorClass = 'text-ink text-[0.9375rem] font-bold';
+const { purchase: content } = copy;
 
 const inputClass =
   'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
@@ -21,79 +27,162 @@ const inputClass =
 
 <!-- Köpflöde steg 1: Fånga fördjupad köpavsikt. Mätpunkt: köpintention. -->
 <FlowLayout title="Köp prenumeration">
-  <form id="lead-form" data-cta={ctaId} class="flex flex-col gap-[22px]" novalidate>
-    <div class="flex flex-col items-center gap-2 text-center">
-      <Eyebrow>{site.product}</Eyebrow>
-      <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">Hjälpen mellan pianolektionerna</h1>
-      <p>Prenumeration på övningsverktyget i appen</p>
+  <form
+    id="lead-form"
+    data-cta={ctaId}
+    data-messages={JSON.stringify(content.errors)}
+    class="flex flex-col gap-[22px]"
+    novalidate
+  >
+    <div id="kop_sammanfattning" class="flex flex-col gap-[22px]">
+      <div class="flex flex-col items-center gap-2 text-center">
+        <Eyebrow>{site.product}</Eyebrow>
+        <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">{content.title}</h1>
+        <p>{content.subtitle}</p>
+      </div>
+
+      <Card tone="bg" variant="price" class="flex items-center justify-between gap-3 px-[22px] py-4">
+        <span class="font-bold">{content.pricePeriod}</span>
+        <span class="font-display text-[2rem] leading-none">{copy.offer.price} kr</span>
+      </Card>
     </div>
 
-    <Card tone="bg" variant="price" class="flex items-center justify-between gap-3 px-[22px] py-4">
-      <span class="font-bold">Per månad</span>
-      <span class="font-display text-[2rem] leading-none">{site.offer.price} kr</span>
-    </Card>
-
     <div class="flex flex-col gap-4">
-      <label class="flex flex-col gap-1.5 text-[1rem] font-bold">
-        Namn
-        <input name="name" type="text" autocomplete="name" required aria-describedby="form-error" class={inputClass} />
-      </label>
-      <label class="flex flex-col gap-1.5 text-[1rem] font-bold">
-        E-post
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_namn" class="text-[1rem] font-bold">
+          {content.nameLabel}
+        </label>
         <input
+          id="kop_namn"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          aria-describedby="kop_namn-fel"
+          class={inputClass}
+        />
+        <p id="kop_namn-fel" hidden class={errorClass}></p>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_epost" class="text-[1rem] font-bold">
+          {content.emailLabel}
+        </label>
+        <input
+          id="kop_epost"
           name="email"
           type="email"
           inputmode="email"
           autocomplete="email"
           required
-          aria-describedby="form-error"
+          aria-describedby="kop_epost-fel"
           class={inputClass}
         />
-      </label>
-      <p id="form-error" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
-        Fyll i ditt namn och en giltig e-postadress.
-      </p>
+        <p id="kop_epost-fel" hidden class={errorClass}></p>
+      </div>
     </div>
 
-    <Button type="submit">Gå vidare till betalning</Button>
-    <Button variant="link" arrow={false} href={routes.home} class="self-center">
-      Tillbaka till erbjudandet
+    <p id="kop_integritet" class="text-[0.9375rem] text-pretty">
+      {content.privacy} <a href={routes.privacy}>{content.privacyLink}</a>.
+    </p>
+    <p id="kop_skicka-fel" role="alert" hidden class={errorClass}>
+      {content.errors.sendFailed}
+    </p>
+    <Button id="kop_skicka" type="submit" data-busy-label={content.submitting}>
+      <span data-label>{content.submit}</span>
+    </Button>
+    <Button id="kop_tillbaka" variant="link" arrow={false} href={backHref} class="self-center">
+      {content.back}
     </Button>
   </form>
 </FlowLayout>
 
 <script>
   import { isCtaId, routes } from '~/config/site';
-  import { saveLead, submitLead, type Lead } from '~/lib/lead';
+  import {
+    isTestSession,
+    loadRegistration,
+    saveRegistration,
+    submitRegistration,
+    type Registration,
+  } from '~/lib/registration';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const form = document.querySelector<HTMLFormElement>('#lead-form')!;
-  const nameInput = form.querySelector<HTMLInputElement>('[name="name"]')!;
-  const emailInput = form.querySelector<HTMLInputElement>('[name="email"]')!;
-  const error = form.querySelector<HTMLParagraphElement>('#form-error')!;
+  const nameInput = form.querySelector<HTMLInputElement>('#kop_namn')!;
+  const emailInput = form.querySelector<HTMLInputElement>('#kop_epost')!;
+  const messages = JSON.parse(form.dataset.messages!) as Record<
+    'nameMissing' | 'emailMissing' | 'emailInvalid',
+    string
+  >;
+  const sendError = form.querySelector<HTMLParagraphElement>('#kop_skicka-fel')!;
+  const submit = form.querySelector<HTMLButtonElement>('#kop_skicka')!;
+  const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
+  const idleLabel = submitLabel.textContent;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
+
+  /** Shows (or clears) the message under a field and marks the field invalid for assistive tech. */
+  function setFieldError(input: HTMLInputElement, message: string | null) {
+    const error = form.querySelector<HTMLElement>(`#${input.id}-fel`)!;
+    input.setAttribute('aria-invalid', String(message !== null));
+    error.textContent = message ?? '';
+    error.hidden = message === null;
+  }
+
+  function setSending(sending: boolean) {
+    submit.disabled = sending;
+    submit.setAttribute('aria-busy', String(sending));
+    submitLabel.textContent = sending ? (submit.dataset.busyLabel ?? idleLabel) : idleLabel;
+  }
+
+  // Going back from step 2 restores this page as it was left, mid-send; make the form usable again.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) setSending(false);
+  });
+
+  // Coming from the offer page, go back in history so the browser restores the scroll position.
+  document.querySelector('#kop_tillbaka')!.addEventListener('click', (event) => {
+    const from = document.referrer ? new URL(document.referrer) : null;
+    if (from?.origin === location.origin && from.pathname === routes.home && history.length > 1) {
+      event.preventDefault();
+      history.back();
+    }
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (submit.disabled) return;
 
-    const lead: Lead = { name: nameInput.value.trim(), email: emailInput.value.trim(), ctaId };
-    const nameValid = lead.name.length > 0;
-    const emailValid = EMAIL.test(lead.email);
-    nameInput.setAttribute('aria-invalid', String(!nameValid));
-    emailInput.setAttribute('aria-invalid', String(!emailValid));
-    error.hidden = nameValid && emailValid;
-    if (!nameValid) return nameInput.focus();
-    if (!emailValid) return emailInput.focus();
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const nameError = name ? null : messages.nameMissing;
+    const emailError = !email ? messages.emailMissing : EMAIL.test(email) ? null : messages.emailInvalid;
+    setFieldError(nameInput, nameError);
+    setFieldError(emailInput, emailError);
+    sendError.hidden = true;
+    if (nameError) return nameInput.focus();
+    if (emailError) return emailInput.focus();
 
-    form.querySelector('button')!.disabled = true;
-    saveLead(lead);
+    // Reuse the id of an earlier attempt in this session, so retries and resubmits update one registration.
+    const registration: Registration = {
+      id: loadRegistration()?.id ?? crypto.randomUUID(),
+      name,
+      email,
+      ctaId,
+      isTest: isTestSession(),
+    };
+    saveRegistration(registration);
+    setSending(true);
     try {
-      await submitLead({ type: 'purchase_intent', lead });
+      await submitRegistration(registration);
     } catch (err) {
-      // Don't block the visitor; the step 2 page view still records the intent.
+      // Stay on the form with the input intact, so the visitor can try again.
       console.error(err);
+      setSending(false);
+      sendError.hidden = false;
+      return;
     }
+    // Only move on once the registration is stored.
     location.assign(routes.updates);
   });
 </script>

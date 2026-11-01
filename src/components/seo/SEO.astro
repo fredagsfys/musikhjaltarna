@@ -1,5 +1,6 @@
 ---
 import { site } from '~/config/site';
+import { copy } from '~/content/copy';
 
 export interface Props {
   title?: string;
@@ -9,9 +10,9 @@ export interface Props {
   image?: string;
 }
 
-const { title, description = site.description, noindex = false, image = site.ogImage } = Astro.props;
+const { title, description = copy.seo.description, noindex = false, image = site.ogImage } = Astro.props;
 
-const fullTitle = title ? `${title} | ${site.name}` : site.title;
+const fullTitle = title ? `${title} | ${site.name}` : copy.seo.title;
 // With `build.format: 'file'` the build-time pathname ends in `.html`; canonical URLs must not.
 const pathname = Astro.url.pathname.replace(/(\/index)?\.html$/, '') || '/';
 const canonical = new URL(pathname, Astro.site);

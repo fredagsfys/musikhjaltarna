@@ -2,33 +2,42 @@
 import Art from '~/components/ui/Art.astro';
 import Button from '~/components/ui/Button.astro';
 import { routes } from '~/config/site';
+import { copy } from '~/content/copy';
+
+const { thanks: content } = copy;
+// The sentence has an {epost} placeholder where the visitor's address goes.
+const [beforeEmail, afterEmail] = content.text.split('{epost}');
 import FlowLayout from '~/layouts/FlowLayout.astro';
 ---
 
 <!-- Köpflöde steg 3: Gör fortsättningen tydlig. -->
-<FlowLayout title="Tack för ditt intresse">
+<FlowLayout title={content.title}>
   <div class="flex flex-col items-center gap-[18px] text-center">
     <div class="bg-primary size-[150px] overflow-hidden rounded-full p-2.5 shadow-[0_0_0_3px_var(--color-gold)]">
       <Art name="gilbert-guide" alt="" widths={[150, 300]} sizes="150px" tone="dark" class="size-full object-contain" />
     </div>
-    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">Tack för ditt intresse!</h1>
+    <h1 class="text-[clamp(1.875rem,4vw,2.375rem)] leading-[1.1] text-balance">{content.title}</h1>
     <p class="text-pretty">
-      Vi skickar mer information till{' '}
+      {beforeEmail}
       <strong id="lead-email" class="text-ink">
-        den e-postadress du angav
+        {content.emailFallback}
       </strong>
-      .
+      {afterEmail}
     </p>
-    <Button variant="link" arrow={false} href={routes.home}>
-      Tillbaka till erbjudandet
-    </Button>
+    <div class="flex flex-wrap items-center justify-center gap-x-6">
+      <Button variant="link" arrow={false} href={routes.home}>
+        {content.back}
+      </Button>
+      <Button variant="link" href={copy.links.website}>
+        {content.website}
+      </Button>
+    </div>
   </div>
 </FlowLayout>
 
 <script>
-  import { clearLead, loadLead } from '~/lib/lead';
+  import { takeConfirmedEmail } from '~/lib/registration';
 
-  const lead = loadLead();
-  if (lead) document.querySelector('#lead-email')!.textContent = lead.email;
-  clearLead();
+  const email = takeConfirmedEmail();
+  if (email) document.querySelector('#lead-email')!.textContent = email;
 </script>

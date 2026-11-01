@@ -6,28 +6,25 @@ import Eyebrow from '~/components/ui/Eyebrow.astro';
 import Placeholder from '~/components/ui/Placeholder.astro';
 import SpeechNote from '~/components/ui/SpeechNote.astro';
 import TrustList from '~/components/ui/TrustList.astro';
-import { site } from '~/config/site';
+import { SECTION_IDS } from '~/config/site';
+import { copy } from '~/content/copy';
+
+const { hero } = copy;
 ---
 
 <!-- Sektion 1: Löftet och tjänsten. Barnets framsteg är huvudlöftet. -->
-<section id="hero" aria-labelledby="hero-title" class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16">
+<section
+  id={SECTION_IDS.hero}
+  aria-labelledby={`${SECTION_IDS.hero}-title`}
+  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16"
+>
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12">
     <div class="@container min-w-0">
-      <Eyebrow rule>
-        {site.name} · {site.product}
-      </Eyebrow>
-      <AccentHeading
-        id="hero-title"
-        text="Hjälpen mellan lektionerna som gör att barnet"
-        accent="kommer vidare."
-        class="mt-6"
-      />
-      <p class="text-lead mt-8 lg:max-w-[34ch]">
-        {site.product} är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
-        pianolektionerna.
-      </p>
+      <Eyebrow rule>{hero.eyebrow}</Eyebrow>
+      <AccentHeading id={`${SECTION_IDS.hero}-title`} text={hero.title} accent={hero.titleAccent} class="mt-6" />
+      <p class="text-lead mt-8 lg:max-w-[34ch]">{hero.lead}</p>
       <BuyButton ctaId="kop_hero" class="mt-10" />
-      <TrustList class="mt-6" items={['Ett komplement till barnets pianolärare']} />
+      <TrustList class="mt-6" items={[hero.trust]} />
     </div>
 
     <!--
@@ -35,9 +32,9 @@ import { site } from '~/config/site';
       overhanging by 10%. From 640px the stage is 90% wide so the overhang stays inside the page gutter.
     -->
     <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[10.2%] sm:w-[90%]">
-      <Placeholder label="Hero-bild" ratio="1 / 1.043" shape="arch" />
+      <Placeholder label={hero.imageLabel} ratio="1 / 1.043" shape="arch" />
       <div class="absolute top-0 right-0 flex rotate-5 flex-col items-end sm:-right-[10%]">
-        <SpeechNote lines={['Lorem ipsum', 'dolor sit amet']} />
+        <SpeechNote lines={hero.note} />
         <CurvedArrow class="text-gold mr-10 w-20" />
       </div>
     </div>

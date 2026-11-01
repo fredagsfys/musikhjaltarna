@@ -1,0 +1,190 @@
+# Texter, pris och länkar för musikhjaltarna.se.
+#
+# Ändra bara texten efter kolon (:). Nycklarna till vänster används av koden och får inte ändras.
+# Sparade ändringar publiceras automatiskt. Om något blir fel stoppas publiceringen och den
+# gamla sidan ligger kvar. Läs docs/EDITING.md innan du börjar.
+
+# Priset visas överallt i flödet, så det räcker att ändra det här.
+offer:
+  price: 79 # kronor, bara siffror
+  period: månad # visas som "79 kr/månad"
+  periodShort: mån # visas i menyn som "79 kr/mån"
+  buyButton: Köp # köpknapparnas text, priset läggs till: "Köp · 79 kr/månad"
+
+links:
+  website: https://pianotopia.se # Pianotopias ordinarie webbplats
+
+# Sidans titel och beskrivning i sökmotorer och när länken delas.
+seo:
+  title: Musikhjältarna – Hjälpen mellan pianolektionerna
+  description: >-
+    Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
+    pianolektionerna. Ett komplement till barnets pianolärare.
+
+header:
+  navHowItWorks: Så fungerar det
+  navPedagogue: Pedagogen
+
+# Sektion 1: Löftet och tjänsten
+hero:
+  eyebrow: Pianotopia · Musikhjältarna
+  title: Hjälpen mellan lektionerna som gör att barnet
+  titleAccent: kommer vidare. # visas i turkos med understrykning, håll den kort
+  lead: >-
+    Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
+    pianolektionerna.
+  trust: Ett komplement till barnets pianolärare
+  imageLabel: Hero-bild
+  note: # handskriven kommentar vid bilden, en rad per punkt
+    - Lorem ipsum
+    - dolor sit amet
+
+# Sektion 2: Så fungerar övningen
+howItWorks:
+  eyebrow: Lorem ipsum
+  title: Så fungerar övningen
+  intro: >-
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+    magna aliqua.
+  steps:
+    - title: Kom igång
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    - title: Öva självständigt
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    - title: Kom vidare
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  example:
+    eyebrow: Exempel på övning i appen
+    title: Lorem ipsum dolor sit amet
+    text: >-
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua.
+    imageLabel: Exempel på övning i appen
+    note: Lorem ipsum dolor!
+
+# Sektion 3: Framsteg som ryms i vardagen. Exakt tre fördelar; ikonerna följer ordningen.
+everyday:
+  eyebrow: Lorem ipsum
+  title: Framsteg som ryms i vardagen
+  intro: >-
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+    magna aliqua.
+  benefits:
+    - title: Roligt och enkelt att öva
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    - title: Kräver lite tid
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    - title: Föräldern behöver inte kunna spela
+      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+# Sektion 4: Pedagogen bakom tjänsten
+pedagogue:
+  eyebrow: Lorem ipsum
+  title: Pedagogen bakom tjänsten
+  text: >-
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+    magna aliqua.
+  readMore: Läs mer om Pianotopia # länkar till links.website
+  photoAlt: Suzanna, pianopedagog # beskrivning av fotot för skärmläsare
+  captionNote: Lorem ipsum # handskriven rad under fotot
+  captionName: Suzanna
+  captionRole: pianopedagog
+
+# Sektion 5: Din prenumeration
+subscription:
+  eyebrow: Lorem ipsum
+  title: Din prenumeration
+  description: Övningsverktyg i appen för hjälp mellan pianolektionerna.
+  boxes:
+    - title: Vad som ingår
+      items:
+        - Lorem ipsum dolor sit amet
+        - Consectetur adipiscing elit
+        - Sed do eiusmod tempor
+    - title: Praktiska förutsättningar
+      items:
+        - Lorem ipsum dolor sit amet
+        - Consectetur adipiscing elit
+        - Sed do eiusmod tempor
+    - title: Abonnemangsvillkor
+      items:
+        - Lorem ipsum dolor sit amet
+        - Consectetur adipiscing elit
+        - Sed do eiusmod tempor
+  trust: Ett komplement till barnets pianolärare
+
+footer:
+  contact: Kontakt
+  terms: Villkor
+  privacy: Integritet
+
+# Köpsteget (/kop)
+purchase:
+  title: Hjälpen mellan pianolektionerna
+  subtitle: Prenumeration på övningsverktyget i appen
+  pricePeriod: Per månad
+  nameLabel: Namn
+  emailLabel: E-post
+  privacy: Vi använder ditt namn och din e-postadress för att registrera ditt intresse.
+  privacyLink: Läs mer om hur vi hanterar personuppgifter
+  submit: Gå vidare till betalning
+  submitting: Skickar…
+  back: Tillbaka till erbjudandet
+  errors:
+    nameMissing: Fyll i ditt namn.
+    emailMissing: Fyll i din e-postadress.
+    emailInvalid: Kontrollera e-postadressen, till exempel namn@exempel.se.
+    sendFailed: Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
+
+# Besked och uppdateringsval (/kop/uppdatering).
+# När "question" eller "info" ändras sparas en ny version tillsammans med besökarnas val.
+updates:
+  title: Pianotopia är ännu inte redo för leverans
+  status: Tjänsten är under utveckling. Inget köp har genomförts, ingen betalning har skett och inget abonnemang har startats.
+  question: Vill du hålla dig uppdaterad?
+  info: Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
+  yes: Ja, jag vill hållas uppdaterad
+  no: Nej tack
+  saving: Sparar…
+  error: Det gick inte att spara ditt val just nu. Försök igen.
+
+# Bekräftelse efter ja (/kop/tack). {epost} ersätts med besökarens e-postadress.
+thanks:
+  title: Tack för ditt intresse!
+  text: Vi skickar mer information till {epost}.
+  emailFallback: den e-postadress du angav
+  back: Tillbaka till erbjudandet
+  website: Till Pianotopias webbplats
+
+# Avslut efter nej (/kop/nej-tack)
+declined:
+  title: Tack för att du tittade förbi!
+  text: Du får inga utskick från oss. Välkommen tillbaka när Musikhjältarna lanseras.
+  back: Tillbaka till erbjudandet
+  website: Till Pianotopias webbplats
+
+notFound:
+  title: Sidan hittades inte
+  text: Sidan du letar efter finns inte eller har flyttats.
+  link: Till startsidan
+
+# Informationssidor. Varje rad i "body" blir ett eget stycke.
+pages:
+  kontakt:
+    title: Kontakt
+    description: Kontakta Pianotopia.
+    body:
+      - Innehåll preciseras före produktion.
+      - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  villkor:
+    title: Villkor
+    description: Abonnemangsvillkor för Pianotopia.
+    body:
+      - Innehåll preciseras före produktion.
+      - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  integritet:
+    title: Integritet
+    description: Så hanterar Pianotopia dina personuppgifter.
+    body:
+      - Innehåll preciseras före produktion.
+      - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

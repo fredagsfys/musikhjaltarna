@@ -1,16 +1,17 @@
 ---
 import { routes, site } from '~/config/site';
+import { copy } from '~/content/copy';
 
 const links = [
-  { href: routes.contact, label: 'Kontakt' },
-  { href: routes.terms, label: 'Villkor' },
-  { href: routes.privacy, label: 'Integritet' },
+  { href: routes.contact, label: copy.footer.contact },
+  { href: routes.terms, label: copy.footer.terms },
+  { href: routes.privacy, label: copy.footer.privacy },
 ];
 ---
 
 <footer class="gutter-x bg-white border-border border-t pt-8 pb-12">
   <div class="container-page text-text flex flex-wrap items-center justify-between gap-4 text-[0.9375rem]">
-    <a href={routes.about} class="font-display text-ink hover:text-primary-dark text-xl no-underline">
+    <a href={copy.links.website} class="font-display text-ink hover:text-primary-dark text-xl no-underline">
       {site.name}
     </a>
     <nav aria-label="Sidfot">
