@@ -2,8 +2,8 @@
  * The function check from brief A §9, one test per row of the acceptance checklist.
  * Runs against `wrangler dev` with an isolated local D1 (see playwright.config.ts).
  */
-import { expect, test, type Page } from '@playwright/test';
 import { exportCsv, registrationsFor } from './d1';
+import { arrivedAt, expect, stored, submitPurchase, test, uniqueEmail } from './fixtures';
 
 const CTAS = [
   { ctaId: 'kop_hero', slug: 'hero' },
@@ -12,30 +12,6 @@ const CTAS = [
   { ctaId: 'kop_pedagog', slug: 'pedagog' },
   { ctaId: 'kop_avslut', slug: 'avslut' },
 ];
-
-/** A unique address per test and browser, so tests can run in parallel against one database. */
-const uniqueEmail = (label: string) =>
-  `${label}-${test.info().project.name}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
-
-/** Waits until the registration for this address is visible: the local database writes to disk just after responding. */
-async function stored(email: string) {
-  await expect.poll(() => registrationsFor(email).length, { message: `registration for ${email}` }).toBeGreaterThan(0);
-  return registrationsFor(email);
-}
-
-/** Waits for the URL and for the page's scripts, which attach the click handlers, before the next step. */
-async function arrivedAt(page: Page, path: string) {
-  await expect(page).toHaveURL(path);
-  await page.waitForLoadState('domcontentloaded');
-}
-
-async function submitPurchase(page: Page, ctaSlug: string, name: string, email: string) {
-  await page.goto(`/kop/${ctaSlug}`);
-  await page.fill('#kop_namn', name);
-  await page.fill('#kop_epost', email);
-  await page.click('#kop_skicka');
-  await arrivedAt(page, '/kop/uppdatering');
-}
 
 test('all five buy buttons open the same step with the right CTA origin', async ({ page }) => {
   for (const { ctaId, slug } of CTAS) {
@@ -64,7 +40,7 @@ test('back from the purchase step restores the offer page and scroll position', 
   expect(before).toBeGreaterThan(0);
 
   await button.click();
-  await expect(page).toHaveURL('/kop/vardag');
+  await arrivedAt(page, '/kop/vardag');
   await page.click('#kop_tillbaka');
   await expect(page).toHaveURL('/');
   await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(before - 40);
@@ -221,7 +197,9 @@ test('the export gives correct registrations with update status', async ({ page 
 
   const csv = exportCsv(testInfo.outputPath('registrations.csv'));
   const [header, ...lines] = csv.replace(/^﻿/, '').trim().split(/\r\n/);
-  expect(header).toBe('id,created_at,name,email,cta_id,update_status,update_status_at,update_info_version,is_test');
+  expect(header).toBe(
+    'id,created_at,name,email,cta_id,update_status,update_status_at,update_info_version,utm_source,utm_medium,utm_campaign,utm_content,message_id,ad_id,page_version,is_test',
+  );
   const line = lines.find((l) => l.includes(email));
   expect(line).toMatch(new RegExp(`,Export Test,${email.replaceAll('.', '\\.')},kop_pedagog,ja,`));
 });
