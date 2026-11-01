@@ -257,8 +257,8 @@ FROM events
 WHERE properties.environment = 'production' AND {filters}
 ```
 
-**Stored vs measured registrations.** PostHog can only count what it received: blockers, and visitors who decline
-analytics, mean fewer registrations there than in D1.
+**Stored vs measured registrations.** PostHog can only count what it received: blockers, and visitors who decline or
+don't answer the consent question, mean fewer registrations there than in D1.
 
 1. Count measured registrations in PostHog for the period:
 
@@ -268,7 +268,10 @@ analytics, mean fewer registrations there than in D1.
    WHERE event = 'purchase_intent_submit' AND properties.environment = 'production' AND {filters}
    ```
 
-2. Count stored registrations in the D1 export for the same period, leaving out `is_test = 1`.
-3. The difference is the measurement loss. Report both numbers, and compute every rate within PostHog's numbers only.
+2. Count stored registrations in the D1 export for the same period, leaving out `is_test = 1`. Split them by
+   `analytics_consent`: `granted` are the ones PostHog could see; `denied` and empty were never measured.
+3. Measured registrations versus stored `granted` registrations shows loss from blockers; stored registrations without
+   `granted` show loss from consent. Report the numbers side by side, and compute every rate within PostHog's
+   numbers only.
 
 Bots: PostHog drops events from browsers that identify themselves as automated. They never reach these reports.

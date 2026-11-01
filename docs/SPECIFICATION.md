@@ -211,6 +211,6 @@ Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
 3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
-4. ~~**Analysverktyg.**~~ Löst: PostHog Cloud EU för händelser, utan cookies, och Cloudflare Web Analytics för sidvisningar. Om det krävs samtycke ska kunden bekräfta före publicering.
+4. ~~**Analysverktyg.**~~ Löst: PostHog Cloud EU för händelser, utan cookies, och Cloudflare Web Analytics för sidvisningar. Ingen mätning sker innan besökaren har godkänt den i samtyckesrutan, och valet kan ändras via Integritetsinställningar i sidfoten.
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.

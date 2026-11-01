@@ -21,15 +21,34 @@ PostHog is loaded after the page, from the site itself (about 52 KB compressed),
 autocapture, session recording, heatmaps, surveys or feature flags. If PostHog is blocked or fails, the purchase flow
 works as usual and the events are lost (see [Measurement loss](#measurement-loss)).
 
+### Consent
+
+Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/consent.ts` and
+`src/components/ConsentBanner.astro`; tests: `tests/consent.spec.ts`.
+
+- **The banner** is shown at the bottom of every page until the visitor decides. "Neka" and "Godkänn" look the same and
+  are the same size. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
+  behind it. Its texts are in `copy.yaml` under `consent`.
+- **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
+  the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
+- **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
+- **Declined:** nothing is sent, now or on later pages, and registrations get no ad source.
+- **Change of mind:** _Integritetsinställningar_ in the footer opens the banner again. Declining after accepting stops
+  all measurement from that moment.
+- **Remembered** in `localStorage` (`musikhjaltarna:consent`) for 12 months. Bump `CONSENT_VERSION` in
+  `src/lib/consent.ts` when the analytics tools or their purpose change: everyone is asked again.
+- **On each registration** D1 stores `analytics_consent` (`granted`, `denied`, or empty if undecided). This
+  separates the registrations PostHog can see from those it can't.
+
 ### Privacy
 
-- No cookies and no browser storage for analytics. PostHog identifies a visitor for one day by a server-side hash of IP
-  address, user agent and a daily rotating salt; the hash is not stored with the events.
+- No cookies, even with consent. PostHog identifies a visitor for one day by a server-side hash of IP address, user
+  agent and a daily rotating salt; the hash is not stored with the events.
 - Names, e-mail addresses and form values are never sent. The tests check every request for the test's name and
   address.
-- The only thing the site keeps in the browser for tracking is the ad source, in `sessionStorage`
-  (`musikhjaltarna:source`), so it can be stored with the registration. It disappears when the tab is closed.
-- Whether this needs consent is for the client to confirm before launch (brief B §9).
+- In the browser, the site keeps only the choice itself and, with consent, the ad source (`sessionStorage`,
+  `musikhjaltarna:source`, gone when the tab closes).
+- The privacy page (`/integritet`) should describe PostHog and Cloudflare Web Analytics, what is measured and why.
 
 ## Sessions and versions
 
@@ -105,6 +124,10 @@ All reports from brief B §8, with filters and the session rates, are in [`REPOR
 
 Expect PostHog to count fewer events than actually happened:
 
+- **Declined or unanswered consent:** the largest loss. PostHog only sees visitors who accepted, so every rate is
+  computed within that group (brief B §9). D1 still stores every registration, with `analytics_consent`.
+- **Deciding after leaving the arrival page:** the ad source is only in the arrival URL until the visitor accepts. A
+  visitor who accepts on a later page is measured without a source.
 - **Blockers:** ad and tracking blockers block `eu.i.posthog.com`. Registrations still reach D1, so compare
   `purchase_intent_submit` with the D1 count to see the share lost.
 - **Closing the tab:** `section_exposure_end` is sent when a view ends; when a visitor closes the tab mid-view it may
