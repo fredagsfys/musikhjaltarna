@@ -2,6 +2,7 @@
  * The tracking from brief B, checked against the events the page sends to PostHog (stubbed in
  * tests/fixtures.ts). Event catalogue: docs/TRACKING.md.
  */
+import type { Page } from '@playwright/test';
 import { registrationsFor } from './d1';
 import { arrivedAt, expect, stored, submitPurchase, test, uniqueEmail } from './fixtures';
 
@@ -206,4 +207,80 @@ test.describe('with PostHog blocked', () => {
     await arrivedAt(page, '/kop/nej-tack');
     await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('nej');
   });
+});
+
+/** Jumps to a section (the page scrolls smoothly otherwise) and waits until it qualifies as seen. */
+async function dwellOn(page: Page, sectionId: string) {
+  await page.evaluate(
+    (id) => document.getElementById(id)!.scrollIntoView({ block: 'start', behavior: 'instant' }),
+    sectionId,
+  );
+  await page.waitForTimeout(2400);
+}
+
+const SECTIONS = ['sektion_hero', 'sektion_hjalpen', 'sektion_vardag', 'sektion_pedagog', 'sektion_prenumeration'];
+
+test('down the whole page, back to the hero and buy: the click knows the last section was seen', async ({
+  page,
+  analytics,
+}) => {
+  await page.goto('/');
+  for (const id of SECTIONS) await dwellOn(page, id);
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  await dwellOn(page, 'sektion_hero');
+  await page.locator('[data-cta-id="kop_hero"]').click();
+  await arrivedAt(page, '/kop/hero');
+
+  const [click] = await analytics.waitFor('purchase_click');
+  expect(click.properties).toMatchObject({
+    cta_id: 'kop_hero',
+    section_id: 'sektion_hero',
+    sections_seen: SECTIONS,
+    max_section_seen: 'sektion_prenumeration',
+    last_section_seen: 'sektion_hero',
+  });
+  expect(click.properties.max_scroll_percent).toBe(100);
+  // The hero was seen twice: the revisit is its own episode.
+  const heroViews = analytics.named('section_view').filter((e) => e.properties.section_id === 'sektion_hero');
+  expect(heroViews.map((e) => e.properties.view_count)).toEqual([1, 2]);
+});
+
+test('a visit without a click still records the sections seen and how far it scrolled', async ({ page, analytics }) => {
+  await page.goto('/');
+  await dwellOn(page, 'sektion_hero');
+  await dwellOn(page, 'sektion_hjalpen');
+  await dwellOn(page, 'sektion_vardag');
+
+  const views = await analytics.waitFor('section_view', 3);
+  expect(views.map((e) => e.properties.section_id)).toEqual(['sektion_hero', 'sektion_hjalpen', 'sektion_vardag']);
+  const last = views.at(-1)!;
+  expect(last.properties.view_order).toBe(3);
+  expect(last.properties.max_scroll_percent).toBeGreaterThan(0);
+  expect(analytics.named('purchase_click')).toHaveLength(0);
+});
+
+test('failed storage is recorded as an error, with no purchase intent', async ({ page, analytics }) => {
+  await page.route('**/api/registrations', (route) => route.fulfill({ status: 500 }));
+  await page.goto('/kop/hero');
+  await page.fill('#kop_namn', 'Fel Test');
+  await page.fill('#kop_epost', uniqueEmail('fel'));
+  await page.click('#kop_skicka');
+  await expect(page.locator('#kop_skicka-fel')).toBeVisible();
+
+  const [error] = await analytics.waitFor('checkout_error');
+  expect(error.properties).toMatchObject({ category: 'save_failed', cta_id: 'kop_hero' });
+  expect(analytics.named('purchase_intent_submit')).toHaveLength(0);
+});
+
+test('a double click on send gives one registration and one purchase intent', async ({ page, analytics }) => {
+  const email = uniqueEmail('dubbel');
+  await page.goto('/kop/avslut');
+  await page.fill('#kop_namn', 'Dubbel Test');
+  await page.fill('#kop_epost', email);
+  await page.dblclick('#kop_skicka');
+  await arrivedAt(page, '/kop/uppdatering');
+
+  await analytics.waitFor('availability_notice_view');
+  expect(analytics.named('purchase_intent_submit')).toHaveLength(1);
+  expect(await stored(email)).toHaveLength(1);
 });
