@@ -24,11 +24,11 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
       </p>
     </div>
     <div class="flex flex-col gap-2">
-      <Button id="opt-in" type="button">
+      <Button id="uppdatering_ja" type="button">
         Ja, jag vill hållas uppdaterad
       </Button>
       <a
-        id="decline"
+        id="uppdatering_nej"
         href={routes.declined}
         class="text-primary-dark inline-flex min-h-12 items-center justify-center self-center font-bold underline"
       >
@@ -46,7 +46,7 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
   // This step only makes sense right after step 1.
   if (!lead) location.replace(routes.purchase);
 
-  const optIn = document.querySelector<HTMLButtonElement>('#opt-in')!;
+  const optIn = document.querySelector<HTMLButtonElement>('#uppdatering_ja')!;
   optIn.addEventListener('click', async () => {
     optIn.disabled = true;
     try {
@@ -57,7 +57,7 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
     location.assign(routes.thanks);
   });
 
-  document.querySelector('#decline')!.addEventListener('click', () => {
+  document.querySelector('#uppdatering_nej')!.addEventListener('click', () => {
     clearLead();
   });
 </script>
