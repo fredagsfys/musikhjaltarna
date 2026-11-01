@@ -1,8 +1,12 @@
 /**
- * Shared test setup. Every page gets a PostHog stub: requests to PostHog never leave the machine, and
- * the events they carry are collected in `analytics` so tests can check them.
+ * Shared test setup.
+ *
+ * - Every page gets a PostHog stub: requests to PostHog never leave the machine, and the events they
+ *   carry are collected in `analytics` so tests can check them. Cloudflare Web Analytics is stubbed too.
+ * - Visitors have accepted analytics unless a test sets `consent` (null for undecided).
  */
 import { expect, test as base, type Page } from '@playwright/test';
+import { CONSENT_KEY, CONSENT_VERSION, type ConsentChoice } from '../src/lib/consent';
 import { gunzipSync } from 'node:zlib';
 import { registrationsFor } from './d1';
 
@@ -33,8 +37,18 @@ function decode(body: Buffer | null): string {
   return raw.startsWith('data=') ? Buffer.from(decodeURIComponent(raw.slice(5)), 'base64').toString('utf8') : raw;
 }
 
-export const test = base.extend<{ analytics: Analytics; blockAnalytics: boolean }>({
+export const test = base.extend<{ analytics: Analytics; blockAnalytics: boolean; consent: ConsentChoice | null }>({
   blockAnalytics: [false, { option: true }],
+  consent: ['granted', { option: true }],
+  storageState: async ({ consent, baseURL }, use) => {
+    const stored = { choice: consent, version: CONSENT_VERSION, at: new Date().toISOString() };
+    await use({
+      cookies: [],
+      origins: consent
+        ? [{ origin: baseURL!, localStorage: [{ name: CONSENT_KEY, value: JSON.stringify(stored) }] }]
+        : [],
+    });
+  },
   analytics: [
     async ({ page, blockAnalytics }, use) => {
       const analytics = new Analytics();
@@ -43,6 +57,9 @@ export const test = base.extend<{ analytics: Analytics; blockAnalytics: boolean 
         Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false });
         Object.defineProperty(Navigator.prototype, 'userAgentData', { get: () => undefined });
       });
+      await page.route('https://static.cloudflareinsights.com/**', (route) =>
+        route.fulfill({ contentType: 'text/javascript', body: '' }),
+      );
       await page.route('https://eu.i.posthog.com/**', async (route) => {
         if (blockAnalytics) return route.abort('blockedbyclient');
         const text = decode(route.request().postDataBuffer());

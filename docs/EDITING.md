@@ -11,6 +11,7 @@ Allt innehåll finns i **en fil**: [`src/content/copy.yaml`](../src/content/copy
 - pris och prisperiod (ändras på ett ställe och slår igenom överallt)
 - texter i köpsteget, besked och uppdateringsval, felmeddelanden och bekräftelser
 - informationen om personuppgifter i köpsteget
+- frågan om mätning (`consent`) och länken Integritetsinställningar i sidfoten
 - kontakt-, villkors- och integritetssidorna
 - bildbeskrivningar och etiketter
 - länken till Pianotopias webbplats

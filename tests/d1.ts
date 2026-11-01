@@ -19,6 +19,7 @@ export interface RegistrationRow {
   message_id: string | null;
   ad_id: string | null;
   page_version: string | null;
+  analytics_consent: 'granted' | 'denied' | null;
   is_test: number;
 }
 

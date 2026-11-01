@@ -35,9 +35,13 @@ const SCHEMA = `CREATE TABLE IF NOT EXISTS registrations (
   update_info_version TEXT
 )`;
 
-/** Ad source and page version (brief B §2–3), added after launch, so existing tables get them too. */
+/**
+ * Ad source, page version and analytics consent (brief B §2–3, §9), added after launch, so existing
+ * tables get them too. `analytics_consent` is `granted`, `denied` or empty when undecided.
+ */
 const SOURCE_COLUMNS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'message_id', 'ad_id'] as const;
-const ADDED_COLUMNS = [...SOURCE_COLUMNS, 'page_version'];
+const ADDED_COLUMNS = [...SOURCE_COLUMNS, 'page_version', 'analytics_consent'];
+const CONSENT_CHOICES = new Set(['granted', 'denied']);
 
 async function migrate(db: D1Database) {
   await db.prepare(SCHEMA).run();
@@ -94,12 +98,14 @@ async function saveRegistration(body: Record<string, unknown>, db: D1Database) {
   if (!name || !EMAIL.test(email)) throw new HttpError(400, 'Invalid name or e-mail');
   const source = body.source && typeof body.source === 'object' ? (body.source as Record<string, unknown>) : {};
 
-  // The source is kept from the first submission: it describes how the visitor arrived.
+  // The source is kept from the first submission: it describes how the visitor arrived. Consent follows
+  // the latest submission, since the visitor may have decided in between.
   await db
     .prepare(
       `INSERT INTO registrations (id, name, email, cta_id, is_test, ${ADDED_COLUMNS.join(', ')})
        VALUES (?, ?, ?, ?, ?, ${ADDED_COLUMNS.map(() => '?').join(', ')})
-       ON CONFLICT (id) DO UPDATE SET name = excluded.name, email = excluded.email, cta_id = excluded.cta_id`,
+       ON CONFLICT (id) DO UPDATE SET name = excluded.name, email = excluded.email, cta_id = excluded.cta_id,
+         analytics_consent = excluded.analytics_consent`,
     )
     .bind(
       id,
@@ -109,6 +115,7 @@ async function saveRegistration(body: Record<string, unknown>, db: D1Database) {
       body.isTest === true ? 1 : 0,
       ...SOURCE_COLUMNS.map((column) => text(source[column], 200) || null),
       text(body.pageVersion, 40) || null,
+      CONSENT_CHOICES.has(text(body.analyticsConsent, 8)) ? text(body.analyticsConsent, 8) : null,
     )
     .run();
 }

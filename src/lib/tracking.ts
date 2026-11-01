@@ -3,9 +3,11 @@
  *
  * - Cookieless: PostHog sets no cookies and uses no browser storage. Sessions (30 minutes of
  *   inactivity) are assigned by PostHog's servers.
- * - The ad source (UTM parameters, message_id, ad_id) is read from the arrival URL and kept for the
- *   tab's session in sessionStorage, so it follows the visitor through the purchase flow and onto the
- *   registration, and internal navigation never overwrites it (brief B §3).
+ * - The ad source (UTM parameters, message_id, ad_id) is read from the arrival URL and, with consent,
+ *   kept for the tab's session in sessionStorage, so it follows the visitor through the purchase flow
+ *   and onto the registration, and internal navigation never overwrites it (brief B §3).
+ * - Only with the visitor's consent (src/lib/consent.ts). Until they decide, events from the current
+ *   page wait in memory; they are sent if the visitor accepts and discarded if they decline.
  * - PostHog loads lazily and only when a project key is configured. If it is blocked or fails to
  *   load, events are dropped and the purchase flow is unaffected (brief B §9).
  * - Never pass names, e-mail addresses or form values here.
@@ -14,6 +16,7 @@
  */
 import type { PostHog } from 'posthog-js/dist/module.slim.no-external';
 import { site } from '~/config/site';
+import { consent, onConsentChange } from './consent';
 import { isTestSession } from './registration';
 
 export type TrackingEvent =
@@ -67,6 +70,7 @@ export const pageVersion = () => document.documentElement.dataset.pageVersion ??
  * since they come from a URL anyone can edit.
  */
 export function adSource(): AdSource {
+  if (consent() === 'denied') return {};
   try {
     const stored = sessionStorage.getItem(SOURCE_KEY);
     if (stored) return JSON.parse(stored) as AdSource;
@@ -79,7 +83,8 @@ export function adSource(): AdSource {
     const value = params.get(key)?.trim().slice(0, 200);
     if (value) source[key] = value;
   }
-  if (Object.keys(source).length > 0) {
+  // Kept for the rest of the session only with consent; until then it lives in this page's URL.
+  if (Object.keys(source).length > 0 && consent() === 'granted') {
     try {
       sessionStorage.setItem(SOURCE_KEY, JSON.stringify(source));
     } catch {
@@ -90,9 +95,11 @@ export function adSource(): AdSource {
 }
 
 let client: Promise<PostHog | null> | undefined;
+/** Events recorded before the visitor decided, in memory only. */
+let pending: (() => void)[] = [];
 
 /** Loads and configures PostHog once per page. Resolves to null when tracking is off or blocked. */
-export function startTracking(): Promise<PostHog | null> {
+function startTracking(): Promise<PostHog | null> {
   if (client) return client;
   client = KEY
     ? import('posthog-js/dist/module.slim.no-external')
@@ -138,7 +145,41 @@ export function track(event: TrackingEvent, properties: TrackingProperties = {})
     event_timestamp: new Date().toISOString(),
     ...properties,
   };
-  void startTracking().then((posthog) => posthog?.capture(event, payload, { send_instantly: true }));
+  const send = () => void startTracking().then((posthog) => posthog?.capture(event, payload, { send_instantly: true }));
+  const choice = consent();
+  if (choice === 'granted') send();
+  else if (choice === null) pending.push(send);
+}
+
+/** Cloudflare Web Analytics page views, in production builds only. */
+function startWebAnalytics() {
+  if (!import.meta.env.PROD || document.querySelector('script[data-cf-beacon]')) return;
+  const script = document.createElement('script');
+  script.defer = true;
+  script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  script.dataset.cfBeacon = JSON.stringify({ token: site.webAnalyticsToken });
+  document.head.append(script);
+}
+
+/** Starts analytics on every page: right away with consent, or as soon as the visitor accepts. */
+export function initTracking() {
+  const start = () => {
+    adSource();
+    void startTracking();
+    startWebAnalytics();
+    for (const send of pending) send();
+    pending = [];
+  };
+  if (consent() === 'granted') start();
+  onConsentChange((choice) => {
+    if (choice === 'granted') return start();
+    pending = [];
+    try {
+      sessionStorage.removeItem(SOURCE_KEY);
+    } catch {
+      // Nothing stored.
+    }
+  });
 }
 
 /** Runs `callback` once the tab is visible: page-view events only count in an active tab (brief B §4). */

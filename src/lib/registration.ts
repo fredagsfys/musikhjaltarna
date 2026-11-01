@@ -1,4 +1,5 @@
 import type { CtaId } from '~/config/site';
+import type { ConsentChoice } from './consent';
 import type { AdSource } from './tracking';
 
 const STORAGE_KEY = 'musikhjaltarna:registration';
@@ -14,8 +15,10 @@ export interface Registration {
   email: string;
   ctaId: CtaId | null;
   isTest: boolean;
-  /** The session's ad source, so registrations can be counted per ad (brief B §3). */
+  /** The session's ad source, so registrations can be counted per ad (brief B §3). Empty without consent. */
   source: AdSource;
+  /** The analytics choice when sending: tells stored registrations PostHog can see from those it can't. */
+  analyticsConsent: ConsentChoice | null;
   /** The page and content version the visitor saw (brief B §2). */
   pageVersion: string;
   /** Set once purchase_intent_submit has been sent, so a resubmit doesn't send it again (brief B §7). */

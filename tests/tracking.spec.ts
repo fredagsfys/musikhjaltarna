@@ -179,7 +179,11 @@ test('links to Pianotopia are tracked with their placement', async ({ page, anal
   expect(link.properties).toMatchObject({ link_id: 'pianotopia_website', placement: 'footer' });
 });
 
-test('tracking sets no cookies and stores nothing but the session source', async ({ page, context, analytics }) => {
+test('tracking sets no cookies and stores nothing but the choice and the session source', async ({
+  page,
+  context,
+  analytics,
+}) => {
   await page.goto(adUrl('/'));
   await analytics.waitFor('section_view');
   expect(await context.cookies()).toEqual([]);
@@ -187,7 +191,7 @@ test('tracking sets no cookies and stores nothing but the session source', async
     local: Object.keys(localStorage),
     session: Object.keys(sessionStorage),
   }));
-  expect(storage.local).toEqual([]);
+  expect(storage.local).toEqual(['musikhjaltarna:consent']);
   expect(storage.session).toEqual(['musikhjaltarna:source']);
 });
 
