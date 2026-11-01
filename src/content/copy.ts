@@ -4,6 +4,7 @@
  * A broken edit fails the build with a message naming the key, so the live site is untouched.
  */
 import { z } from 'astro/zod';
+import { createHash } from 'node:crypto';
 import { parse } from 'yaml';
 import raw from './copy.yaml?raw';
 
@@ -100,6 +101,9 @@ function load() {
 }
 
 export const copy = load();
+
+/** Short hash of copy.yaml: changes whenever editors change any text, the price or a link. */
+export const contentVersion = createHash('sha256').update(raw).digest('hex').slice(0, 8);
 
 /** "79 kr/månad", used everywhere the price is shown. */
 export const priceLabel = `${copy.offer.price} kr/${copy.offer.period}`;
