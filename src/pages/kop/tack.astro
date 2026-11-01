@@ -41,8 +41,13 @@ import FlowLayout from '~/layouts/FlowLayout.astro';
 </FlowLayout>
 
 <script>
-  import { takeConfirmedEmail } from '~/lib/registration';
+  import { takeConfirmation } from '~/lib/registration';
+  import { track, whenVisible } from '~/lib/tracking';
 
-  const email = takeConfirmedEmail();
-  if (email) document.querySelector('#lead-email')!.textContent = email;
+  const confirmation = takeConfirmation();
+  // Only after a stored "ja": a direct visit shows the generic text and sends nothing.
+  if (confirmation) {
+    document.querySelector('#lead-email')!.textContent = confirmation.email;
+    whenVisible(() => track('updates_confirmation_view', { registration_id: confirmation.registrationId }));
+  }
 </script>
