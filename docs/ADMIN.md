@@ -49,15 +49,19 @@ Read them in Cloudflare under _Storage & Databases → D1 → musikhjaltarna →
 SELECT update_status, COUNT(*) FROM registrations WHERE is_test = 0 GROUP BY update_status;
 ```
 
-## Export and deletion
+## Export, report and deletion
 
-Both commands use Wrangler with your own Cloudflare login, so they only work for administrators. Run `npx wrangler login`
+These commands use Wrangler with your own Cloudflare login, so they only work for administrators. Run `npx wrangler login`
 once first. Add `--local` to use the local database from `npx wrangler dev`.
 
 ```sh
 # All registrations with update status, as CSV (UTF-8, opens correctly in Excel)
 npm run export:registrations                       # → registrations-YYYY-MM-DD.csv
 npm run export:registrations -- --out=export.csv
+
+# Stored registrations per analytics choice, to compare with PostHog (docs/REPORTS.md)
+npm run report:registrations                       # the last 30 days
+npm run report:registrations -- --from=2026-11-01 --to=2026-11-30
 
 # Delete a person's registrations, by e-mail or registration id.
 # Without --yes it only shows what would be deleted.
