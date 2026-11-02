@@ -2,12 +2,12 @@
 
 How much of _Pianotopia Musikhjältarna – B. Teknisk spårningsbrief_ the current build fulfils.
 
-- **Assessed:** 2026-11-02, against `main` after PR #20 (tracking on PostHog Cloud EU) and PR #21 (consent banner), and
-  the live site.
+- **Assessed:** 2026-11-02, against `main` after PR #20 (tracking on PostHog Cloud EU) and PR #21 (consent banner), the
+  live site and the PostHog project.
 - **Measurement today:**
   - PostHog Cloud EU (project 330450), cookieless, with the brief's events and properties
     ([`TRACKING.md`](TRACKING.md));
-  - report queries in [`REPORTS.md`](REPORTS.md);
+  - a PostHog dashboard with every report, its queries in [`REPORTS.md`](REPORTS.md);
   - D1 `registrations` with CTA, update choice, ad source, page version and analytics consent;
   - a consent banner before any measurement.
 - **Scoring:** ✅ fulfilled = 1, 🟡 partly = ½, ❌ missing = 0. Rows marked "–" are out of scope for the site and not
@@ -17,21 +17,21 @@ How much of _Pianotopia Musikhjältarna – B. Teknisk spårningsbrief_ the curr
 
 ## Summary
 
-**Overall: 83.5 of 92 points, about 91%** (up from 34%). 75 ✅, 17 🟡, 0 ❌.
+**Overall: 89.5 of 92 points, about 97%** (34% before the tracking). 87 ✅, 5 🟡, 0 ❌.
 
-| Section of the brief             |  Items |     ✅ |     🟡 |    ❌ |    Score |       % |
-| -------------------------------- | -----: | -----: | -----: | ----: | -------: | ------: |
-| 1. Measurement model             |      6 |      6 |      0 |     0 |      6.0 |    100% |
-| 2. Identification and linking    |      8 |      7 |      1 |     0 |      7.5 |     94% |
-| 3. Ad source                     |      7 |      6 |      1 |     0 |      6.5 |     93% |
-| 4. Events                        |     14 |     14 |      0 |     0 |     14.0 |    100% |
-| 5. Section exposure              |      6 |      6 |      0 |     0 |      6.0 |    100% |
-| 6. Information at each buy click |      9 |      9 |      0 |     0 |      9.0 |    100% |
-| 7. Double counting and loss      |      7 |      7 |      0 |     0 |      7.0 |    100% |
-| 8. Reporting                     |     15 |      3 |     12 |     0 |      9.0 |     60% |
-| 9. Measurement loss and consent  |      6 |      4 |      2 |     0 |      5.0 |     83% |
-| 10. Verification and handover    |     14 |     13 |      1 |     0 |     13.5 |     96% |
-| **Total**                        | **92** | **75** | **17** | **0** | **83.5** | **91%** |
+| Section of the brief             |  Items |     ✅ |    🟡 |    ❌ |    Score |       % |
+| -------------------------------- | -----: | -----: | ----: | ----: | -------: | ------: |
+| 1. Measurement model             |      6 |      6 |     0 |     0 |      6.0 |    100% |
+| 2. Identification and linking    |      8 |      8 |     0 |     0 |      8.0 |    100% |
+| 3. Ad source                     |      7 |      6 |     1 |     0 |      6.5 |     93% |
+| 4. Events                        |     14 |     14 |     0 |     0 |     14.0 |    100% |
+| 5. Section exposure              |      6 |      6 |     0 |     0 |      6.0 |    100% |
+| 6. Information at each buy click |      9 |      9 |     0 |     0 |      9.0 |    100% |
+| 7. Double counting and loss      |      7 |      7 |     0 |     0 |      7.0 |    100% |
+| 8. Reporting                     |     15 |     14 |     1 |     0 |     14.5 |     97% |
+| 9. Measurement loss and consent  |      6 |      4 |     2 |     0 |      5.0 |     83% |
+| 10. Verification and handover    |     14 |     13 |     1 |     0 |     13.5 |     96% |
+| **Total**                        | **92** | **87** | **5** | **0** | **89.5** | **97%** |
 
 **In short:** everything the brief asks the site to _record_ is in place and tested on four browsers:
 
@@ -41,16 +41,13 @@ How much of _Pianotopia Musikhjältarna – B. Teknisk spårningsbrief_ the curr
 - once-only conversions from confirmed storage;
 - consent before any measurement.
 
-What remains is mostly on the _reporting_ side and on decisions outside the code:
+What remains is small, and mostly outside the code:
 
-1. **Reports exist as SQL but haven't been run.** They need checking against real data and saving as a PostHog
-   dashboard the client can open. That takes a PostHog personal API key, or someone with project access.
-2. **Client decisions and access:**
+1. **Client decisions and access:**
    - sign-off on the consent banner, including the accepted risk of declining only on the second layer;
    - agreeing the ad naming with whoever sets up the ads;
-   - client access to PostHog.
-3. **Two smaller items:** the PostHog project's time zone (Europe/Stockholm), and the stored-vs-measured comparison,
-   which is a manual step today.
+   - client access to PostHog and Cloudflare.
+2. **Stored vs measured** is a manual comparison between the D1 export and the dashboard's measured registrations.
 
 ## Questions the tracking must answer
 
@@ -81,16 +78,16 @@ PostHog answers cover visitors who accepted measurement; D1 counts every registr
 
 ## 2. Identification and linking
 
-| Requirement                                                                         | Status | Evidence                                                                 | Gap                                    |
-| ----------------------------------------------------------------------------------- | :----: | ------------------------------------------------------------------------ | -------------------------------------- |
-| `session_id`, new session after 30 minutes of inactivity                            |   ✅   | PostHog `$session_id`, `session_idle_timeout_seconds: 1800`              | –                                      |
-| `event_id` per event, to prevent double counting on resend                          |   ✅   | Random per event; deterministic for intent and choice                    | –                                      |
-| `event_timestamp` in UTC, reported in Swedish time                                  |   🟡   | `event_timestamp` in UTC ISO 8601 on every event                         | Set the project time zone to Stockholm |
-| `registration_id` linking registration to the update choice, without name or e-mail |   ✅   | UUID on the intent, notice, choice and confirmation events, and in D1    | –                                      |
-| `page_version`: which version of page and content was seen                          |   ✅   | Commit + `copy.yaml` hash, on every event and registration               | –                                      |
-| `environment`: production vs preview vs internal tests                              |   ✅   | `production`, `preview`, `test`, `development` on every event; `is_test` | –                                      |
-| Analysis built on unique sessions, not unique persons                               |   ✅   | Reports count sessions; no person profiles                               | –                                      |
-| No name, e-mail or form values to analytics; session recordings mask forms          |   ✅   | Every request checked in the tests; no recordings or autocapture         | –                                      |
+| Requirement                                                                         | Status | Evidence                                                                 | Gap |
+| ----------------------------------------------------------------------------------- | :----: | ------------------------------------------------------------------------ | --- |
+| `session_id`, new session after 30 minutes of inactivity                            |   ✅   | PostHog `$session_id`, `session_idle_timeout_seconds: 1800`              | –   |
+| `event_id` per event, to prevent double counting on resend                          |   ✅   | Random per event; deterministic for intent and choice                    | –   |
+| `event_timestamp` in UTC, reported in Swedish time                                  |   ✅   | UTC ISO 8601 on every event; project time zone Europe/Stockholm          | –   |
+| `registration_id` linking registration to the update choice, without name or e-mail |   ✅   | UUID on the intent, notice, choice and confirmation events, and in D1    | –   |
+| `page_version`: which version of page and content was seen                          |   ✅   | Commit + `copy.yaml` hash, on every event and registration               | –   |
+| `environment`: production vs preview vs internal tests                              |   ✅   | `production`, `preview`, `test`, `development` on every event; `is_test` | –   |
+| Analysis built on unique sessions, not unique persons                               |   ✅   | Reports count sessions; no person profiles                               | –   |
+| No name, e-mail or form values to analytics; session recordings mask forms          |   ✅   | Every request checked in the tests; no recordings or autocapture         | –   |
 
 ## 3. Ad source
 
@@ -162,26 +159,27 @@ PostHog answers cover visitors who accepted measurement; D1 counts every registr
 
 ## 8. Reporting
 
-The reports are written as SQL in [`REPORTS.md`](REPORTS.md) but haven't been run against PostHog or saved as a
-dashboard, so they score as partly done until they are.
+Every report is a tile on the PostHog dashboard
+[Musikhjältarna – köpavsiktstest](https://eu.posthog.com/project/330450/dashboard/1075531), with its SQL in
+[`REPORTS.md`](REPORTS.md). Each query was checked on 2026-11-02 against test sessions covering the whole flow.
 
-| Report part / requirement                                                                                 | Status | Evidence                                     | Gap                          |
-| --------------------------------------------------------------------------------------------------------- | :----: | -------------------------------------------- | ---------------------------- |
-| Whole flow: offer sessions, clicks, checkout views, started forms, registrations, "ja"; counts and shares |   🟡   | "Whole flow" query                           | Run; save to a dashboard     |
-| Per ad and message: arrivals, clicks, registrations                                                       |   🟡   | "Per ad and message" query                   | Run; save to a dashboard     |
-| Per section: sessions exposed, saw its CTA, clicked its CTA                                               |   🟡   | "Per section" queries                        | Run; save to a dashboard     |
-| Before the click: clicked CTA vs lowest exposed section                                                   |   🟡   | "Before the click" query                     | Run; save to a dashboard     |
-| Without a click: lowest exposed section                                                                   |   🟡   | "Without a click" query                      | Run; save to a dashboard     |
-| Purchase step: checkout view → registration, plus errors                                                  |   🟡   | "Purchase step" queries                      | Run; save to a dashboard     |
-| Update choice: ja, nej, inget val, separate from purchase intent                                          |   ✅   | D1 export; "Update choice" query             | –                            |
-| Data quality: missing source, measurement loss, tests, saved vs measured                                  |   🟡   | "Data quality" queries; manual D1 comparison | Run; automate the comparison |
-| Filters: date, ad source, message, page version, device type                                              |   🟡   | `{filters}` in every query                   | Needs a saved dashboard      |
-| Rate: Meningsfullt (sessions with a click / offer sessions)                                               |   🟡   | In "Whole flow" and "Per ad and message"     | Run                          |
-| Rate: Värdefullt (sessions with a registration / offer sessions)                                          |   🟡   | In "Whole flow" and "Per ad and message"     | Run                          |
-| Rate: purchase-step conversion (sessions with a registration / sessions with a checkout view)             |   🟡   | In "Whole flow" and "Purchase step"          | Run                          |
-| Rate: update interest (registrations with "ja" / all registrations)                                       |   ✅   | D1, and the "Update choice" query            | –                            |
-| Rate: CTA click rate (sessions clicking a CTA / sessions that saw it)                                     |   🟡   | "Per section" query, clicks after a view     | Run                          |
-| Section and CTA comparisons presented as descriptive, not causal                                          |   ✅   | Stated in `REPORTS.md`                       | –                            |
+| Report part / requirement                                                                                 | Status | Evidence                                                                   | Gap                                               |
+| --------------------------------------------------------------------------------------------------------- | :----: | -------------------------------------------------------------------------- | ------------------------------------------------- |
+| Whole flow: offer sessions, clicks, checkout views, started forms, registrations, "ja"; counts and shares |   ✅   | Dashboard tile "Hela flödet"                                               | –                                                 |
+| Per ad and message: arrivals, clicks, registrations                                                       |   ✅   | Dashboard tile "Per annons och budskap"                                    | –                                                 |
+| Per section: sessions exposed, saw its CTA, clicked its CTA                                               |   ✅   | Dashboard tiles "Per sektion" and "Exponering per sektion"                 | –                                                 |
+| Before the click: clicked CTA vs lowest exposed section                                                   |   ✅   | Dashboard tile "Före klicket"                                              | –                                                 |
+| Without a click: lowest exposed section                                                                   |   ✅   | Dashboard tile "Utan klick"                                                | –                                                 |
+| Purchase step: checkout view → registration, plus errors                                                  |   ✅   | Dashboard tiles "Köpsteget" and "Valideringsfel per fält"                  | –                                                 |
+| Update choice: ja, nej, inget val, separate from purchase intent                                          |   ✅   | Dashboard tile "Uppdateringsval"; D1 export                                | –                                                 |
+| Data quality: missing source, measurement loss, tests, saved vs measured                                  |   🟡   | Dashboard tiles "Trafik per miljö", "Saknad källa", "Mätta registreringar" | Stored vs measured is a manual comparison with D1 |
+| Filters: date, ad source, message, page version, device type                                              |   ✅   | Dashboard filters, applied to every tile through `{filters}`; tested       | –                                                 |
+| Rate: Meningsfullt (sessions with a click / offer sessions)                                               |   ✅   | "Hela flödet" and "Per annons och budskap"                                 | –                                                 |
+| Rate: Värdefullt (sessions with a registration / offer sessions)                                          |   ✅   | "Hela flödet" and "Per annons och budskap"                                 | –                                                 |
+| Rate: purchase-step conversion (sessions with a registration / sessions with a checkout view)             |   ✅   | "Hela flödet" and "Köpsteget"                                              | –                                                 |
+| Rate: update interest (registrations with "ja" / all registrations)                                       |   ✅   | "Hela flödet" and "Uppdateringsval"; D1                                    | –                                                 |
+| Rate: CTA click rate (sessions clicking a CTA / sessions that saw it)                                     |   ✅   | "Per sektion", clicks among sessions that saw the button                   | –                                                 |
+| Section and CTA comparisons presented as descriptive, not causal                                          |   ✅   | Stated in `REPORTS.md`                                                     | –                                                 |
 
 ## 9. Measurement loss and tracking settings
 
@@ -222,13 +220,10 @@ dashboard, so they score as partly done until they are.
 
 ## Gap plan
 
-1. **Reports** (§8): run every query in `REPORTS.md` against real data, and save them as a PostHog dashboard with the
-   filters. This needs a PostHog personal API key, or a session in the project.
-2. **Project setting** (§2): set the PostHog project's time zone to Europe/Stockholm.
-3. **Stored vs measured** (§8, §9): a report or script that sets D1 registrations, split by `analytics_consent`, next
-   to PostHog's measured registrations.
-4. **Client decisions and access** (§3, §9, §10):
+1. **Client decisions and access** (§3, §9, §10):
    - sign-off on the consent banner and its accepted risk;
    - agreeing the ad naming with whoever sets up the ads;
    - client access to PostHog and Cloudflare.
-5. **By hand:** a run through the Facebook and Instagram in-app browsers on a real phone.
+2. **Stored vs measured** (§8, §9): a report or script that sets D1 registrations, split by `analytics_consent`, next
+   to PostHog's measured registrations.
+3. **By hand:** a run through the Facebook and Instagram in-app browsers on a real phone.
