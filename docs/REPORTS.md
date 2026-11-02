@@ -96,19 +96,31 @@ ORDER BY arrivals DESC
 
 ## Per section
 
-For each section: sessions that saw it, saw its buy button, and clicked its buy button. The CTA click rate is sessions
-clicking the button divided by sessions that saw it.
+For each section: sessions that saw it, saw its buy button, and clicked its buy button. The CTA click rate counts clicks
+only among sessions that saw the button (a qualified `cta_view`), so a quick scroll-and-tap without a qualified view
+is in `clicked_cta_sessions` but not in the rate.
 
 ```sql
+WITH per_session AS (
+  SELECT
+    properties.section_id AS section,
+    $session_id AS session,
+    countIf(event = 'section_view') > 0 AS exposed,
+    countIf(event = 'cta_view') > 0 AS saw_cta,
+    countIf(event = 'purchase_click') > 0 AS clicked
+  FROM events
+  WHERE event IN ('section_view', 'cta_view', 'purchase_click')
+    AND properties.environment = 'production' AND {filters}
+  GROUP BY section, session
+)
 SELECT
-  properties.section_id AS section,
-  uniqIf($session_id, event = 'section_view') AS exposed_sessions,
-  uniqIf($session_id, event = 'cta_view') AS saw_cta_sessions,
-  uniqIf($session_id, event = 'purchase_click') AS clicked_cta_sessions,
-  round(clicked_cta_sessions / saw_cta_sessions * 100, 1) AS cta_click_rate_pct
-FROM events
-WHERE event IN ('section_view', 'cta_view', 'purchase_click')
-  AND properties.environment = 'production' AND {filters}
+  section,
+  countIf(exposed) AS exposed_sessions,
+  countIf(saw_cta) AS saw_cta_sessions,
+  countIf(clicked) AS clicked_cta_sessions,
+  countIf(saw_cta AND clicked) AS clicked_after_seeing,
+  round(clicked_after_seeing / saw_cta_sessions * 100, 1) AS cta_click_rate_pct
+FROM per_session
 GROUP BY section
 ORDER BY section
 ```
