@@ -4,6 +4,9 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
+/* Laptop screens too short for the full hero: the hero tightens so its buy button stays above the fold. */
+@custom-variant laptop (@media (width >= 64rem) and (height <= 60rem));
+
 @utility container-page {
   margin-inline: auto;
   width: 100%;

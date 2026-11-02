@@ -24,9 +24,10 @@
 
   /*
    * h1 follows the spec's clamp but is also capped by the text column width (container query
-   * units): the accent phrase never wraps, and at 44px it would overflow a 320px screen.
+   * units): the accent phrase never wraps, and at 44px it would overflow a 320px screen. It is also
+   * capped by the screen height, so short laptop screens fit the hero's buy button above the fold.
    */
-  --text-h1: min(clamp(2.75rem, 1.8rem + 4.2vw, 4.75rem), 15cqi);
+  --text-h1: min(clamp(2.75rem, 1.8rem + 4.2vw, 4.75rem), 15cqi, 8svh);
   --text-h1--line-height: 1.05;
   --text-h1--letter-spacing: -0.01em;
   --text-h2: clamp(2.125rem, 1.6rem + 2.4vw, 3.25rem);
