@@ -16,15 +16,15 @@ const { hero } = copy;
 <section
   id={SECTION_IDS.hero}
   aria-labelledby={`${SECTION_IDS.hero}-title`}
-  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16"
+  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16 laptop:pt-8"
 >
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12">
     <div class="@container min-w-0">
       <Eyebrow rule>{hero.eyebrow}</Eyebrow>
-      <AccentHeading id={`${SECTION_IDS.hero}-title`} text={hero.title} accent={hero.titleAccent} class="mt-6" />
-      <p class="text-lead mt-8 lg:max-w-[34ch]">{hero.lead}</p>
-      <BuyButton ctaId="kop_hero" class="mt-10" />
-      <TrustList class="mt-6" items={[hero.trust]} />
+      <AccentHeading id={`${SECTION_IDS.hero}-title`} text={hero.title} accent={hero.titleAccent} class="mt-6 laptop:mt-4" />
+      <p class="text-lead mt-8 lg:max-w-[34ch] laptop:mt-5 laptop:max-w-[40ch]">{hero.lead}</p>
+      <BuyButton ctaId="kop_hero" class="mt-10 laptop:mt-7" />
+      <TrustList class="mt-6 laptop:mt-4" items={[hero.trust]} />
     </div>
 
     <!--
