@@ -16,6 +16,7 @@
     "astro": "astro",
     "export:registrations": "node scripts/export-registrations.mjs",
     "delete:registration": "node scripts/delete-registration.mjs",
+    "report:registrations": "node scripts/report-registrations.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
