@@ -50,3 +50,27 @@ export function exportCsv(out: string): string {
   });
   return execFileSync('cat', [out], { encoding: 'utf8' });
 }
+
+export interface RegistrationReport {
+  stored: number;
+  measurable: number;
+  declined: number;
+  undecided: number;
+  ja: number;
+  nej: number;
+  inget_val: number;
+  tests: number;
+}
+
+/** Runs the stored-vs-measured report against the test database, for today. Retries like `registrationsFor`. */
+export function registrationReport(): RegistrationReport {
+  const args = ['scripts/report-registrations.mjs', '--local', `--persist-to=${E2E_STATE}`, '--json'];
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return JSON.parse(execFileSync('node', args, { encoding: 'utf8', env, stdio: 'pipe' }));
+    } catch (error) {
+      if (attempt >= 5) throw error;
+      execFileSync('sleep', [String(0.3 * attempt)]);
+    }
+  }
+}
