@@ -2,230 +2,233 @@
 
 How much of _Pianotopia Musikhjältarna – B. Teknisk spårningsbrief_ the current build fulfils.
 
-- **Assessed:** 2026-11-01, against `main` and the live site.
-- **Measurement today:** Cloudflare Web Analytics counts page views (one path per buy button), and D1 `registrations`
-  stores each submission with its CTA and update choice.
+- **Assessed:** 2026-11-02, against `main` after PR #20 (tracking on PostHog Cloud EU) and PR #21 (consent banner), and
+  the live site.
+- **Measurement today:**
+  - PostHog Cloud EU (project 330450), cookieless, with the brief's events and properties
+    ([`TRACKING.md`](TRACKING.md));
+  - report queries in [`REPORTS.md`](REPORTS.md);
+  - D1 `registrations` with CTA, update choice, ad source, page version and analytics consent;
+  - a consent banner before any measurement.
 - **Scoring:** ✅ fulfilled = 1, 🟡 partly = ½, ❌ missing = 0. Rows marked "–" are out of scope for the site and not
   scored.
+- **Previous assessment:** 2026-11-01, before the tracking existed: 31.0 of 92 points, 34%.
 - The brief itself (PDF) is not committed; it is client material.
 
 ## Summary
 
-**Overall: 31.0 of 92 points, about 34%.** 18 ✅, 26 🟡, 48 ❌.
+**Overall: 83.5 of 92 points, about 91%** (up from 34%). 75 ✅, 17 🟡, 0 ❌.
 
-| Section of the brief             |  Items |     ✅ |     🟡 |     ❌ |    Score |       % |
-| -------------------------------- | -----: | -----: | -----: | -----: | -------: | ------: |
-| 1. Measurement model             |      6 |      4 |      2 |      0 |      5.0 |     83% |
-| 2. Identification and linking    |      8 |      2 |      3 |      3 |      3.5 |     44% |
-| 3. Ad source                     |      7 |      0 |      2 |      5 |      1.0 |     14% |
-| 4. Events                        |     14 |      1 |      7 |      6 |      4.5 |     32% |
-| 5. Section exposure              |      6 |      0 |      0 |      6 |      0.0 |      0% |
-| 6. Information at each buy click |      9 |      0 |      2 |      7 |      1.0 |     11% |
-| 7. Double counting and loss      |      7 |      3 |      2 |      2 |      4.0 |     57% |
-| 8. Reporting                     |     15 |      3 |      3 |      9 |      4.5 |     30% |
-| 9. Measurement loss and consent  |      6 |      2 |      0 |      4 |      2.0 |     33% |
-| 10. Verification and handover    |     14 |      3 |      5 |      6 |      5.5 |     39% |
-| **Total**                        | **92** | **18** | **26** | **48** | **31.0** | **34%** |
+| Section of the brief             |  Items |     ✅ |     🟡 |    ❌ |    Score |       % |
+| -------------------------------- | -----: | -----: | -----: | ----: | -------: | ------: |
+| 1. Measurement model             |      6 |      6 |      0 |     0 |      6.0 |    100% |
+| 2. Identification and linking    |      8 |      7 |      1 |     0 |      7.5 |     94% |
+| 3. Ad source                     |      7 |      6 |      1 |     0 |      6.5 |     93% |
+| 4. Events                        |     14 |     14 |      0 |     0 |     14.0 |    100% |
+| 5. Section exposure              |      6 |      6 |      0 |     0 |      6.0 |    100% |
+| 6. Information at each buy click |      9 |      9 |      0 |     0 |      9.0 |    100% |
+| 7. Double counting and loss      |      7 |      7 |      0 |     0 |      7.0 |    100% |
+| 8. Reporting                     |     15 |      3 |     12 |     0 |      9.0 |     60% |
+| 9. Measurement loss and consent  |      6 |      4 |      2 |     0 |      5.0 |     83% |
+| 10. Verification and handover    |     14 |     13 |      1 |     0 |     13.5 |     96% |
+| **Total**                        | **92** | **75** | **17** | **0** | **83.5** | **91%** |
 
-**In short:** the _stored_ side is strong:
+**In short:** everything the brief asks the site to _record_ is in place and tested on four browsers:
 
-- registrations are saved only after confirmed storage, once per submission, without personal data in the id;
-- the CTA is kept, and `ja`, `nej` and `inget_val` stay separate;
-- tests are flagged, and the flow works without analytics.
+- sessions, event ids, UTC timestamps, page and content versions, environments;
+- the ad source, kept for the session and stored on each registration;
+- all 13 events, section exposure and buy-button visibility, and the full click context;
+- once-only conversions from confirmed storage;
+- consent before any measurement.
 
-The _behavioural_ side is largely missing, because Web Analytics only counts page views:
+What remains is mostly on the _reporting_ side and on decisions outside the code:
 
-- no session id or event ids;
-- no ad-source (UTM) capture or persistence;
-- no section exposure or CTA visibility;
-- none of the click context (sections seen, scroll, time to click);
-- none of the session-based reports and rates.
-
-Part B is essentially a specification for an event pipeline with session-level reporting. Closing it needs:
-
-1. **A tracking platform** for events and reports: a product-analytics tool such as PostHog Cloud EU, or first-party
-   events in D1 with SQL reports and exports.
-2. **A consent decision.** A session identifier kept in the browser for analytics likely requires consent under Swedish
-   rules (LEK). The brief requires the tracking solution and any consent function to be settled before publishing (§9).
+1. **Reports exist as SQL but haven't been run.** They need checking against real data and saving as a PostHog
+   dashboard the client can open. That takes a PostHog personal API key, or someone with project access.
+2. **Client decisions and access:**
+   - sign-off on the consent banner, including the accepted risk of declining only on the second layer;
+   - agreeing the ad naming with whoever sets up the ads;
+   - client access to PostHog.
+3. **Two smaller items:** the PostHog project's time zone (Europe/Stockholm), and the stored-vs-measured comparison,
+   which is a manual step today.
 
 ## Questions the tracking must answer
 
 Not scored; this is how far the current setup gets.
 
-| Question                                                                 | Today                                                                       |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Which ads bring visitors to the page and further through the flow?       | Not answerable: no ad-source capture                                        |
-| Which sections do visitors see before acting?                            | Not answerable: no section exposure                                         |
-| Where do visitors click Buy, and how far had they come before the click? | Where: yes (path per buy button). How far: no                               |
-| How many leave their details to continue to payment?                     | Yes: rows in `registrations`                                                |
-| How many then choose to stay updated?                                    | Yes: `update_status = 'ja'`                                                 |
-| Where does visitor activity stop?                                        | Only per page (offer → step 1 → step 2 → ending), not within the offer page |
+| Question                                                                 | Today                                                                                   |
+| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Which ads bring visitors to the page and further through the flow?       | Yes: ad source on every event and registration; "Per ad and message" report             |
+| Which sections do visitors see before acting?                            | Yes: `section_view` episodes and `sections_seen` on each click                          |
+| Where do visitors click Buy, and how far had they come before the click? | Yes: `cta_id`, `max_section_seen`, `max_scroll_percent` and time to click on each click |
+| How many leave their details to continue to payment?                     | Yes: `purchase_intent_submit` (measured) and D1 registrations (stored)                  |
+| How many then choose to stay updated?                                    | Yes: `updates_choice` (measured) and `update_status = 'ja'` (stored)                    |
+| Where does visitor activity stop?                                        | Yes: lowest section seen and maximum scroll per session, and every step of the flow     |
+
+PostHog answers cover visitors who accepted measurement; D1 counts every registration.
 
 ## 1. Measurement model
 
-| Requirement                                                                   | Status | Evidence                                        | Gap                                   |
-| ----------------------------------------------------------------------------- | :----: | ----------------------------------------------- | ------------------------------------- |
-| Intressant: ad clicks and click-through rate                                  |   –    | Measured by the ad platform                     | –                                     |
-| Meningsfullt: share of offer-page visits with at least one buy click          |   🟡   | Web Analytics views of `/` and `/kop/<section>` | Page views, not sessions with a click |
-| Värdefullt: share of offer-page visits that lead to a successful registration |   🟡   | D1 registrations vs Web Analytics views         | Mixes two populations; needs sessions |
-| Uppdateringsintresse: share of registrations followed by a registered "ja"    |   ✅   | `update_status` in D1                           | –                                     |
-| Purchase intent and update interest reported separately                       |   ✅   | Separate fields and pages                       | –                                     |
-| No event recorded as a completed purchase, payment or revenue                 |   ✅   | None exists                                     | –                                     |
-| The approved decision threshold is used; no own interpretation                |   ✅   | No threshold or verdict in the build            | –                                     |
+| Requirement                                                                   | Status | Evidence                                                            | Gap |
+| ----------------------------------------------------------------------------- | :----: | ------------------------------------------------------------------- | --- |
+| Intressant: ad clicks and click-through rate                                  |   –    | Measured by the ad platform                                         | –   |
+| Meningsfullt: share of offer-page visits with at least one buy click          |   ✅   | Sessions with `purchase_click` / sessions with `offer_view`         | –   |
+| Värdefullt: share of offer-page visits that lead to a successful registration |   ✅   | Sessions with `purchase_intent_submit` / sessions with `offer_view` | –   |
+| Uppdateringsintresse: share of registrations followed by a registered "ja"    |   ✅   | `updates_choice`, and `update_status` in D1                         | –   |
+| Purchase intent and update interest reported separately                       |   ✅   | Separate events, fields and reports                                 | –   |
+| No event recorded as a completed purchase, payment or revenue                 |   ✅   | None exists; `price` is the offered price on the intent             | –   |
+| The approved decision threshold is used; no own interpretation                |   ✅   | No threshold or verdict in the build                                | –   |
 
 ## 2. Identification and linking
 
-| Requirement                                                                         | Status | Evidence                                      | Gap                                           |
-| ----------------------------------------------------------------------------------- | :----: | --------------------------------------------- | --------------------------------------------- |
-| `session_id`, new session after 30 minutes of inactivity                            |   ❌   | –                                             | Session handling                              |
-| `event_id` per event, to prevent double counting on resend                          |   ❌   | –                                             | Event ids                                     |
-| `event_timestamp` in UTC, reported in Swedish time                                  |   🟡   | Registrations stored in UTC                   | No events; reporting not in Swedish time      |
-| `registration_id` linking registration to the update choice, without name or e-mail |   ✅   | `registrations.id` (UUID)                     | –                                             |
-| `page_version`: which version of page and content was seen                          |   🟡   | `update_info_version` for the step 2 text     | Version for the whole page and content        |
-| `environment`: production vs preview vs internal tests                              |   🟡   | Separate preview database, `is_test`          | Not on events; Web Analytics doesn't separate |
-| Analysis built on unique sessions, not unique persons                               |   ❌   | Page views only                               | Sessions                                      |
-| No name, e-mail or form values to analytics; session recordings mask forms          |   ✅   | Analytics gets page views only; no recordings | –                                             |
+| Requirement                                                                         | Status | Evidence                                                                 | Gap                                    |
+| ----------------------------------------------------------------------------------- | :----: | ------------------------------------------------------------------------ | -------------------------------------- |
+| `session_id`, new session after 30 minutes of inactivity                            |   ✅   | PostHog `$session_id`, `session_idle_timeout_seconds: 1800`              | –                                      |
+| `event_id` per event, to prevent double counting on resend                          |   ✅   | Random per event; deterministic for intent and choice                    | –                                      |
+| `event_timestamp` in UTC, reported in Swedish time                                  |   🟡   | `event_timestamp` in UTC ISO 8601 on every event                         | Set the project time zone to Stockholm |
+| `registration_id` linking registration to the update choice, without name or e-mail |   ✅   | UUID on the intent, notice, choice and confirmation events, and in D1    | –                                      |
+| `page_version`: which version of page and content was seen                          |   ✅   | Commit + `copy.yaml` hash, on every event and registration               | –                                      |
+| `environment`: production vs preview vs internal tests                              |   ✅   | `production`, `preview`, `test`, `development` on every event; `is_test` | –                                      |
+| Analysis built on unique sessions, not unique persons                               |   ✅   | Reports count sessions; no person profiles                               | –                                      |
+| No name, e-mail or form values to analytics; session recordings mask forms          |   ✅   | Every request checked in the tests; no recordings or autocapture         | –                                      |
 
 ## 3. Ad source
 
-| Requirement                                                                                          | Status | Evidence                          | Gap                                                |
-| ---------------------------------------------------------------------------------------------------- | :----: | --------------------------------- | -------------------------------------------------- |
-| Consistent tagging: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `message_id`, `ad_id` |   ❌   | Parameters are not read           | Capture all six                                    |
-| Naming documented together with whoever sets up the ads                                              |   ❌   | –                                 | Tagging guide                                      |
-| Source preserved through the session and the purchase flow                                           |   ❌   | –                                 | Persist per session                                |
-| Source not overwritten by internal navigation                                                        |   ❌   | –                                 | First-touch per session                            |
-| Traffic without an identified source reported separately                                             |   ❌   | –                                 | Report bucket                                      |
-| Test and organic traffic kept apart from paid ad traffic                                             |   🟡   | `is_test` on registrations        | Not in analytics; organic vs paid needs the source |
-| Ad-platform clicks and site arrivals reported separately                                             |   🟡   | Arrivals counted by Web Analytics | Arrivals per ad need the source                    |
+| Requirement                                                                                          | Status | Evidence                                                  | Gap                                   |
+| ---------------------------------------------------------------------------------------------------- | :----: | --------------------------------------------------------- | ------------------------------------- |
+| Consistent tagging: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `message_id`, `ad_id` |   ✅   | All six read on arrival and sent with every event         | –                                     |
+| Naming documented together with whoever sets up the ads                                              |   🟡   | Tagging guide with an example link in `TRACKING.md`       | Agree it with whoever sets up the ads |
+| Source preserved through the session and the purchase flow                                           |   ✅   | Kept for the tab's session; tested through to D1          | –                                     |
+| Source not overwritten by internal navigation                                                        |   ✅   | The first tagged arrival wins; tested                     | –                                     |
+| Traffic without an identified source reported separately                                             |   ✅   | `(ingen källa)` in the reports; "Missing source" report   | –                                     |
+| Test and organic traffic kept apart from paid ad traffic                                             |   ✅   | `environment` for tests; `utm_medium` for paid vs organic | –                                     |
+| Ad-platform clicks and site arrivals reported separately                                             |   ✅   | Reports count arrivals; clicks stay in the ad platform    | –                                     |
 
 ## 4. Events
 
-| Event / rule                                                                                 | Status | Evidence                                                  | Gap                                   |
-| -------------------------------------------------------------------------------------------- | :----: | --------------------------------------------------------- | ------------------------------------- |
-| `offer_view` with arrival source, page version, device type                                  |   🟡   | Web Analytics page view of `/` (has device type)          | Source, version, active-tab condition |
-| `section_view` per the exposure definition                                                   |   ❌   | –                                                         | Exposure tracking                     |
-| `cta_view`: at least 50% of the button visible for 1 second                                  |   ❌   | –                                                         | Visibility tracking                   |
-| `purchase_click` with click context (§6)                                                     |   🟡   | The CTA can be inferred from the `/kop/<section>` view    | Event with context                    |
-| `checkout_view` with the CTA that led there                                                  |   🟡   | Page view of `/kop/<section>`                             | Event linked to the session           |
-| `checkout_start`: first change to a form field, no values                                    |   ❌   | –                                                         | Event                                 |
-| `checkout_error` with category (validation, save_failed), no values                          |   ❌   | Errors shown, not recorded                                | Event                                 |
-| `purchase_intent_submit` with `registration_id`, CTA and price, on confirmed storage         |   🟡   | D1 row on confirmed storage                               | Event with session, price, source     |
-| `availability_notice_view` with `registration_id`                                            |   🟡   | Page view of `/kop/uppdatering`                           | `registration_id`                     |
-| `updates_choice` with `registration_id`, choice and information version                      |   🟡   | D1 status after confirmed save, with version              | Event linked to the session           |
-| `updates_confirmation_view` with `registration_id`                                           |   🟡   | Page view of `/kop/tack`                                  | `registration_id`                     |
-| `checkout_back` with CTA origin                                                              |   ❌   | –                                                         | Event                                 |
-| `external_link_click` with link id and placement                                             |   ❌   | –                                                         | Event                                 |
-| `purchase_intent_submit` and `updates_choice` triggered by confirmed storage, not the button |   ✅   | The flow moves on and stores only after a successful save | –                                     |
+| Event / rule                                                                                 | Status | Evidence                                                   | Gap |
+| -------------------------------------------------------------------------------------------- | :----: | ---------------------------------------------------------- | --- |
+| `offer_view` with arrival source, page version, device type                                  |   ✅   | Sent in an active tab; `$device_type` from PostHog         | –   |
+| `section_view` per the exposure definition                                                   |   ✅   | `src/lib/exposure.ts`; tested                              | –   |
+| `cta_view`: at least 50% of the button visible for 1 second                                  |   ✅   | Tested                                                     | –   |
+| `purchase_click` with click context (§6)                                                     |   ✅   | Tested                                                     | –   |
+| `checkout_view` with the CTA that led there                                                  |   ✅   | `cta_id`                                                   | –   |
+| `checkout_start`: first change to a form field, no values                                    |   ✅   | Once per form view                                         | –   |
+| `checkout_error` with category (validation, save_failed), no values                          |   ✅   | `category` and `fields`; tested                            | –   |
+| `purchase_intent_submit` with `registration_id`, CTA and price, on confirmed storage         |   ✅   | Plus currency; tested                                      | –   |
+| `availability_notice_view` with `registration_id`                                            |   ✅   | Only after step 1                                          | –   |
+| `updates_choice` with `registration_id`, choice and information version                      |   ✅   | Tested against D1's `update_info_version`                  | –   |
+| `updates_confirmation_view` with `registration_id`                                           |   ✅   | Only after a stored ja                                     | –   |
+| `checkout_back` with CTA origin                                                              |   ✅   | Tested                                                     | –   |
+| `external_link_click` with link id and placement                                             |   ✅   | Four placements; tested                                    | –   |
+| `purchase_intent_submit` and `updates_choice` triggered by confirmed storage, not the button |   ✅   | Sent after the server confirms; tested with failed storage | –   |
 
 ## 5. Section exposure
 
-| Requirement                                                                                                              | Status | Gap                 |
-| ------------------------------------------------------------------------------------------------------------------------ | :----: | ------------------- |
-| 50% of the section, or half the viewport for tall sections, visible 2 s in an active tab, the same on mobile and desktop |   ❌   | Exposure tracking   |
-| First qualified view per section                                                                                         |   ❌   | "                   |
-| Latest qualified view before the buy click                                                                               |   ❌   | "                   |
-| Total qualified visible time                                                                                             |   ❌   | "                   |
-| Order of views, including revisits                                                                                       |   ❌   | "                   |
-| Each section counted once per session for reach                                                                          |   ❌   | Session aggregation |
+| Requirement                                                                                                              | Status | Evidence                                                       | Gap |
+| ------------------------------------------------------------------------------------------------------------------------ | :----: | -------------------------------------------------------------- | --- |
+| 50% of the section, or half the viewport for tall sections, visible 2 s in an active tab, the same on mobile and desktop |   ✅   | `src/lib/exposure.ts`; tested on four browsers                 | –   |
+| First qualified view per section                                                                                         |   ✅   | `view_count = 1`, with `time_since_arrival`                    | –   |
+| Latest qualified view before the buy click                                                                               |   ✅   | `last_section_seen` on `purchase_click`                        | –   |
+| Total qualified visible time                                                                                             |   ✅   | `section_exposure_end.exposure_ms` (a lower bound; documented) | –   |
+| Order of views, including revisits                                                                                       |   ✅   | `view_order` and `view_count`; tested                          | –   |
+| Each section counted once per session for reach                                                                          |   ✅   | The "Per section" report counts sessions                       | –   |
 
 ## 6. Information at each buy click
 
-| Field                                                      | Status | Evidence                                 | Gap                     |
-| ---------------------------------------------------------- | :----: | ---------------------------------------- | ----------------------- |
-| `cta_id`                                                   |   🟡   | Inferable from the `/kop/<section>` path | On the click event      |
-| `section_id`                                               |   🟡   | Inferable from the CTA (`CTA_SECTION`)   | On the click event      |
-| `max_section_seen`                                         |   ❌   | –                                        | Exposure tracking       |
-| `sections_seen`                                            |   ❌   | –                                        | Exposure tracking       |
-| `last_section_seen`                                        |   ❌   | –                                        | Exposure tracking       |
-| `max_scroll_percent` (scroll position / scrollable height) |   ❌   | –                                        | Scroll tracking         |
-| `time_to_click`                                            |   ❌   | –                                        | Timing                  |
-| `active_time_to_click` (active tab only)                   |   ❌   | –                                        | Visibility-aware timing |
-| Arrival source and page version                            |   ❌   | –                                        | Source and version      |
+| Field                                                      | Status | Evidence                                  | Gap |
+| ---------------------------------------------------------- | :----: | ----------------------------------------- | --- |
+| `cta_id`                                                   |   ✅   | On `purchase_click`                       | –   |
+| `section_id`                                               |   ✅   | On `purchase_click`                       | –   |
+| `max_section_seen`                                         |   ✅   | Tested: whole page, then back to the hero | –   |
+| `sections_seen`                                            |   ✅   | Tested                                    | –   |
+| `last_section_seen`                                        |   ✅   | Tested                                    | –   |
+| `max_scroll_percent` (scroll position / scrollable height) |   ✅   | Tested to reach 100 at the bottom         | –   |
+| `time_to_click`                                            |   ✅   | Milliseconds since arrival                | –   |
+| `active_time_to_click` (active tab only)                   |   ✅   | Pauses while the tab is hidden            | –   |
+| Arrival source and page version                            |   ✅   | On every event                            | –   |
 
 ## 7. Double counting and loss
 
-| Rule                                                                                  | Status | Evidence                                         | Gap                                        |
-| ------------------------------------------------------------------------------------- | :----: | ------------------------------------------------ | ------------------------------------------ |
-| Repeated buy clicks kept as behaviour, counted once per session in the conversion     |   ❌   | Page views, no sessions                          | Session dedupe                             |
-| One `purchase_intent_submit` per registration, even on double click, reload or resend |   ✅   | Idempotent registration id; tested               | –                                          |
-| "Ja" or "nej" recorded only after successful storage                                  |   ✅   | Tested                                           | –                                          |
-| A missing choice is never turned into "nej"                                           |   ✅   | `inget_val` by default; tested                   | –                                          |
-| Internal tests and known automated traffic can be excluded                            |   🟡   | `is_test` in D1; Web Analytics filters some bots | Tests not excludable in analytics          |
-| Direct visits to later steps not counted as a completed flow                          |   🟡   | Step 2 redirects without a registration          | Web Analytics counts page views regardless |
-| Drop-off computed from the session's recorded progress, not a last "leaving" event    |   ❌   | No session progress                              | Session events                             |
+| Rule                                                                                  | Status | Evidence                                                   | Gap |
+| ------------------------------------------------------------------------------------- | :----: | ---------------------------------------------------------- | --- |
+| Repeated buy clicks kept as behaviour, counted once per session in the conversion     |   ✅   | Every click is sent; reports count sessions                | –   |
+| One `purchase_intent_submit` per registration, even on double click, reload or resend |   ✅   | Tested: double click and resend                            | –   |
+| "Ja" or "nej" recorded only after successful storage                                  |   ✅   | Tested                                                     | –   |
+| A missing choice is never turned into "nej"                                           |   ✅   | `inget_val` in D1; no choice event in PostHog; tested      | –   |
+| Internal tests and known automated traffic can be excluded                            |   ✅   | `environment`, `is_test`; PostHog drops automated browsers | –   |
+| Direct visits to later steps not counted as a completed flow                          |   ✅   | No step events without the flow; tested                    | –   |
+| Drop-off computed from the session's recorded progress, not a last "leaving" event    |   ✅   | "Without a click" report; progress on section events       | –   |
 
 ## 8. Reporting
 
-| Report part / requirement                                                                                 | Status | Evidence                       | Gap                             |
-| --------------------------------------------------------------------------------------------------------- | :----: | ------------------------------ | ------------------------------- |
-| Whole flow: offer sessions, clicks, checkout views, started forms, registrations, "ja"; counts and shares |   🟡   | Page views plus D1 counts      | Sessions, started forms, shares |
-| Per ad and message: arrivals, clicks, registrations                                                       |   ❌   | –                              | Source capture                  |
-| Per section: sessions exposed, saw its CTA, clicked its CTA                                               |   ❌   | –                              | Exposure and CTA visibility     |
-| Before the click: clicked CTA vs lowest exposed section                                                   |   ❌   | –                              | Click context                   |
-| Without a click: lowest exposed section                                                                   |   ❌   | –                              | Exposure                        |
-| Purchase step: checkout view → registration, plus errors                                                  |   🟡   | Views vs D1 count              | Sessions and error events       |
-| Update choice: ja, nej, inget val, separate from purchase intent                                          |   ✅   | D1 query in the README         | –                               |
-| Data quality: missing source, measurement loss, tests, saved vs measured                                  |   ❌   | –                              | Report                          |
-| Filters: date, ad source, message, page version, device type                                              |   🟡   | Web Analytics: date and device | Source, message, version        |
-| Rate: Meningsfullt (sessions with a click / offer sessions)                                               |   ❌   | –                              | Sessions                        |
-| Rate: Värdefullt (sessions with a registration / offer sessions)                                          |   ❌   | –                              | Sessions                        |
-| Rate: purchase-step conversion (sessions with a registration / sessions with a checkout view)             |   ❌   | –                              | Sessions                        |
-| Rate: update interest (registrations with "ja" / all registrations)                                       |   ✅   | D1                             | –                               |
-| Rate: CTA click rate (sessions clicking a CTA / sessions that saw it)                                     |   ❌   | –                              | CTA visibility                  |
-| Section and CTA comparisons presented as descriptive, not causal                                          |   ✅   | No such claims anywhere        | –                               |
+The reports are written as SQL in [`REPORTS.md`](REPORTS.md) but haven't been run against PostHog or saved as a
+dashboard, so they score as partly done until they are.
+
+| Report part / requirement                                                                                 | Status | Evidence                                     | Gap                          |
+| --------------------------------------------------------------------------------------------------------- | :----: | -------------------------------------------- | ---------------------------- |
+| Whole flow: offer sessions, clicks, checkout views, started forms, registrations, "ja"; counts and shares |   🟡   | "Whole flow" query                           | Run; save to a dashboard     |
+| Per ad and message: arrivals, clicks, registrations                                                       |   🟡   | "Per ad and message" query                   | Run; save to a dashboard     |
+| Per section: sessions exposed, saw its CTA, clicked its CTA                                               |   🟡   | "Per section" queries                        | Run; save to a dashboard     |
+| Before the click: clicked CTA vs lowest exposed section                                                   |   🟡   | "Before the click" query                     | Run; save to a dashboard     |
+| Without a click: lowest exposed section                                                                   |   🟡   | "Without a click" query                      | Run; save to a dashboard     |
+| Purchase step: checkout view → registration, plus errors                                                  |   🟡   | "Purchase step" queries                      | Run; save to a dashboard     |
+| Update choice: ja, nej, inget val, separate from purchase intent                                          |   ✅   | D1 export; "Update choice" query             | –                            |
+| Data quality: missing source, measurement loss, tests, saved vs measured                                  |   🟡   | "Data quality" queries; manual D1 comparison | Run; automate the comparison |
+| Filters: date, ad source, message, page version, device type                                              |   🟡   | `{filters}` in every query                   | Needs a saved dashboard      |
+| Rate: Meningsfullt (sessions with a click / offer sessions)                                               |   🟡   | In "Whole flow" and "Per ad and message"     | Run                          |
+| Rate: Värdefullt (sessions with a registration / offer sessions)                                          |   🟡   | In "Whole flow" and "Per ad and message"     | Run                          |
+| Rate: purchase-step conversion (sessions with a registration / sessions with a checkout view)             |   🟡   | In "Whole flow" and "Purchase step"          | Run                          |
+| Rate: update interest (registrations with "ja" / all registrations)                                       |   ✅   | D1, and the "Update choice" query            | –                            |
+| Rate: CTA click rate (sessions clicking a CTA / sessions that saw it)                                     |   🟡   | "Per section" query, clicks after a view     | Run                          |
+| Section and CTA comparisons presented as descriptive, not causal                                          |   ✅   | Stated in `REPORTS.md`                       | –                            |
 
 ## 9. Measurement loss and tracking settings
 
-| Requirement                                                                            | Status | Evidence                              | Gap                          |
-| -------------------------------------------------------------------------------------- | :----: | ------------------------------------- | ---------------------------- |
-| Documented how tracking settings, blocked scripts and aborted loads affect measurement |   ❌   | –                                     | Documentation                |
-| The purchase flow works when analytics doesn't load                                    |   ✅   | The beacon is independent of the flow | –                            |
-| Registrations and choices stored independently of analytics                            |   ✅   | Worker and D1                         | –                            |
-| Conversion rates computed within one measurable population                             |   ❌   | –                                     | Sessions in one system       |
-| Report separates all saved registrations from those traceable in analytics             |   ❌   | –                                     | Report                       |
-| Tracking solution and any consent function settled before publishing                   |   ❌   | –                                     | Decision (platform, consent) |
+| Requirement                                                                            | Status | Evidence                                                             | Gap                                                      |
+| -------------------------------------------------------------------------------------- | :----: | -------------------------------------------------------------------- | -------------------------------------------------------- |
+| Documented how tracking settings, blocked scripts and aborted loads affect measurement |   ✅   | "Measurement loss" in `TRACKING.md`, including consent               | –                                                        |
+| The purchase flow works when analytics doesn't load                                    |   ✅   | Tested with PostHog blocked, and with consent declined or unanswered | –                                                        |
+| Registrations and choices stored independently of analytics                            |   ✅   | Worker and D1                                                        | –                                                        |
+| Conversion rates computed within one measurable population                             |   ✅   | Every rate from PostHog sessions; stated in `REPORTS.md`             | –                                                        |
+| Report separates all saved registrations from those traceable in analytics             |   🟡   | `analytics_consent` in D1; documented comparison                     | A manual step today                                      |
+| Tracking solution and any consent function settled before publishing                   |   🟡   | PostHog Cloud EU; consent banner live, nothing measured before a yes | Client sign-off, including declining on the second layer |
 
 ## 10. Verification and handover
 
 ### Verification before start
 
-| Test                                                                                                       | Status | Notes                                                          |
-| ---------------------------------------------------------------------------------------------------------- | :----: | -------------------------------------------------------------- |
-| An ad-tagged link to registration carries the same source and message through the flow                     |   ❌   | No source capture                                              |
-| A click on each of the five buy buttons records the right CTA id, which follows along                      |   ✅   | `cta_id` in D1; tested (brief A suite)                         |
-| Down the whole page, back to the hero and buy: hero click and earlier exposure to the last section visible |   ❌   | No exposure tracking                                           |
-| A visit without a click keeps exposed sections and maximum scroll                                          |   ❌   | No exposure or scroll tracking                                 |
-| Form error and failed storage are recorded, with no successful intent                                      |   🟡   | No intent stored on failure (tested); errors not recorded      |
-| Double click or reload gives one registration and one conversion                                           |   🟡   | One registration (tested); one conversion needs session dedupe |
-| Ja, nej and no choice give three separate outcomes                                                         |   ✅   | Tested                                                         | –                   |
-| Blocked analytics: the form works and the loss can be explained                                            |   🟡   | Form independent of analytics                                  | Loss not documented |
-| Changing a heading or button text keeps events and fixed ids working                                       |   ✅   | Ids independent of `copy.yaml`; tested                         | –                   |
+| Test                                                                                                       | Status | Notes                                                   | Gap |
+| ---------------------------------------------------------------------------------------------------------- | :----: | ------------------------------------------------------- | --- |
+| An ad-tagged link to registration carries the same source and message through the flow                     |   ✅   | `tests/tracking.spec.ts`, through to D1                 | –   |
+| A click on each of the five buy buttons records the right CTA id, which follows along                      |   ✅   | `tests/acceptance.spec.ts`                              | –   |
+| Down the whole page, back to the hero and buy: hero click and earlier exposure to the last section visible |   ✅   | `tests/tracking.spec.ts`                                | –   |
+| A visit without a click keeps exposed sections and maximum scroll                                          |   ✅   | `tests/tracking.spec.ts`                                | –   |
+| Form error and failed storage are recorded, with no successful intent                                      |   ✅   | `tests/tracking.spec.ts`                                | –   |
+| Double click or reload gives one registration and one conversion                                           |   ✅   | `tests/tracking.spec.ts` and `tests/acceptance.spec.ts` | –   |
+| Ja, nej and no choice give three separate outcomes                                                         |   ✅   | `tests/acceptance.spec.ts`                              | –   |
+| Blocked analytics: the form works and the loss can be explained                                            |   ✅   | Tested; loss documented                                 | –   |
+| Changing a heading or button text keeps events and fixed ids working                                       |   ✅   | Ids are fixed in code; tested                           | –   |
 
 ### Handover
 
-| Deliverable                                                       | Status | Evidence                              | Gap                           |
-| ----------------------------------------------------------------- | :----: | ------------------------------------- | ----------------------------- |
-| Access to analytics and reporting in accounts the client controls |   🟡   | Cloudflare account exists             | Client access; reporting tool |
-| Event catalogue with definitions and parameters                   |   ❌   | –                                     | Document                      |
-| Documented ad tagging and instructions for new ad variants        |   ❌   | –                                     | Document                      |
-| Instructions for content versions and excluding test traffic      |   🟡   | `?test` documented in `docs/ADMIN.md` | Content versions              |
-| Verification results and known limitations                        |   ❌   | –                                     | Document                      |
+| Deliverable                                                       | Status | Evidence                                              | Gap               |
+| ----------------------------------------------------------------- | :----: | ----------------------------------------------------- | ----------------- |
+| Access to analytics and reporting in accounts the client controls |   🟡   | PostHog Cloud EU project and Cloudflare account exist | Invite the client |
+| Event catalogue with definitions and parameters                   |   ✅   | `TRACKING.md`                                         | –                 |
+| Documented ad tagging and instructions for new ad variants        |   ✅   | `TRACKING.md`, "Tagging ads"                          | –                 |
+| Instructions for content versions and excluding test traffic      |   ✅   | `page_version`, `?test` and `environment` documented  | –                 |
+| Verification results and known limitations                        |   ✅   | `TRACKING.md`, "Verification"                         | –                 |
 
 ## Gap plan
 
-1. **Decide the platform and consent** (§9). A product-analytics tool (for example PostHog Cloud EU) gives sessions,
-   source attribution, funnels and filtered reports largely by configuration. First-party events in D1 keep all data
-   in-house but need the reports built as SQL views and exports. The consent decision is the client's.
-2. **Session and source layer** (§2, §3): `session_id` with 30-minute inactivity, `event_id`, `page_version` (for
-   example the content hash of `copy.yaml` plus the build), `environment`, and capture of the six ad parameters on
-   arrival, kept for the session.
-3. **Exposure and visibility** (§5, §6): `IntersectionObserver`-based `section_view` per the 2-second / 50% definition,
-   `cta_view` at 1 second, and per-session tracking of sections seen, maximum scroll and active time. These are then
-   attached to `purchase_click`.
-4. **The event catalogue** (§4): the 13 events with their properties. `purchase_intent_submit` and `updates_choice` are
-   fired from the confirmed save, and the registration gets the `session_id`, so stored and measured data can be
-   reconciled.
-5. **Reports** (§8): the funnel, per-ad, per-section, before/without-click, purchase-step, update-choice and
-   data-quality views, with the five rates and filters.
-6. **Documentation and verification** (§9, §10): measurement loss, the event catalogue, the ad-tagging guide, the
-   verification scenarios as automated tests like the brief A suite, and client access.
+1. **Reports** (§8): run every query in `REPORTS.md` against real data, and save them as a PostHog dashboard with the
+   filters. This needs a PostHog personal API key, or a session in the project.
+2. **Project setting** (§2): set the PostHog project's time zone to Europe/Stockholm.
+3. **Stored vs measured** (§8, §9): a report or script that sets D1 registrations, split by `analytics_consent`, next
+   to PostHog's measured registrations.
+4. **Client decisions and access** (§3, §9, §10):
+   - sign-off on the consent banner and its accepted risk;
+   - agreeing the ad naming with whoever sets up the ads;
+   - client access to PostHog and Cloudflare.
+5. **By hand:** a run through the Facebook and Instagram in-app browsers on a real phone.
