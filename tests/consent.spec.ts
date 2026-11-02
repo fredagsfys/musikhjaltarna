@@ -3,7 +3,7 @@
  * possible from the settings layer with an unticked box, and the choice can be changed at any time.
  */
 import { CONSENT_KEY, CONSENT_VERSION } from '../src/lib/consent';
-import { registrationsFor } from './d1';
+import { registrationReport, registrationsFor } from './d1';
 import { arrivedAt, expect, stored, test, uniqueEmail } from './fixtures';
 
 const banner = '#samtycke';
@@ -180,4 +180,43 @@ test.describe('an old choice', () => {
       expect(analytics.events).toEqual([]);
     });
   }
+});
+
+test('the registrations report splits stored registrations by the analytics choice', async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  test.setTimeout(150_000); // Several reads through the Wrangler CLI.
+  const before = registrationReport();
+
+  // Accepted (the default in these tests), no choice, and declined. New contexts would inherit the stored
+  // choice, so they start from empty storage.
+  const fresh = { baseURL, storageState: { cookies: [], origins: [] } };
+  const register = async (target: typeof page, label: string) => {
+    const email = uniqueEmail(label);
+    await target.goto('/kop/hero');
+    await target.fill('#kop_namn', 'Rapport Test');
+    await target.fill('#kop_epost', email);
+    await target.click('#kop_skicka');
+    await arrivedAt(target, '/kop/uppdatering');
+    await stored(email);
+  };
+  await register(page, 'rapport-godkand');
+  const undecided = await browser.newContext(fresh);
+  await register(await undecided.newPage(), 'rapport-obesvarad');
+  const declined = await browser.newContext(fresh);
+  const declinedPage = await declined.newPage();
+  await declinedPage.goto('/');
+  await declinedPage.click('#samtycke_hantera');
+  await declinedPage.click('#samtycke_spara');
+  await register(declinedPage, 'rapport-nekad');
+  await Promise.all([undecided.close(), declined.close()]);
+
+  const after = registrationReport();
+  expect(after.measurable).toBeGreaterThan(before.measurable);
+  expect(after.undecided).toBeGreaterThan(before.undecided);
+  expect(after.declined).toBeGreaterThan(before.declined);
+  expect(after.stored).toBe(after.measurable + after.declined + after.undecided);
+  expect(after.stored).toBe(after.ja + after.nej + after.inget_val);
 });

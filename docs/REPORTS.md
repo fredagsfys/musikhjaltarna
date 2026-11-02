@@ -276,10 +276,10 @@ SELECT
 FROM sessions
 ```
 
-**Stored vs measured registrations.** PostHog can only count what it received: blockers, and visitors who decline or
-don't answer the consent question, mean fewer registrations there than in D1.
+**Stored vs measured registrations** (brief B §8 and §9). PostHog can only count what it received: blockers, and
+visitors who decline or don't answer the consent question, mean fewer registrations there than in D1.
 
-1. Count measured registrations in PostHog for the period:
+1. Set the period on the dashboard and read the tile **Mätta registreringar**:
 
    ```sql
    SELECT uniq(properties.registration_id) AS measured_registrations
@@ -287,10 +287,18 @@ don't answer the consent question, mean fewer registrations there than in D1.
    WHERE event = 'purchase_intent_submit' AND properties.environment = 'production' AND {filters}
    ```
 
-2. Count stored registrations in the D1 export for the same period, leaving out `is_test = 1`. Split them by
-   `analytics_consent`: `granted` are the ones PostHog could see; `denied` and empty were never measured.
-3. Measured registrations versus stored `granted` registrations shows loss from blockers; stored registrations without
-   `granted` show loss from consent. Report the numbers side by side, and compute every rate within PostHog's
-   numbers only.
+2. Run the D1 side for the same period (Swedish dates, both included; see [`ADMIN.md`](ADMIN.md)):
+
+   ```sh
+   npm run report:registrations -- --from=2026-11-01 --to=2026-11-30
+   ```
+
+   It prints the stored registrations, without tests, split by the visitor's analytics choice: accepted (measurable),
+   declined and no choice, plus the update choices.
+
+3. Read them side by side:
+   - **measurable** minus **Mätta registreringar** is loss from blockers and aborted loads;
+   - **declined** and **no choice** are registrations PostHog never sees, by design;
+   - compute every rate within PostHog's numbers only.
 
 Bots: PostHog drops events from browsers that identify themselves as automated. They never reach these reports.
