@@ -55,7 +55,12 @@ const { pedagogue: content } = copy;
       </SectionHeading>
       <div class="mt-2 flex flex-wrap items-center gap-6">
         <BuyButton ctaId="kop_pedagog" />
-        <Button variant="link" href={copy.links.website}>
+        <Button
+          variant="link"
+          href={copy.links.website}
+          data-link-id="pianotopia_website"
+          data-link-placement="pedagogue"
+        >
           {content.readMore}
         </Button>
       </div>

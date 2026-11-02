@@ -117,6 +117,22 @@ footer:
   contact: Kontakt
   terms: Villkor
   privacy: Integritet
+  # Öppnar valet om mätning igen.
+  consentSettings: Integritetsinställningar
+
+# Frågan om mätning, längst ner på sidan tills besökaren har valt.
+# "accept" och "decline" ska vara lika tydliga; ingen av dem får framhävas.
+consent:
+  title: Får vi mäta hur sidan används?
+  # Länkar till integritetssidan, där mätningen beskrivs.
+  privacyLink: Läs mer
+  acceptAll: Godkänn alla
+  manage: Hantera inställningar
+  # Inställningarna, som också öppnas från Integritetsinställningar i sidfoten.
+  settingsTitle: Integritetsinställningar
+  analyticsLabel: Mätning av hur sidan används
+  analyticsDescription: Visar vilka delar av sidan som ses och vilka knappar som klickas, så att vi förstår om tjänsten är intressant.
+  save: Spara val
 
 # Köpsteget (/kop)
 purchase:
@@ -187,4 +203,5 @@ pages:
     description: Så hanterar Pianotopia dina personuppgifter.
     body:
       - Innehåll preciseras före produktion.
+      - Om du godkänner det mäter vi hur sidan används, till exempel vilka delar som visas och vilka knappar som klickas, för att förstå om tjänsten är intressant. Mätningen görs med PostHog och Cloudflare inom EU, utan cookies och utan ditt namn eller din e-post. Utan ditt godkännande mäts ingenting. Du kan ändra ditt val när som helst under Integritetsinställningar längst ner på sidan.
       - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

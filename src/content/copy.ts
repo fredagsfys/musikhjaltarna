@@ -4,6 +4,7 @@
  * A broken edit fails the build with a message naming the key, so the live site is untouched.
  */
 import { z } from 'astro/zod';
+import { createHash } from 'node:crypto';
 import { parse } from 'yaml';
 import raw from './copy.yaml?raw';
 
@@ -62,7 +63,17 @@ const schema = z.strictObject({
     boxes: z.array(z.strictObject({ title: text, items: z.array(text).min(1) })).min(1),
     trust: text,
   }),
-  footer: z.strictObject({ contact: text, terms: text, privacy: text }),
+  footer: z.strictObject({ contact: text, terms: text, privacy: text, consentSettings: text }),
+  consent: z.strictObject({
+    title: text,
+    privacyLink: text,
+    acceptAll: text,
+    manage: text,
+    settingsTitle: text,
+    analyticsLabel: text,
+    analyticsDescription: text,
+    save: text,
+  }),
   purchase: z.strictObject({
     title: text,
     subtitle: text,
@@ -100,6 +111,9 @@ function load() {
 }
 
 export const copy = load();
+
+/** Short hash of copy.yaml: changes whenever editors change any text, the price or a link. */
+export const contentVersion = createHash('sha256').update(raw).digest('hex').slice(0, 8);
 
 /** "79 kr/månad", used everywhere the price is shown. */
 export const priceLabel = `${copy.offer.price} kr/${copy.offer.period}`;

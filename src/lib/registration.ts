@@ -1,10 +1,12 @@
 import type { CtaId } from '~/config/site';
+import type { ConsentChoice } from './consent';
+import type { AdSource } from './tracking';
 
 const STORAGE_KEY = 'musikhjaltarna:registration';
 /** Set by the inline script in BaseLayout when a page is opened with `?test`. */
 const TEST_KEY = 'musikhjaltarna:test';
-/** The address shown on the thank-you page, set when the flow completes. */
-const CONFIRMED_KEY = 'musikhjaltarna:confirmed-email';
+/** The address and registration shown on the thank-you page, set when the flow completes. */
+const CONFIRMED_KEY = 'musikhjaltarna:confirmation';
 
 /** One submission of the purchase form. The id is reused for retries, so the server never stores it twice. */
 export interface Registration {
@@ -13,6 +15,20 @@ export interface Registration {
   email: string;
   ctaId: CtaId | null;
   isTest: boolean;
+  /** The session's ad source, so registrations can be counted per ad (brief B §3). Empty without consent. */
+  source: AdSource;
+  /** The analytics choice when sending: tells stored registrations PostHog can see from those it can't. */
+  analyticsConsent: ConsentChoice | null;
+  /** The page and content version the visitor saw (brief B §2). */
+  pageVersion: string;
+  /** Set once purchase_intent_submit has been sent, so a resubmit doesn't send it again (brief B §7). */
+  intentTracked?: boolean;
+}
+
+/** What the thank-you page needs once the flow is complete. */
+export interface Confirmation {
+  email: string;
+  registrationId: string;
 }
 
 export type UpdateStatus = 'ja' | 'nej';
@@ -55,21 +71,22 @@ export function clearRegistration() {
  * Ends the flow once the update choice is saved: the next submission starts a new registration,
  * even if the visitor moves on before the confirmation page has loaded.
  */
-export function completeRegistration(email: string) {
+export function completeRegistration(registration: Registration) {
   clearRegistration();
   try {
-    sessionStorage.setItem(CONFIRMED_KEY, email);
+    const confirmation: Confirmation = { email: registration.email, registrationId: registration.id };
+    sessionStorage.setItem(CONFIRMED_KEY, JSON.stringify(confirmation));
   } catch {
     // The confirmation page falls back to a generic text.
   }
 }
 
-/** The address for the thank-you page, read once. */
-export function takeConfirmedEmail(): string | null {
+/** The confirmation for the thank-you page, read once. */
+export function takeConfirmation(): Confirmation | null {
   try {
-    const email = sessionStorage.getItem(CONFIRMED_KEY);
+    const raw = sessionStorage.getItem(CONFIRMED_KEY);
     sessionStorage.removeItem(CONFIRMED_KEY);
-    return email;
+    return raw ? (JSON.parse(raw) as Confirmation) : null;
   } catch {
     return null;
   }

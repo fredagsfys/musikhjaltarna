@@ -2,14 +2,16 @@
 import '~/styles/global.css';
 import dmSerifUrl from '@fontsource/dm-serif-display/files/dm-serif-display-latin-400-normal.woff2?url';
 import nunitoSansUrl from '@fontsource-variable/nunito-sans/files/nunito-sans-latin-wght-normal.woff2?url';
+import ConsentBanner from '~/components/ConsentBanner.astro';
 import SEO, { type Props as SEOProps } from '~/components/seo/SEO.astro';
+import { pageVersion } from '~/config/build';
 import { site } from '~/config/site';
 
 export type Props = SEOProps;
 ---
 
 <!doctype html>
-<html lang={site.lang}>
+<html lang={site.lang} data-page-version={pageVersion}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -28,17 +30,6 @@ export type Props = SEOProps;
         if (new URLSearchParams(location.search).has('test')) sessionStorage.setItem('musikhjaltarna:test', '1');
       } catch {}
     </script>
-    {
-      /* Cookieless page-view analytics; production only, so local testing doesn't count. */
-      import.meta.env.PROD && (
-        <script
-          is:inline
-          type="module"
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={JSON.stringify({ token: site.webAnalyticsToken })}
-        />
-      )
-    }
   </head>
   <body class="min-h-dvh">
     <a
@@ -47,6 +38,20 @@ export type Props = SEOProps;
     >
       Hoppa till innehållet
     </a>
+    <!-- First in the page, so keyboard and screen reader users reach the choice first; shown at the bottom. -->
+    <ConsentBanner />
     <slot />
+
+    <script>
+      import { initTracking, track } from '~/lib/tracking';
+
+      initTracking();
+      // Links to Pianotopia's website carry data-link-id and data-link-placement (brief B §4).
+      document.addEventListener('click', (event) => {
+        const link = (event.target as Element).closest<HTMLElement>('[data-link-id]');
+        if (!link) return;
+        track('external_link_click', { link_id: link.dataset.linkId, placement: link.dataset.linkPlacement });
+      });
+    </script>
   </body>
 </html>

@@ -31,6 +31,8 @@ const inputClass =
     id="lead-form"
     data-cta={ctaId}
     data-messages={JSON.stringify(content.errors)}
+    data-price={copy.offer.price}
+    data-currency={site.currency}
     class="flex flex-col gap-[22px]"
     novalidate
   >
@@ -105,6 +107,8 @@ const inputClass =
     submitRegistration,
     type Registration,
   } from '~/lib/registration';
+  import { consent } from '~/lib/consent';
+  import { adSource, pageVersion, track, whenVisible } from '~/lib/tracking';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -120,6 +124,10 @@ const inputClass =
   const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
   const idleLabel = submitLabel.textContent;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
+
+  whenVisible(() => track('checkout_view', { cta_id: ctaId }));
+  // The first change to either field; no values are sent.
+  form.addEventListener('input', () => track('checkout_start', { cta_id: ctaId }), { once: true });
 
   /** Shows (or clears) the message under a field and marks the field invalid for assistive tech. */
   function setFieldError(input: HTMLInputElement, message: string | null) {
@@ -142,6 +150,7 @@ const inputClass =
 
   // Coming from the offer page, go back in history so the browser restores the scroll position.
   document.querySelector('#kop_tillbaka')!.addEventListener('click', (event) => {
+    track('checkout_back', { cta_id: ctaId });
     const from = document.referrer ? new URL(document.referrer) : null;
     if (from?.origin === location.origin && from.pathname === routes.home && history.length > 1) {
       event.preventDefault();
@@ -160,16 +169,25 @@ const inputClass =
     setFieldError(nameInput, nameError);
     setFieldError(emailInput, emailError);
     sendError.hidden = true;
+    if (nameError || emailError) {
+      const fields = [nameError && 'name', emailError && 'email'].filter((field): field is string => !!field);
+      track('checkout_error', { category: 'validation', fields, cta_id: ctaId });
+    }
     if (nameError) return nameInput.focus();
     if (emailError) return emailInput.focus();
 
     // Reuse the id of an earlier attempt in this session, so retries and resubmits update one registration.
+    const previous = loadRegistration();
     const registration: Registration = {
-      id: loadRegistration()?.id ?? crypto.randomUUID(),
+      id: previous?.id ?? crypto.randomUUID(),
       name,
       email,
       ctaId,
       isTest: isTestSession(),
+      source: consent() === 'granted' ? adSource() : {},
+      analyticsConsent: consent(),
+      pageVersion: pageVersion(),
+      intentTracked: previous?.intentTracked,
     };
     saveRegistration(registration);
     setSending(true);
@@ -180,7 +198,19 @@ const inputClass =
       console.error(err);
       setSending(false);
       sendError.hidden = false;
+      track('checkout_error', { category: 'save_failed', cta_id: ctaId });
       return;
+    }
+    // Sent on confirmed storage, once per registration; the event id lets reports dedupe resends.
+    if (!registration.intentTracked) {
+      track('purchase_intent_submit', {
+        event_id: `purchase_intent_submit:${registration.id}`,
+        registration_id: registration.id,
+        cta_id: ctaId,
+        price: Number(form.dataset.price),
+        currency: form.dataset.currency,
+      });
+      saveRegistration({ ...registration, intentTracked: true });
     }
     // Only move on once the registration is stored.
     location.assign(routes.updates);
