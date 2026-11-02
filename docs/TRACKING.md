@@ -168,8 +168,9 @@ Checked by hand: events from a branch preview arrive in the PostHog project, tag
 
 ### Known limitations
 
-- **Hero buy button on laptops:** at 1280×720 it starts just below the fold. A desktop visitor who doesn't scroll is
-  not counted as having seen it.
+- **Hero buy button under the consent banner:** on laptops the hero tightens on short screens, so the button is
+  above both the fold and the banner. On phones the banner covers it until the visitor answers, and a `cta_view` only
+  counts once the button is at least half visible.
 - **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
 - **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
 - **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).
