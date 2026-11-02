@@ -4,15 +4,21 @@ The reports from brief B §8, as SQL for PostHog (project `330450`). Events and 
 
 ## How to use them
 
-1. In PostHog, open **SQL editor**, paste a query and run it.
-2. To keep one, save it as an insight and add it to a dashboard. `{filters}` in each query picks up the dashboard's
-   date range and property filters, so one dashboard can be filtered by:
-   - date;
-   - ad source (`utm_source`) and message (`message_id`);
-   - page version (`page_version`);
-   - device type (`$device_type`).
-3. Set the project's time zone to **Europe/Stockholm** (_Settings → Project_). Times are stored in UTC and shown in
-   Swedish time.
+All reports below are on the PostHog dashboard
+[**Musikhjältarna – köpavsiktstest**](https://eu.posthog.com/project/330450/dashboard/1075531), one tile each, named
+in Swedish.
+
+- **Filters:** `{filters}` in each query picks up the dashboard's date range and property filters, so the whole
+  dashboard can be filtered by:
+  - date;
+  - ad source (`utm_source`) and message (`message_id`);
+  - page version (`page_version`);
+  - device type (`$device_type`).
+- **Time zone:** the project's time zone is Europe/Stockholm. Times are stored in UTC and shown in Swedish time.
+- **Changing a report:** edit the tile's SQL in PostHog, and update the query here so the two stay the same. To try a
+  query first, paste it into PostHog's **SQL editor**.
+- **Checked:** every query was run on 2026-11-02 against test sessions covering the whole flow, two ads, an untagged
+  visit and a visit without a click, and gave the expected numbers.
 
 Ground rules for every report:
 
@@ -91,6 +97,7 @@ SELECT
   round(countIf(offer AND registered) / arrivals * 100, 1) AS vardefullt_pct
 FROM sessions
 GROUP BY source, medium, message, ad
+HAVING arrivals > 0
 ORDER BY arrivals DESC
 ```
 
@@ -212,7 +219,7 @@ WHERE properties.environment = 'production' AND {filters}
 Which fields fail validation:
 
 ```sql
-SELECT arrayJoin(JSONExtractArrayRaw(properties.fields)) AS field, count() AS errors
+SELECT arrayJoin(JSONExtract(properties.fields, 'Array(String)')) AS field, count() AS errors
 FROM events
 WHERE event = 'checkout_error' AND properties.category = 'validation'
   AND properties.environment = 'production' AND {filters}
@@ -239,7 +246,7 @@ SELECT
   count() AS registrations,
   countIf(choice = 'ja') AS ja,
   countIf(choice = 'nej') AS nej,
-  countIf(choice = '') AS inget_val,
+  countIf(coalesce(choice, '') = '') AS inget_val,
   round(ja / registrations * 100, 1) AS update_interest_pct
 FROM registrations
 ```
@@ -258,15 +265,15 @@ WHERE {filters}
 GROUP BY environment
 ```
 
-**Missing source:** the share of production arrivals without ad tagging.
+**Missing source:** the share of production arrivals without ad tagging, by the session's first-touch source.
 
 ```sql
+WITH sessions AS ( ... )
 SELECT
-  uniqIf($session_id, event = 'offer_view') AS arrivals,
-  uniqIf($session_id, event = 'offer_view' AND properties.utm_source IS NULL) AS without_source,
+  countIf(offer) AS arrivals,
+  countIf(offer AND source = '(ingen källa)') AS without_source,
   round(without_source / arrivals * 100, 1) AS without_source_pct
-FROM events
-WHERE properties.environment = 'production' AND {filters}
+FROM sessions
 ```
 
 **Stored vs measured registrations.** PostHog can only count what it received: blockers, and visitors who decline or

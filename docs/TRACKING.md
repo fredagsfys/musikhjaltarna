@@ -173,7 +173,9 @@ Checked by hand: events from a branch preview arrive in the PostHog project, tag
 - **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
 - **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
 - **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).
-- **The report queries** are written for PostHog's SQL and should be checked against real data once traffic starts.
+- **Cookieless sessions can merge:** PostHog tells visitors apart by a hash of IP address and browser identity. Two
+  visitors on the same network with identical browsers, within 30 minutes of each other, count as one session, with
+  the first visitor's ad source. Seen in testing; rare for real ad traffic, but it lowers session counts slightly.
 - **Still to do by hand:** a visit through the Facebook and Instagram in-app browsers on a real phone.
 
 ## Testing
