@@ -30,9 +30,12 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
   linking to the privacy page, where measurement is described, and offers **Godkänn alla** (primary) and **Hantera
   inställningar**. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
   behind it. It is a slim bar at the bottom of the screen that never sits on a buy button: while it would cover one,
-  it slides down out of view and comes back once the button has passed (or when it gets keyboard focus). On phones
-  the hero is tightened so its buy button fits above the bar; on screens too short for both (iPhone SE in Safari,
-  1024×600) the bar appears with the first scroll. The settings layer always stays in place.
+  it slides down out of view and comes back once the button has passed (or when it gets keyboard focus). On phones,
+  sideways phones and short laptops the hero is tightened so its buy button is on screen and, where there is room,
+  above the bar. On the front page this applies from arrival, so on screens too short for both (iPhone SE, phones held
+  sideways) the bar appears with the first scroll. On every other page, including the purchase page, the bar shows on
+  load and steps aside only after a scroll, so a visitor who goes straight to buy is still asked. The settings layer
+  always stays in place.
 - **Settings** describe the measurement and offer it as a checkbox that is never pre-ticked, with **Spara val** and
   **Godkänn alla**. Saving without ticking the box declines.
 - **Texts** are in `copy.yaml` under `consent`; the full description is under `pages.integritet`.
@@ -172,8 +175,8 @@ Checked by hand: events from a branch preview arrive in the PostHog project, tag
 ### Known limitations
 
 - **Buy buttons and the consent banner:** the bar steps aside for buy buttons (see [Consent](#consent)), so it never
-  covers one. On screens too short for the hero and the bar together, a visitor who doesn't scroll is never asked, and
-  so is not measured.
+  covers one. On the front page, on screens too short for the hero and the bar together (iPhone SE, phones held sideways),
+  a visitor who leaves without scrolling or clicking is never asked, and so is not measured.
 - **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
 - **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
 - **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).

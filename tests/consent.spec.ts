@@ -153,7 +153,10 @@ test.describe('before the visitor has decided', () => {
       { width: 412, height: 839 }, // Pixel 7 in Chrome
       { width: 1024, height: 768 },
       { width: 1366, height: 768 },
-      { width: 1920, height: 960 },
+      { width: 1024, height: 704 }, // iPad landscape in Safari
+      { width: 1280, height: 577 }, // 1280×720 laptop, Windows Chrome
+      { width: 1366, height: 625 }, // 1366×768 laptop, Windows Chrome
+      { width: 1920, height: 937 },
     ]) {
       await page.setViewportSize(size);
       await page.goto('/');
@@ -176,6 +179,35 @@ test.describe('before the visitor has decided', () => {
     await expect.poll(() => bar(page)).toMatchObject({ tucked: true });
     await page.focus('#samtycke_godkann');
     await expect.poll(() => bar(page)).toMatchObject({ tucked: false });
+  });
+
+  test('the hero buy button is on screen on arrival, even on small and sideways screens', async ({ page }) => {
+    for (const size of [
+      { width: 320, height: 568 }, // iPhone SE 1st gen
+      { width: 375, height: 548 }, // iPhone SE in Safari
+      { width: 667, height: 331 }, // iPhone SE sideways
+      { width: 734, height: 343 }, // iPhone 15 sideways
+      { width: 1024, height: 600 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.goto('/');
+      const bottom = await page
+        .locator('[data-cta-id="kop_hero"]')
+        .evaluate((button) => button.getBoundingClientRect().bottom);
+      expect(bottom, `${size.width}×${size.height}`).toBeLessThanOrEqual(size.height);
+    }
+  });
+
+  test('on other pages the bar shows on load, and steps aside only after a scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 548 }); // Where the front page waits for a scroll.
+    for (const path of ['/kop/hero', '/integritet']) {
+      await page.goto(path);
+      await expect
+        .poll(() => page.locator(banner).evaluate((el) => el.hasAttribute('data-tucked')), { message: path })
+        .toBe(false);
+      const top = await page.locator('#samtycke [data-layer="ask"]').evaluate((el) => el.getBoundingClientRect().top);
+      expect(top, path).toBeLessThan(548);
+    }
   });
 });
 

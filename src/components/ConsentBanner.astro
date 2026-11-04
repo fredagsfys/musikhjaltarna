@@ -11,8 +11,10 @@
  * usable while the banner is open.
  *
  * The first layer is a slim bar at the bottom of the screen. It never sits on a buy button: while it
- * would cover one, it slides down out of view and comes back when the button has passed. On phones
- * too short for the hero and the bar together, it therefore appears with the first scroll.
+ * would cover one, it slides down out of view and comes back when the button has passed. On the front
+ * page that applies from arrival, so on screens too short for the hero and the bar together it appears
+ * with the first scroll. On every other page it shows on load and steps aside only once the visitor
+ * scrolls, so a visitor who goes straight to the purchase page is asked there.
  */
 import { routes } from '~/config/site';
 import { copy } from '~/content/copy';
@@ -86,6 +88,7 @@ const button = 'max-sm:min-h-12';
 </div>
 
 <script>
+  import { routes } from '~/config/site';
   import { consent, setConsent, type ConsentChoice } from '~/lib/consent';
 
   const banner = document.querySelector<HTMLElement>('#samtycke')!;
@@ -110,10 +113,13 @@ const button = 'max-sm:min-h-12';
     });
   };
 
+  // On pages other than the front page, the bar shows on load and steps aside only after a scroll.
+  let mayTuck = location.pathname === routes.home;
+
   // Only the first layer steps aside. The settings are open because the visitor asked for them, and
   // the bar stays while it holds keyboard focus.
   const place = () => {
-    const tuck = !banner.hidden && !ask.hidden && !banner.contains(document.activeElement) && wouldCover();
+    const tuck = mayTuck && !banner.hidden && !ask.hidden && !banner.contains(document.activeElement) && wouldCover();
     banner.toggleAttribute('data-tucked', tuck);
   };
 
@@ -126,7 +132,14 @@ const button = 'max-sm:min-h-12';
       place();
     });
   };
-  addEventListener('scroll', placeSoon, { passive: true });
+  addEventListener(
+    'scroll',
+    () => {
+      mayTuck = true;
+      placeSoon();
+    },
+    { passive: true },
+  );
   banner.addEventListener('focusin', place);
   banner.addEventListener('focusout', placeSoon);
 

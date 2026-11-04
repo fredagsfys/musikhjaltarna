@@ -13,12 +13,13 @@ const { nav = true } = Astro.props;
 const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex px-3.5 py-2.5 no-underline';
 ---
 
-<header class="gutter-x border-border border-b py-[18px]">
-  <div class="container-page flex flex-wrap items-center justify-between gap-4">
+<header class="gutter-x border-border border-b py-[18px] short:py-2">
+  <!-- Below 360px the gaps, name and price pill shrink so the header stays on one row. -->
+  <div class="container-page flex flex-wrap items-center justify-between gap-4 max-[22.5rem]:gap-2">
     <a href={routes.home} class="text-ink hover:text-ink flex items-center gap-3 no-underline">
       <CharacterAvatar alt="" size={48} class="w-12 shrink-0" />
       <span class="flex flex-col leading-[1.1]">
-        <span class="font-display text-[1.375rem]">{site.name}</span>
+        <span class="font-display text-[1.375rem] max-[22.5rem]:text-[1.25rem]">{site.name}</span>
         <span class="text-gold-brown text-[0.8125rem] font-bold tracking-[0.04em]">{site.product}</span>
       </span>
     </a>
@@ -38,7 +39,7 @@ const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex
           <li>
             <a
               href={`/#${SECTION_IDS.prenumeration}`}
-              class="text-primary-dark border-gold rounded-pill hover:bg-white inline-flex border-[1.5px] px-3.5 py-[9px] no-underline"
+              class="text-primary-dark border-gold rounded-pill hover:bg-white inline-flex border-[1.5px] px-3.5 py-[9px] no-underline max-[22.5rem]:px-2.5"
             >
               {priceLabelShort}
             </a>
