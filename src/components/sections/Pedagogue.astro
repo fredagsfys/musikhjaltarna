@@ -1,9 +1,7 @@
 ---
 import Star from '~/components/doodles/Star.astro';
 import Art from '~/components/ui/Art.astro';
-import Button from '~/components/ui/Button.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
-import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import { SECTION_IDS } from '~/config/site';
@@ -12,7 +10,7 @@ import { copy } from '~/content/copy';
 const { pedagogue: content } = copy;
 ---
 
-<!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
+<!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzana står bakom den pedagogiska grunden. -->
 <Section id={SECTION_IDS.pedagog} tone="white">
   <div class="flex flex-wrap items-center gap-[clamp(2.5rem,6vw,5.5rem)]">
     <figure class="flex max-w-[440px] min-w-0 flex-[1_1_340px] flex-col gap-3.5">
@@ -33,37 +31,26 @@ const { pedagogue: content } = copy;
         <Star class="text-gold absolute bottom-[60px] -left-[34px] w-[34px] max-sm:hidden" />
         <div class="bg-cream-warm border-border rounded-card shadow-card relative aspect-[4/5] overflow-hidden border">
           <Art
-            name="suzana-and-gilbert"
+            name="pedagogue-photo"
             alt={content.photoAlt}
             widths={[440, 880]}
             sizes="(min-width: 768px) 440px, 90vw"
             class="size-full object-cover object-[center_20%]"
           />
         </div>
-        <CharacterAvatar alt="" ring="thick" size={112} class="absolute -top-[18px] -right-[18px] w-28" />
       </div>
-      <figcaption class="pt-2.5">
-        <span class="font-hand text-hand text-gold-brown">{content.captionNote}</span>
-        <br />
+      <figcaption class="pt-2.5 text-[0.9375rem]">
         <strong class="text-ink">{content.captionName}</strong>, {content.captionRole}
       </figcaption>
     </figure>
 
     <div class="flex min-w-0 flex-[1_1_440px] flex-col gap-5">
       <SectionHeading id={`${SECTION_IDS.pedagog}-title`} eyebrow={content.eyebrow} title={content.title}>
-        <p>{content.text}</p>
+        {content.text.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
       </SectionHeading>
-      <div class="mt-2 flex flex-wrap items-center gap-6">
-        <BuyButton ctaId="kop_pedagog" />
-        <Button
-          variant="link"
-          href={copy.links.website}
-          data-link-id="pianotopia_website"
-          data-link-placement="pedagogue"
-        >
-          {content.readMore}
-        </Button>
-      </div>
+      <BuyButton ctaId="kop_pedagog" class="mt-2 self-start" />
     </div>
   </div>
 </Section>

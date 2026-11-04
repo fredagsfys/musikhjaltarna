@@ -18,100 +18,120 @@ links:
 seo:
   title: Musikhjältarna – Hjälpen mellan pianolektionerna
   description: >-
-    Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
-    pianolektionerna. Ett komplement till barnets pianolärare.
+    Musikhjältarna är en app med lekfulla pianoövningar för stunderna hemma mellan lektionerna. Ett komplement till
+    barnets pianolärare.
 
 header:
   navHowItWorks: Så fungerar det
   navPedagogue: Pedagogen
 
+# Rubriker: en ny rad i texten blir en radbrytning på sidan (används med "|-").
+
 # Sektion 1: Löftet och tjänsten
 hero:
-  eyebrow: Pianotopia · Musikhjältarna
-  title: Hjälpen mellan lektionerna som gör att barnet
+  eyebrow: För barn i början av sin pianoundervisning
+  title: |-
+    Hjälpen mellan pianolektionerna.
+    Så att ditt barn
   titleAccent: kommer vidare. # visas i turkos med understrykning, håll den kort
   lead: >-
-    Musikhjältarna är ett övningsverktyg i en app där barnet övar roligt, enkelt och självständigt mellan
-    pianolektionerna.
-  trust: Ett komplement till barnets pianolärare
-  imageLabel: Hero-bild
-  note: # handskriven kommentar vid bilden, en rad per punkt
-    - Lorem ipsum
-    - dolor sit amet
+    Musikhjältarna är en app med lekfulla pianoövningar för stunderna hemma mellan lektionerna. För att hjälpa ditt
+    barn vidare i spelet och behålla lusten att fortsätta.
+  trust: Ett komplement till barnets pianolärare.
+  imageAlt: Ett barn övar vid pianot med Musikhjältarna på en surfplatta # beskrivning av bilden för skärmläsare
 
 # Sektion 2: Så fungerar övningen
 howItWorks:
-  eyebrow: Lorem ipsum
-  title: Så fungerar övningen
-  intro: >-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-    magna aliqua.
+  eyebrow: Så fungerar övningen
+  title: Veckans äventyr börjar vid pianot.
+  intro: Musikhjältarna har ett eget upplägg med korta, lekfulla pianoövningar som barnet klarar på egen hand.
   steps:
     - title: Kom igång
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    - title: Öva självständigt
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    - title: Kom vidare
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      text: Barnet öppnar appen vid pianot. En musikhjälte visar vad övningen går ut på.
+    - title: Spela och få hjälp direkt
+      text: Noterna lyser upp och visar vägen. Appen följer barnets spel och ger återkoppling medan barnet spelar.
+    - title: Ta nästa steg
+      text: Efter ett avklarat pass får barnet en stjärna. Nya nivåer och utmaningar ger något att fortsätta mot.
+  # Exempel på en övning, med en ritad vy av appen.
   example:
     eyebrow: Exempel på övning i appen
-    title: Lorem ipsum dolor sit amet
+    title: |-
+      Barnet spelar.
+      Musikhjältarna lyssnar.
     text: >-
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-      magna aliqua.
-    imageLabel: Exempel på övning i appen
-    note: Lorem ipsum dolor!
+      Noterna lyser upp och visar vägen genom stycket. Appen lyssnar på barnets spel och ger återkoppling direkt, så
+      att barnet får hjälp medan det övar.
+    note: Tonen lyser – barnet spelar! # handskriven rad under appvyn
+    # Texterna i den ritade appvyn.
+    app:
+      speech: Spela tonerna när de lyser upp – jag lyssnar!
+      feedback: Rätt ton!
+      listen: Lyssna
+      play: Spela
+      # Beskrivning av appvyn för skärmläsare.
+      alt: >-
+        Exempel på en övning i appen: en musikhjälte ber barnet spela tonerna när de lyser upp. Tonerna C, D, E, F och
+        G står på ett notsystem, E lyser och appen svarar "Rätt ton!".
 
-# Sektion 3: Framsteg som ryms i vardagen. Exakt tre fördelar; ikonerna följer ordningen.
+# Sektion 3: För hela familjen. Exakt tre fördelar; ikonerna (klocka, stjärna, hus) följer ordningen.
 everyday:
-  eyebrow: Lorem ipsum
-  title: Framsteg som ryms i vardagen
+  eyebrow: För hela familjen
+  title: |-
+    Tid för pianot.
+    Mitt i vardagen.
   intro: >-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-    magna aliqua.
+    Skola, kompisar och aktiviteter. Det är mycket som ska hinnas med mellan pianolektionerna. Musikhjältarna ger
+    barnet korta övningar vid pianot och hjälp medan det spelar.
   benefits:
-    - title: Roligt och enkelt att öva
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    - title: Kräver lite tid
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    - title: Föräldern behöver inte kunna spela
-      text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    - title: Korta pass som får plats
+      text: Övningen behöver inte bli ett stort projekt. Korta pass gör det lättare att få in pianot i vardagen.
+    - title: Något att vilja fortsätta med
+      text: >-
+        Lekfulla övningar, belöningar och nya utmaningar ger barnet något att arbeta mot. Att komma vidare väcker
+        lusten att spela mer.
+    - title: Du behöver inte kunna spela piano
+      text: >-
+        Appen vägleder och ger återkoppling. Du som förälder kan uppmuntra och finnas nära, utan att själv behöva vara
+        pianolärare.
 
-# Sektion 4: Pedagogen bakom tjänsten
+# Sektion 4: Pedagogen bakom Musikhjältarna. Varje rad i "text" blir ett eget stycke.
 pedagogue:
-  eyebrow: Lorem ipsum
-  title: Pedagogen bakom tjänsten
-  text: >-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-    magna aliqua.
-  readMore: Läs mer om Pianotopia # länkar till links.website
-  photoAlt: Suzanna, pianopedagog # beskrivning av fotot för skärmläsare
-  captionNote: Lorem ipsum # handskriven rad under fotot
-  captionName: Suzanna
-  captionRole: pianopedagog
+  eyebrow: Pedagogen bakom Musikhjältarna
+  title: |-
+    Skapat av en pianopedagog.
+    Med barnets framsteg i fokus.
+  text:
+    - >-
+      Musikhjältarna är skapat av Suzana Spasevska Hermansen, pianopedagog i Kalmar. Övningarna bygger på beprövad
+      pianopedagogik och har utvecklats tillsammans med hennes elever.
+    - >-
+      Målet är att hjälpa barnet framåt och hålla lusten att spela levande. Musikhjältarna kompletterar barnets
+      ordinarie undervisning och ger stöd i övningen hemma.
+  photoAlt: Suzana Spasevska Hermansen, pianopedagog, i Pianotopias studio # beskrivning av fotot för skärmläsare
+  captionName: Suzana Spasevska Hermansen
+  captionRole: pianopedagog och grundare av Pianotopia.
 
-# Sektion 5: Din prenumeration
+# Sektion 5: Din prenumeration. {pris} i rubriken ersätts med priset, till exempel "79 kr".
 subscription:
-  eyebrow: Lorem ipsum
-  title: Din prenumeration
-  description: Övningsverktyg i appen för hjälp mellan pianolektionerna.
+  eyebrow: Din prenumeration
+  title: |-
+    Hjälpen mellan pianolektionerna.
+    För {pris} i månaden.
+  priceNote: Betalas månadsvis # visas under priset
   boxes:
-    - title: Vad som ingår
+    - title: Det här ingår
       items:
-        - Lorem ipsum dolor sit amet
-        - Consectetur adipiscing elit
-        - Sed do eiusmod tempor
-    - title: Praktiska förutsättningar
+        - Lekfulla pianoövningar med Musikhjältarna som guider.
+        - Noter som visar vägen och återkoppling medan barnet spelar.
+        - Nivåer, belöningar och nya utmaningar.
+        - Övningsblad att skriva ut.
+        - Överblick över barnets framsteg för dig som förälder.
+    - title: Det här behöver ni
       items:
-        - Lorem ipsum dolor sit amet
-        - Consectetur adipiscing elit
-        - Sed do eiusmod tempor
-    - title: Abonnemangsvillkor
-      items:
-        - Lorem ipsum dolor sit amet
-        - Consectetur adipiscing elit
-        - Sed do eiusmod tempor
-  trust: Ett komplement till barnets pianolärare
+        - Ett piano eller keyboard hemma.
+        - En surfplatta, mobil eller dator.
+        - Ett barn i början av sin pianoundervisning.
+  trust: Ett komplement till barnets pianolärare.
 
 footer:
   contact: Kontakt
@@ -137,12 +157,12 @@ consent:
 # Köpsteget (/kop)
 purchase:
   title: Hjälpen mellan pianolektionerna
-  subtitle: Prenumeration på övningsverktyget i appen
-  pricePeriod: Per månad
+  subtitle: Lekfulla pianoövningar med vägledning och återkoppling medan barnet spelar.
   nameLabel: Namn
+  namePlaceholder: Ditt namn
   emailLabel: E-post
-  privacy: Vi använder ditt namn och din e-postadress för att registrera ditt intresse.
-  privacyLink: Läs mer om hur vi hanterar personuppgifter
+  emailPlaceholder: Din e-postadress
+  privacyLink: Läs om hur Pianotopia hanterar dina personuppgifter. # länkar till integritetssidan
   submit: Gå vidare till betalning
   submitting: Skickar…
   back: Tillbaka till erbjudandet
@@ -152,25 +172,27 @@ purchase:
     emailInvalid: Kontrollera e-postadressen, till exempel namn@exempel.se.
     sendFailed: Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
 
-# Besked och uppdateringsval (/kop/uppdatering).
+# Besked och uppdateringsval (/kop/uppdatering). Varje rad i "status" blir ett eget stycke.
 # När "question" eller "info" ändras sparas en ny version tillsammans med besökarnas val.
 updates:
-  title: Pianotopia är ännu inte redo för leverans
-  status: Tjänsten är under utveckling. Inget köp har genomförts, ingen betalning har skett och inget abonnemang har startats.
-  question: Vill du hålla dig uppdaterad?
-  info: Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering.
-  yes: Ja, jag vill hållas uppdaterad
+  title: Musikhjältarna är inte lanserat ännu.
+  status:
+    - Tack för att du ville gå vidare. Vi undersöker intresset för Musikhjältarna inför lanseringen.
+    - Inget köp har genomförts, ingen betalning har gjorts och inget abonnemang har startats.
+  question: Vill du veta när vi är igång?
+  info: Vi kan mejla dig när Musikhjältarna går att köpa.
+  yes: Ja, mejla mig vid lansering
   no: Nej tack
   saving: Sparar…
   error: Det gick inte att spara ditt val just nu. Försök igen.
 
-# Bekräftelse efter ja (/kop/tack). {epost} ersätts med besökarens e-postadress.
+# Bekräftelse efter ja (/kop/tack). Besökarens e-postadress visas under "sentTo".
 thanks:
-  title: Tack för ditt intresse!
-  text: Vi skickar mer information till {epost}.
+  title: Vi hör av oss vid lanseringen!
+  text: Du har valt att få ett mejl när Musikhjältarna går att köpa.
+  sentTo: 'Vi skickar det till:'
   emailFallback: den e-postadress du angav
   back: Tillbaka till erbjudandet
-  website: Till Pianotopias webbplats
 
 # Avslut efter nej (/kop/nej-tack)
 declined:

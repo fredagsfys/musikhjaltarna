@@ -1,0 +1,106 @@
+---
+import Art from './Art.astro';
+import Icon from './Icon.astro';
+
+/**
+ * Drawn view of a practice in the app, from the client's mock-up: a hero asks the child to play
+ * the notes as they light up, E is lit and the app answers "Rätt ton!". It is an illustration,
+ * not a control: one image for screen readers, and the "buttons" are plain shapes.
+ */
+export interface Props {
+  speech: string;
+  feedback: string;
+  listen: string;
+  play: string;
+  alt: string;
+  class?: string;
+}
+
+const { speech, feedback, listen, play, alt, class: className } = Astro.props;
+
+// C4 to G4 on a treble staff: lines at y 40–100, 15 apart. C sits on a ledger line below the staff.
+// The labels are large in viewBox units so they stay readable when the card is phone-sized.
+const notes = [
+  { name: 'C', y: 115 },
+  { name: 'D', y: 107.5 },
+  { name: 'E', y: 100, lit: true },
+  { name: 'F', y: 92.5 },
+  { name: 'G', y: 85 },
+].map((note, i) => ({ ...note, x: 56 + i * 62 }));
+const staffLines = [40, 55, 70, 85, 100];
+const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-center gap-2.5 px-5 font-extrabold';
+---
+
+<div
+  role="img"
+  aria-label={alt}
+  class:list={['rounded-card border-border shadow-card w-full max-w-[460px] border bg-white p-5 sm:p-6', className]}
+>
+  <div aria-hidden="true" class="flex flex-col gap-5">
+    <div class="flex items-center gap-4">
+      <Art
+        name="app-example-avatar"
+        alt=""
+        widths={[64, 128]}
+        sizes="64px"
+        class="rounded-tile size-16 shrink-0 object-cover"
+      />
+      <p class="border-border bg-bg rounded-tile text-ink border px-4 py-3 text-[0.9375rem] leading-snug font-bold">
+        {speech}
+      </p>
+    </div>
+
+    <div class="bg-bg border-gold-light rounded-tile flex flex-col items-center gap-2 border-2 px-3 pt-3 pb-4">
+      <svg viewBox="0 0 360 152" class="text-ink w-full" fill="none">
+        {staffLines.map((y) => (
+          <line x1="16" x2="344" y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />
+        ))}
+        {notes.map(({ name, x, y, lit }) => (
+          <g>
+            {lit && <circle cx={x} cy={y} r="17" class="fill-primary/20" />}
+            {name === 'C' && <line x1={x - 16} x2={x + 16} y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />}
+            <ellipse
+              cx={x}
+              cy={y}
+              rx="9.5"
+              ry="7"
+              transform={`rotate(-20 ${x} ${y})`}
+              class={lit ? 'fill-primary' : 'fill-ink'}
+            />
+            <line
+              x1={x + 8.6}
+              x2={x + 8.6}
+              y1={y - 2}
+              y2={y - 40}
+              stroke-width="2.2"
+              class={lit ? 'stroke-primary' : 'stroke-ink'}
+            />
+            <text
+              x={x}
+              y="146"
+              text-anchor="middle"
+              class:list={['font-sans text-[19px] font-bold', lit ? 'fill-primary-dark' : 'fill-text']}
+            >
+              {name}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <span class="rounded-pill bg-cream-warm text-primary-dark inline-flex items-center gap-2 px-4 py-1.5 text-[0.9375rem] font-bold">
+        <Icon name="check" strokeWidth={2.6} class="size-4" />
+        {feedback}
+      </span>
+    </div>
+
+    <div class="flex gap-3">
+      <span class:list={[pill, 'border-primary text-primary-dark border-2']}>
+        <Icon name="speaker" class="size-5" />
+        {listen}
+      </span>
+      <span class:list={[pill, 'bg-primary text-white']}>
+        <Icon name="play" class="size-4" />
+        {play}
+      </span>
+    </div>
+  </div>
+</div>

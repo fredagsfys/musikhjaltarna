@@ -11,6 +11,8 @@ import { SECTION_IDS, site } from '~/config/site';
 import { copy } from '~/content/copy';
 
 const { subscription: content, offer } = copy;
+// The title names the price, e.g. "För {pris} i månaden.", so it follows offer.price.
+const title = content.title.replaceAll('{pris}', `${offer.price} kr`);
 ---
 
 <!-- Sektion 5: Samla erbjudandet. Bekräfta innehåll och pris, besvara kvarvarande frågor. -->
@@ -22,36 +24,37 @@ const { subscription: content, offer } = copy;
     <SectionHeading
       id={`${SECTION_IDS.prenumeration}-title`}
       eyebrow={content.eyebrow}
-      title={content.title}
+      title={title}
       align="center"
+      class="max-w-[900px]!"
     />
 
     <Card class="shadow-card flex flex-col gap-9 p-[clamp(1.75rem,4.5vw,3.5rem)]">
       <div class="flex flex-wrap items-center justify-between gap-6">
         <div class="flex items-center gap-[18px]">
-          <CharacterAvatar alt="" size={72} class="w-[72px] shrink-0" />
-          <div class="flex flex-col gap-0.5">
-            <h3 class="text-h3">{site.product}</h3>
-            <p>{content.description}</p>
-          </div>
+          <CharacterAvatar name="pricing-avatar" alt="" size={72} class="w-[72px] shrink-0" />
+          <h3 class="text-h3">{site.product}</h3>
         </div>
-        <div class="relative px-[26px] py-3.5">
-          <svg
-            viewBox="0 0 220 100"
-            preserveAspectRatio="none"
-            class="text-gold absolute inset-0 size-full"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path d="M20 50C20 15 90 6 140 10C195 15 212 40 205 62C196 88 120 96 70 90C30 85 12 70 22 48C30 32 60 22 90 20"></path>
-          </svg>
-          <p class="font-display text-ink relative text-[clamp(3rem,5vw,4.25rem)] leading-none">
-            <data value={offer.price}>{offer.price} kr</data>
-            <span class="font-sans text-xl font-bold text-text">/{offer.period}</span>
-          </p>
+        <div class="flex flex-col items-center gap-1.5">
+          <div class="relative px-[26px] py-3.5">
+            <svg
+              viewBox="0 0 220 100"
+              preserveAspectRatio="none"
+              class="text-gold absolute inset-0 size-full"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M20 50C20 15 90 6 140 10C195 15 212 40 205 62C196 88 120 96 70 90C30 85 12 70 22 48C30 32 60 22 90 20"></path>
+            </svg>
+            <p class="font-display text-ink relative text-[clamp(3rem,5vw,4.25rem)] leading-none">
+              <data value={offer.price}>{offer.price} kr</data>
+              <span class="font-sans text-xl font-bold text-text">/{offer.period}</span>
+            </p>
+          </div>
+          <p class="text-[0.9375rem]">{content.priceNote}</p>
         </div>
       </div>
 

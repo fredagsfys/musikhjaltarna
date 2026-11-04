@@ -11,7 +11,7 @@ import { copy } from '~/content/copy';
 
 const { everyday: content } = copy;
 // The content file has exactly three benefits; each keeps its icon by position.
-const icons: IconName[] = ['smile', 'clock', 'home-heart'];
+const icons: IconName[] = ['clock', 'star', 'home-heart'];
 const benefits = content.benefits.map((benefit, i) => ({ ...benefit, icon: icons[i] }));
 const rayAngles = [-50, -20, 10, 40];
 ---
@@ -41,7 +41,13 @@ const rayAngles = [-50, -20, 10, 40];
               <path d="M70 6Q74 0 70 -6" transform={`rotate(${angle} 70 70)`} />
             ))}
           </svg>
-          <Art name="gilbert-thumbs-up" alt="" widths={[120, 240]} sizes="120px" class="relative w-[120px]" />
+          <Art
+            name="family-mascot"
+            alt=""
+            widths={[120, 240]}
+            sizes="120px"
+            class="relative aspect-[560/634] w-[120px]"
+          />
         </div>
       </div>
     </div>

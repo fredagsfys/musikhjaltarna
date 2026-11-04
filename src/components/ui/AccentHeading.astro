@@ -1,5 +1,6 @@
 ---
 import Squiggle from '~/components/doodles/Squiggle.astro';
+import Lines from './Lines.astro';
 
 /**
  * Serif headline where one phrase is teal and underlined with the gold squiggle.
@@ -9,7 +10,7 @@ import Squiggle from '~/components/doodles/Squiggle.astro';
 export interface Props {
   as?: 'h1' | 'h2';
   id?: string;
-  /** Text before the accent phrase. */
+  /** Text before the accent phrase; a new line is a line break. */
   text: string;
   accent: string;
   class?: string;
@@ -19,7 +20,7 @@ const { as: Tag = 'h1', id, text, accent, class: className } = Astro.props;
 ---
 
 <Tag id={id} class:list={['text-h1', className]}>
-  {text}{' '}
+  <Lines text={text} inlineLast />{' '}
   <span class="text-primary relative inline-block whitespace-nowrap">
     {accent}
     <Squiggle variant="hero" class="text-gold absolute -bottom-2.5 -left-[2%] h-[18px] w-[104%]" />

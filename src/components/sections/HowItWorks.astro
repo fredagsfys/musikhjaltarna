@@ -1,9 +1,10 @@
 ---
 import PianoKeys from '~/components/doodles/PianoKeys.astro';
+import AppExample from '~/components/ui/AppExample.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
-import Placeholder from '~/components/ui/Placeholder.astro';
+import Lines from '~/components/ui/Lines.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import { SECTION_IDS } from '~/config/site';
@@ -41,15 +42,17 @@ const { howItWorks: content } = copy;
       <PianoKeys class="text-gold absolute -top-[42px] right-7 w-[150px] rotate-4 max-sm:hidden" />
       <div class="flex min-w-0 flex-[1_1_360px] flex-col gap-4">
         <Eyebrow>{content.example.eyebrow}</Eyebrow>
-        <h3 class="text-h2 text-balance">{content.example.title}</h3>
+        <h3 class="text-h2 text-balance">
+          <Lines text={content.example.title} />
+        </h3>
         <p>{content.example.text}</p>
         <BuyButton ctaId="kop_hjalpen" class="mt-2 self-start" />
       </div>
       <div class="relative flex min-w-0 flex-[1_1_400px] justify-center">
-        <Placeholder label={content.example.imageLabel} ratio="1 / 1" class="max-w-[460px]" />
+        <AppExample {...content.example.app} />
         <span
           aria-hidden="true"
-          class="font-hand text-hand text-gold-brown absolute -bottom-10 -left-2.5 -rotate-4 max-sm:hidden"
+          class="font-hand text-hand text-gold-brown absolute -bottom-11 left-6 -rotate-4 max-sm:hidden"
         >
           {content.example.note}
         </span>

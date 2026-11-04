@@ -1,0 +1,20 @@
+---
+/**
+ * Text from copy.yaml where each new line starts a new line on the page, e.g. a two-sentence
+ * heading. Each line wraps and balances on its own. With `inlineLast`, the last line stays inline
+ * so a phrase can follow it on the same line (the hero's accent).
+ */
+export interface Props {
+  text: string;
+  inlineLast?: boolean;
+}
+
+const { text, inlineLast = false } = Astro.props;
+const lines = text.split('\n');
+const last = inlineLast ? lines.pop() : undefined;
+---
+
+{lines.map((line) => (
+  <span class="block">{line}</span>
+))}
+{last}

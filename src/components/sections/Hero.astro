@@ -1,10 +1,8 @@
 ---
-import CurvedArrow from '~/components/doodles/CurvedArrow.astro';
 import AccentHeading from '~/components/ui/AccentHeading.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
-import Placeholder from '~/components/ui/Placeholder.astro';
-import SpeechNote from '~/components/ui/SpeechNote.astro';
+import Art from '~/components/ui/Art.astro';
 import TrustList from '~/components/ui/TrustList.astro';
 import { SECTION_IDS } from '~/config/site';
 import { copy } from '~/content/copy';
@@ -16,7 +14,7 @@ const { hero } = copy;
 <section
   id={SECTION_IDS.hero}
   aria-labelledby={`${SECTION_IDS.hero}-title`}
-  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16 laptop:pt-4 phone:pt-4 short:pt-3"
+  class="gutter-x overflow-x-clip pt-10 pb-16 sm:pt-14 lg:py-16 laptop:pt-4 phone:pt-3 short:pt-3"
 >
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12 laptop:min-h-0 laptop:pt-2">
     <div class="@container min-w-0">
@@ -25,24 +23,27 @@ const { hero } = copy;
         id={`${SECTION_IDS.hero}-title`}
         text={hero.title}
         accent={hero.titleAccent}
-        class="laptop:[@media(height<=45rem)]:text-[length:min(clamp(2.75rem,1.8rem_+_4.2vw,4.75rem),15cqi,7svh)]! mt-6 laptop:mt-3 phone:mt-2 phone:text-[2.5rem]! short:mt-2 short:text-[1.75rem]!"
+        class="laptop:[@media(height<=45rem)]:text-[length:min(clamp(2.75rem,1.8rem_+_4.2vw,4.75rem),15cqi,7svh)]! mt-6 laptop:mt-3 phone:mt-2 phone:text-[2.25rem]! short:mt-2 short:text-[1.75rem]!"
       />
-      <p class="text-lead mt-8 lg:max-w-[34ch] laptop:mt-4 laptop:max-w-[46ch] phone:mt-3 phone:text-[1.0625rem]! phone:leading-normal! short:mt-2 short:text-base! short:leading-snug!">
+      <p class="text-lead mt-8 lg:max-w-[34ch] laptop:mt-4 laptop:max-w-[46ch] phone:mt-2 phone:text-base! phone:leading-[1.45]! short:mt-2 short:text-base! short:leading-snug!">
         {hero.lead}
       </p>
-      <BuyButton ctaId="kop_hero" class="mt-10 laptop:mt-5 phone:mt-4 short:mt-3" />
+      <BuyButton ctaId="kop_hero" class="mt-10 laptop:mt-5 phone:mt-3 short:mt-3" />
       <TrustList class="mt-6 laptop:mt-4 phone:mt-4 short:mt-2" items={[hero.trust]} />
     </div>
 
-    <!--
-      Geometry from the design file: a 500px stage, the arch inset 6% and 10% from the top, the note
-      overhanging by 10%. From 640px the stage is 90% wide so the overhang stays inside the page gutter.
-    -->
-    <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[10.2%] sm:w-[90%]">
-      <Placeholder label={hero.imageLabel} ratio="1 / 1.043" shape="arch" />
-      <div class="absolute top-0 right-0 flex rotate-5 flex-col items-end sm:-right-[10%]">
-        <SpeechNote lines={hero.note} />
-        <CurvedArrow class="text-gold mr-10 w-20" />
+    <!-- The photo in the arch from the design file: domed top, straight sides, softly rounded bottom. -->
+    <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[6%] sm:w-[90%]">
+      <div class="border-gold-light bg-cream-warm aspect-[1/1.043] overflow-hidden rounded-[48%_48%_40px_40px] border-2">
+        <Art
+          name="hero-photo"
+          alt={hero.imageAlt}
+          widths={[460, 700, 920]}
+          sizes="(min-width: 1024px) 460px, (min-width: 640px) 450px, 88vw"
+          loading="eager"
+          fetchpriority="high"
+          class="size-full object-cover object-[62%_center]"
+        />
       </div>
     </div>
   </div>

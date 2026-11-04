@@ -15,17 +15,29 @@ export interface Props {
   sizes: string;
   /** Placeholder silhouette on light (default) or dark backgrounds. */
   tone?: 'light' | 'dark';
+  /** Eager and high priority for the main image on first load; everything else loads lazily. */
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'auto';
   class?: string;
 }
 
-const { name, alt, widths, sizes, tone = 'light', class: className } = Astro.props;
+const { name, alt, widths, sizes, tone = 'light', loading = 'lazy', fetchpriority, class: className } = Astro.props;
 const image = getImage(name);
 // Placeholders show just the short name, e.g. "Gilbert G-klav" from a longer alt text.
 const label = alt.split(',')[0];
 ---
 
 {image ? (
-  <Picture src={image} alt={alt} formats={['avif', 'webp']} widths={widths} sizes={sizes} class={className} />
+  <Picture
+    src={image}
+    alt={alt}
+    formats={['avif', 'webp']}
+    widths={widths}
+    sizes={sizes}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    class={className}
+  />
 ) : name === 'emblem' ? (
   <svg
     viewBox="0 0 100 100"

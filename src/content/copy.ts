@@ -10,8 +10,8 @@ import raw from './copy.yaml?raw';
 
 const text = z.string().trim().min(1);
 const card = z.strictObject({ title: text, text });
-const flowEnding = { title: text, text, back: text, website: text };
-const infoPage = z.strictObject({ title: text, description: text, body: z.array(text).min(1) });
+const paragraphs = z.array(text).min(1);
+const infoPage = z.strictObject({ title: text, description: text, body: paragraphs });
 
 const schema = z.strictObject({
   offer: z.strictObject({
@@ -29,15 +29,20 @@ const schema = z.strictObject({
     titleAccent: text,
     lead: text,
     trust: text,
-    imageLabel: text,
-    note: z.array(text).min(1),
+    imageAlt: text,
   }),
   howItWorks: z.strictObject({
     eyebrow: text,
     title: text,
     intro: text,
     steps: z.array(card).min(1),
-    example: z.strictObject({ eyebrow: text, title: text, text, imageLabel: text, note: text }),
+    example: z.strictObject({
+      eyebrow: text,
+      title: text,
+      text,
+      note: text,
+      app: z.strictObject({ speech: text, feedback: text, listen: text, play: text, alt: text }),
+    }),
   }),
   everyday: z.strictObject({
     eyebrow: text,
@@ -49,17 +54,15 @@ const schema = z.strictObject({
   pedagogue: z.strictObject({
     eyebrow: text,
     title: text,
-    text,
-    readMore: text,
+    text: paragraphs,
     photoAlt: text,
-    captionNote: text,
     captionName: text,
     captionRole: text,
   }),
   subscription: z.strictObject({
     eyebrow: text,
     title: text,
-    description: text,
+    priceNote: text,
     boxes: z.array(z.strictObject({ title: text, items: z.array(text).min(1) })).min(1),
     trust: text,
   }),
@@ -77,10 +80,10 @@ const schema = z.strictObject({
   purchase: z.strictObject({
     title: text,
     subtitle: text,
-    pricePeriod: text,
     nameLabel: text,
+    namePlaceholder: text,
     emailLabel: text,
-    privacy: text,
+    emailPlaceholder: text,
     privacyLink: text,
     submit: text,
     submitting: text,
@@ -89,7 +92,7 @@ const schema = z.strictObject({
   }),
   updates: z.strictObject({
     title: text,
-    status: text,
+    status: paragraphs,
     question: text,
     info: text,
     yes: text,
@@ -97,8 +100,8 @@ const schema = z.strictObject({
     saving: text,
     error: text,
   }),
-  thanks: z.strictObject({ ...flowEnding, text: text.includes('{epost}'), emailFallback: text }),
-  declined: z.strictObject(flowEnding),
+  thanks: z.strictObject({ title: text, text, sentTo: text, emailFallback: text, back: text }),
+  declined: z.strictObject({ title: text, text, back: text, website: text }),
   notFound: z.strictObject({ title: text, text, link: text }),
   pages: z.strictObject({ kontakt: infoPage, villkor: infoPage, integritet: infoPage }),
 });
