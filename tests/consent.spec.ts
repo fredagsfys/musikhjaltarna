@@ -2,6 +2,7 @@
  * The analytics consent from brief B §9: nothing is measured until the visitor accepts, declining is
  * possible from the settings layer with an unticked box, and the choice can be changed at any time.
  */
+import type { Page } from '@playwright/test';
 import { CONSENT_KEY, CONSENT_VERSION } from '../src/lib/consent';
 import { registrationReport, registrationsFor } from './d1';
 import { arrivedAt, expect, stored, test, uniqueEmail } from './fixtures';
@@ -133,26 +134,79 @@ test.describe('before the visitor has decided', () => {
     await analytics.waitFor('offer_view');
   });
 
-  test('the banner never covers the hero buy button on arrival', async ({ page }) => {
-    const overlap = () =>
-      page.evaluate(() => {
-        const card = document.querySelector('#samtycke [data-layer]:not([hidden])')!.getBoundingClientRect();
-        const button = document.querySelector('[data-cta-id="kop_hero"]')!.getBoundingClientRect();
-        return Math.max(0, Math.min(button.bottom, card.bottom) - Math.max(button.top, card.top));
-      });
+  /** The bar's position on screen and how much of the hero buy button it covers. */
+  const bar = (page: Page) =>
+    page.evaluate(() => {
+      const card = document.querySelector('#samtycke [data-layer="ask"]')!.getBoundingClientRect();
+      const button = document.querySelector('[data-cta-id="kop_hero"]')!.getBoundingClientRect();
+      return {
+        tucked: document.querySelector('#samtycke')!.hasAttribute('data-tucked'),
+        onScreen: card.top < innerHeight,
+        overlap: Math.max(0, Math.min(button.bottom, card.bottom) - Math.max(button.top, card.top)),
+      };
+    });
+
+  test('the bar sits below the hero buy button on common screens', async ({ page }) => {
     for (const size of [
-      { width: 360, height: 640 },
-      { width: 390, height: 844 },
+      { width: 375, height: 629 }, // iPhone 13 mini in Safari
+      { width: 393, height: 659 }, // iPhone 15 in Safari
+      { width: 412, height: 839 }, // Pixel 7 in Chrome
       { width: 1024, height: 768 },
       { width: 1366, height: 768 },
-      { width: 1920, height: 1080 },
+      { width: 1024, height: 704 }, // iPad landscape in Safari
+      { width: 1280, height: 577 }, // 1280×720 laptop, Windows Chrome
+      { width: 1366, height: 625 }, // 1366×768 laptop, Windows Chrome
+      { width: 1920, height: 937 },
     ]) {
       await page.setViewportSize(size);
       await page.goto('/');
-      await expect(page.locator(banner)).toBeVisible();
-      await expect.poll(overlap, { message: `ask layer at ${size.width}×${size.height}` }).toBe(0);
-      await page.click('#samtycke_hantera');
-      await expect.poll(overlap, { message: `settings layer at ${size.width}×${size.height}` }).toBe(0);
+      await expect
+        .poll(() => bar(page), { message: `${size.width}×${size.height}` })
+        .toEqual({ tucked: false, onScreen: true, overlap: 0 });
+    }
+  });
+
+  test('on a screen too short for both, the bar waits until the buy button has passed', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 548 }); // iPhone SE in Safari
+    await page.goto('/');
+    await expect.poll(() => bar(page)).toMatchObject({ tucked: true, onScreen: false });
+
+    await page.evaluate(() => scrollBy(0, 300));
+    await expect.poll(() => bar(page)).toMatchObject({ tucked: false, onScreen: true });
+
+    // Back at the top it steps aside again, and keyboard focus brings it back.
+    await page.evaluate(() => scrollTo(0, 0));
+    await expect.poll(() => bar(page)).toMatchObject({ tucked: true });
+    await page.focus('#samtycke_godkann');
+    await expect.poll(() => bar(page)).toMatchObject({ tucked: false });
+  });
+
+  test('the hero buy button is on screen on arrival, even on small and sideways screens', async ({ page }) => {
+    for (const size of [
+      { width: 320, height: 568 }, // iPhone SE 1st gen
+      { width: 375, height: 548 }, // iPhone SE in Safari
+      { width: 667, height: 331 }, // iPhone SE sideways
+      { width: 734, height: 343 }, // iPhone 15 sideways
+      { width: 1024, height: 600 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.goto('/');
+      const bottom = await page
+        .locator('[data-cta-id="kop_hero"]')
+        .evaluate((button) => button.getBoundingClientRect().bottom);
+      expect(bottom, `${size.width}×${size.height}`).toBeLessThanOrEqual(size.height);
+    }
+  });
+
+  test('on other pages the bar shows on load, and steps aside only after a scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 548 }); // Where the front page waits for a scroll.
+    for (const path of ['/kop/hero', '/integritet']) {
+      await page.goto(path);
+      await expect
+        .poll(() => page.locator(banner).evaluate((el) => el.hasAttribute('data-tucked')), { message: path })
+        .toBe(false);
+      const top = await page.locator('#samtycke [data-layer="ask"]').evaluate((el) => el.getBoundingClientRect().top);
+      expect(top, path).toBeLessThan(548);
     }
   });
 });
