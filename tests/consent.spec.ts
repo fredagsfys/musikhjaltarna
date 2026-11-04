@@ -132,6 +132,29 @@ test.describe('before the visitor has decided', () => {
     await expect(page.locator(banner)).toBeHidden();
     await analytics.waitFor('offer_view');
   });
+
+  test('the banner never covers the hero buy button on arrival', async ({ page }) => {
+    const overlap = () =>
+      page.evaluate(() => {
+        const card = document.querySelector('#samtycke [data-layer]:not([hidden])')!.getBoundingClientRect();
+        const button = document.querySelector('[data-cta-id="kop_hero"]')!.getBoundingClientRect();
+        return Math.max(0, Math.min(button.bottom, card.bottom) - Math.max(button.top, card.top));
+      });
+    for (const size of [
+      { width: 360, height: 640 },
+      { width: 390, height: 844 },
+      { width: 1024, height: 768 },
+      { width: 1366, height: 768 },
+      { width: 1920, height: 1080 },
+    ]) {
+      await page.setViewportSize(size);
+      await page.goto('/');
+      await expect(page.locator(banner)).toBeVisible();
+      await expect.poll(overlap, { message: `ask layer at ${size.width}×${size.height}` }).toBe(0);
+      await page.click('#samtycke_hantera');
+      await expect.poll(overlap, { message: `settings layer at ${size.width}×${size.height}` }).toBe(0);
+    }
+  });
 });
 
 test('the choice can be withdrawn from the footer', async ({ page, analytics }) => {
