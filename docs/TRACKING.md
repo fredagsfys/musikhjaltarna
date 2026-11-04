@@ -29,8 +29,10 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
 - **The banner** is shown on every page until the visitor decides. It asks briefly, with "Läs mer"
   linking to the privacy page, where measurement is described, and offers **Godkänn alla** (primary) and **Hantera
   inställningar**. The page stays usable while it is open, and gets extra space at the bottom so nothing is hidden
-  behind it. It sits at the bottom of the screen but never on a buy button: when it would cover one, it moves to the
-  top edge until the bottom is clear. With a buy button near each edge, it takes the edge that hides less.
+  behind it. It is a slim bar at the bottom of the screen that never sits on a buy button: while it would cover one,
+  it slides down out of view and comes back once the button has passed (or when it gets keyboard focus). On phones
+  the hero is tightened so its buy button fits above the bar; on screens too short for both (iPhone SE in Safari,
+  1024×600) the bar appears with the first scroll. The settings layer always stays in place.
 - **Settings** describe the measurement and offer it as a checkbox that is never pre-ticked, with **Spara val** and
   **Godkänn alla**. Saving without ticking the box declines.
 - **Texts** are in `copy.yaml` under `consent`; the full description is under `pages.integritet`.
@@ -169,9 +171,9 @@ Checked by hand: events from a branch preview arrive in the PostHog project, tag
 
 ### Known limitations
 
-- **Buy buttons and the consent banner:** the banner moves out of the way of buy buttons (see [Consent](#consent)), so
-  the hero button is never covered on arrival. While scrolling, two buttons can be on screen near opposite edges; the
-  banner then covers the one that is less visible, and a `cta_view` only counts once a button is at least half visible.
+- **Buy buttons and the consent banner:** the bar steps aside for buy buttons (see [Consent](#consent)), so it never
+  covers one. On screens too short for the hero and the bar together, a visitor who doesn't scroll is never asked, and
+  so is not measured.
 - **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
 - **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
 - **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).

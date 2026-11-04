@@ -7,6 +7,12 @@
 /* Laptop screens too short for the full hero: the hero tightens so its buy button stays above the fold. */
 @custom-variant laptop (@media (width >= 64rem) and (height <= 60rem));
 
+/*
+ * Phones in their browser, where toolbars leave at most 800px: the hero tightens so its buy button
+ * sits above the consent bar.
+ */
+@custom-variant phone (@media (width < 40rem) and (height <= 50rem));
+
 @utility container-page {
   margin-inline: auto;
   width: 100%;
