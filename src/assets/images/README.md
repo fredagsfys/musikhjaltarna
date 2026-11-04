@@ -11,10 +11,12 @@ The current files come from the client's asset folder ("Landing page", November 
 | `emblem`             | MH logo on white, square                                 | `Logga MH teal.png`                          | Header (round emblem)       |
 | `hero-photo`         | Child practising at the piano with the app (4:3)         | `Produkt i miljö/Produkt 3.png`              | Hero, inside the arch       |
 | `app-example-avatar` | Gilbert G-klav, head and shoulders (square)              | Cropped from `Mock-up2.png`                  | Practice example card       |
-| `family-mascot`      | Maja, sticker with transparent background                | `Klistermärke Maja.png`                      | "För hela familjen" section |
+| `family-mascot`      | Gilbert G-klav, full figure, transparent background      | Cut out of `Mock-up.png` (app screen)        | "För hela familjen" section |
 | `pedagogue-photo`    | Suzana Spasevska Hermansen (3:4)                         | `Suzana + elev/Suzana Pianotopia profil.PNG` | Pedagogue section           |
+| `pedagogue-mascot`   | Gilbert G-klav, same cut-out                             | Cut out of `Mock-up.png` (app screen)        | Pedagogue, beside the photo |
 | `pricing-avatar`     | Klara Klang, upper body, transparent background (square) | `Team MH/Klara Klang.png`                    | Subscription card           |
 
-Missing from the asset folder, and worth asking for: Gilbert G-klav (the frog) as a cut-out with transparent
-background. The client's mock-ups show him giving a thumbs up in the family section and next to Suzana in the
-pedagogue photo; with that file, `family-mascot` and `pedagogue-photo` can be swapped by name.
+The folder has no separate file of Gilbert G-klav (the frog), so he is cut out of the app screen in `Mock-up.png`
+(291 × 483 px, enough for the sizes used). A higher-resolution cut-out, or the thumbs-up pose and the photo of
+Suzana with Gilbert from the mock-ups, can replace `family-mascot` and `pedagogue-mascot` by name. With a combined
+photo of Suzana and Gilbert, put it in `pedagogue-photo` and remove `pedagogue-mascot` from `Pedagogue.astro`.

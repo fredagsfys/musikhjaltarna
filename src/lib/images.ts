@@ -5,7 +5,13 @@ import type { ImageMetadata } from 'astro';
  * .png, .jpg, .webp, .avif). Until a file is added, components show a placeholder.
  */
 export type ImageName =
-  'emblem' | 'hero-photo' | 'app-example-avatar' | 'family-mascot' | 'pedagogue-photo' | 'pricing-avatar';
+  | 'emblem'
+  | 'hero-photo'
+  | 'app-example-avatar'
+  | 'family-mascot'
+  | 'pedagogue-photo'
+  | 'pedagogue-mascot'
+  | 'pricing-avatar';
 
 const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{png,jpg,jpeg,webp,avif}', {
   eager: true,

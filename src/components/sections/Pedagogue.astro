@@ -28,7 +28,7 @@ const { pedagogue: content } = copy;
         >
           <path d="M30 4C150 2 300 6 410 3C432 4 437 20 436 40C432 200 438 380 435 515C434 540 418 546 395 545C270 541 140 547 34 544C10 543 4 528 5 505C8 360 2 180 6 32C7 12 16 4 36 5"></path>
         </svg>
-        <Star class="text-gold absolute bottom-[60px] -left-[34px] w-[34px] max-sm:hidden" />
+        <Star class="text-gold absolute top-[60px] -right-[30px] w-[34px] max-sm:hidden" />
         <div class="bg-cream-warm border-border rounded-card shadow-card relative aspect-[4/5] overflow-hidden border">
           <Art
             name="pedagogue-photo"
@@ -38,6 +38,14 @@ const { pedagogue: content } = copy;
             class="size-full object-cover object-[center_20%]"
           />
         </div>
+        <!-- Gilbert next to Suzana, as in the client's mock-up. Decoration: the caption names the person. -->
+        <Art
+          name="pedagogue-mascot"
+          alt=""
+          widths={[150, 300]}
+          sizes="(min-width: 640px) 150px, 30vw"
+          class="absolute -bottom-5 left-2 aspect-[291/483] w-[min(30%,150px)] drop-shadow-[0_8px_14px_rgb(0_0_0/0.18)] sm:-left-8"
+        />
       </div>
       <figcaption class="pt-2.5 text-[0.9375rem]">
         <strong class="text-ink">{content.captionName}</strong>, {content.captionRole}
