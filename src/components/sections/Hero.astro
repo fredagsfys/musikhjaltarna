@@ -19,8 +19,15 @@ const { hero } = copy;
 >
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12 laptop:min-h-0 laptop:pt-2">
     <div class="@container min-w-0">
-      <!-- On phones the eyebrow drops its rule and tightens so it fits on one line, and the hero gets clearer gaps. -->
-      <Eyebrow rule class="max-sm:text-[0.75rem] max-sm:tracking-[0.06em] max-sm:[&>span]:hidden">
+      <!--
+        On phones the eyebrow tightens and its rule shortens, so both fit on one line from 390px. Narrower
+        phones wrap the eyebrow and drop the rule, which would otherwise leave a ragged indent. The hero gets
+        clearer gaps.
+      -->
+      <Eyebrow
+        rule
+        class="max-sm:gap-2 max-sm:text-[0.75rem] max-sm:tracking-[0.04em] max-sm:[&>span]:w-5 max-[24.3rem]:[&>span]:hidden"
+      >
         {hero.eyebrow}
       </Eyebrow>
       <AccentHeading
