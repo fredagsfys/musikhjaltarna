@@ -226,10 +226,3 @@ pages:
     body:
       - Innehåll preciseras före produktion.
       - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-  integritet:
-    title: Integritet
-    description: Så hanterar Pianotopia dina personuppgifter.
-    body:
-      - Innehåll preciseras före produktion.
-      - Om du godkänner det mäter vi hur sidan används, till exempel vilka delar som visas och vilka knappar som klickas, för att förstå om tjänsten är intressant. Mätningen görs med PostHog och Cloudflare inom EU, utan cookies och utan ditt namn eller din e-post. Utan ditt godkännande mäts ingenting. Du kan ändra ditt val när som helst under Integritetsinställningar längst ner på sidan.
-      - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.

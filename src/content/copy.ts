@@ -105,7 +105,8 @@ const schema = z.strictObject({
   thanks: z.strictObject({ title: text, text, sentTo: text, emailFallback: text, back: text }),
   declined: z.strictObject({ title: text, text, back: text, website: text }),
   notFound: z.strictObject({ title: text, text, link: text }),
-  pages: z.strictObject({ kontakt: infoPage, villkor: infoPage, integritet: infoPage }),
+  // The privacy policy is Markdown in src/content/integritetspolicy.md, rendered by src/pages/integritet.astro.
+  pages: z.strictObject({ kontakt: infoPage, villkor: infoPage }),
 });
 
 function load() {
