@@ -19,18 +19,24 @@ const { hero } = copy;
 >
   <div class="container-page grid gap-16 lg:min-h-[min(85svh,56rem)] lg:grid-cols-[55fr_45fr] lg:items-center lg:gap-12 laptop:min-h-0 laptop:pt-2">
     <div class="@container min-w-0">
-      <Eyebrow rule>{hero.eyebrow}</Eyebrow>
+      <!-- On phones the eyebrow drops its rule and tightens so it fits on one line, and the hero gets clearer gaps. -->
+      <Eyebrow rule class="max-sm:text-[0.75rem] max-sm:tracking-[0.06em] max-sm:[&>span]:hidden">
+        {hero.eyebrow}
+      </Eyebrow>
       <AccentHeading
         id={`${SECTION_IDS.hero}-title`}
         text={hero.title}
         accent={hero.titleAccent}
-        class="laptop:[@media(height<=45rem)]:text-[length:min(clamp(2.75rem,1.8rem_+_4.2vw,4.75rem),15cqi,7svh)]! mt-6 laptop:mt-3 phone:mt-2 phone:text-[2.25rem]! short:mt-2 short:text-[1.75rem]!"
+        class="laptop:[@media(height<=45rem)]:text-[length:min(clamp(2.75rem,1.8rem_+_4.2vw,4.75rem),15cqi,7svh)]! mt-6 laptop:mt-3 phone:mt-3 phone:text-[2.25rem]! short:mt-2 short:text-[1.75rem]!"
       />
-      <p class="text-lead mt-8 lg:max-w-[34ch] laptop:mt-4 laptop:max-w-[46ch] phone:mt-2 phone:text-base! phone:leading-[1.45]! short:mt-2 short:text-base! short:leading-snug!">
+      <p class="text-lead mt-8 lg:max-w-[34ch] laptop:mt-4 laptop:max-w-[46ch] phone:mt-5 phone:text-base! phone:leading-[1.5]! short:mt-2 short:text-base! short:leading-snug!">
         {hero.lead}
       </p>
-      <BuyButton ctaId="kop_hero" class="mt-10 laptop:mt-5 phone:mt-3 short:mt-3" />
-      <TrustList class="mt-6 laptop:mt-4 phone:mt-4 short:mt-2" items={[hero.trust]} />
+      <BuyButton ctaId="kop_hero" class="mt-10 laptop:mt-5 phone:mt-5 short:mt-3" />
+      <TrustList
+        class="mt-6 laptop:mt-4 phone:mt-3.5 short:mt-2 max-sm:gap-2.5 max-sm:text-[0.9375rem] max-sm:font-semibold max-sm:[&_li]:gap-2.5"
+        items={[hero.trust]}
+      />
     </div>
 
     <!-- The photo in the arch from the design file: domed top, straight sides, softly rounded bottom. -->

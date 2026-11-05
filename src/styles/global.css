@@ -22,9 +22,13 @@
   max-width: 75rem;
 }
 
-/* Page gutter: 24px on mobile, 32px from tablet. */
+/* Page gutter: 20px on phones, 24px from 640px, 32px from tablet. */
 @utility gutter-x {
-  padding-inline: 1.5rem;
+  padding-inline: 1.25rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
 
   @media (width >= 48rem) {
     padding-inline: 2rem;
