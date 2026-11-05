@@ -22,7 +22,7 @@ const schema = z.strictObject({
   }),
   links: z.strictObject({ website: z.url() }),
   seo: z.strictObject({ title: text, description: text }),
-  header: z.strictObject({ navHowItWorks: text, navPedagogue: text }),
+  header: z.strictObject({ navHowItWorks: text, navPedagogue: text, navSubscription: text }),
   hero: z.strictObject({
     eyebrow: text,
     title: text,
@@ -30,12 +30,14 @@ const schema = z.strictObject({
     lead: text,
     trust: text,
     imageAlt: text,
+    note: text,
   }),
   howItWorks: z.strictObject({
     eyebrow: text,
     title: text,
     intro: text,
-    steps: z.array(card).min(1),
+    // Exactly three: each step has a fixed picture in code.
+    steps: z.array(card).length(3),
     example: z.strictObject({
       eyebrow: text,
       title: text,
@@ -120,5 +122,8 @@ export const contentVersion = createHash('sha256').update(raw).digest('hex').sli
 
 /** "79 kr/månad", used everywhere the price is shown. */
 export const priceLabel = `${copy.offer.price} kr/${copy.offer.period}`;
-/** "79 kr/mån", for tight spaces like the header. */
+/** "79 kr/mån", the short form used on the buy buttons. */
 export const priceLabelShort = `${copy.offer.price} kr/${copy.offer.periodShort}`;
+/** The buy buttons' text: "Prenumerera för 79 kr/mån". */
+// Non-breaking spaces keep "79 kr/mån" on one line when the button wraps on narrow phones.
+export const buyLabel = copy.offer.buyButton.replaceAll('{pris}', priceLabelShort.replaceAll(' ', '\u00a0'));

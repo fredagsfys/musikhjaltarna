@@ -1,6 +1,7 @@
 ---
 import PianoKeys from '~/components/doodles/PianoKeys.astro';
 import AppExample from '~/components/ui/AppExample.astro';
+import Art from '~/components/ui/Art.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
@@ -11,6 +12,8 @@ import { SECTION_IDS } from '~/config/site';
 import { copy } from '~/content/copy';
 
 const { howItWorks: content } = copy;
+// One picture per step, from the app's own medallions: start (the hand), practise (the keys), reward (stars).
+const stepImages = ['step-start', 'step-practise', 'step-reward'] as const;
 ---
 
 <!-- Sektion 2: Konkretisera hjälpen. Visa hur barnet använder verktyget hemma. -->
@@ -23,12 +26,21 @@ const { howItWorks: content } = copy;
     <ol class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
       {content.steps.map((step, i) => (
         <Card as="li" tone="bg" class="flex flex-col gap-4 px-7 py-8">
-          <span
-            aria-hidden="true"
-            class="border-gold text-primary-dark font-display grid size-13 place-items-center rounded-full border-2 bg-white text-2xl"
-          >
-            {i + 1}
-          </span>
+          <div class="flex items-center justify-between gap-4">
+            <span
+              aria-hidden="true"
+              class="border-gold text-primary-dark font-display grid size-13 place-items-center rounded-full border-2 bg-white text-2xl"
+            >
+              {i + 1}
+            </span>
+            <Art
+              name={stepImages[i]!}
+              alt=""
+              widths={[84, 168]}
+              sizes="84px"
+              class="size-[84px] drop-shadow-[0_6px_10px_rgb(0_0_0/0.12)]"
+            />
+          </div>
           <h3 class="text-h3">{step.title}</h3>
           <p>{step.text}</p>
         </Card>

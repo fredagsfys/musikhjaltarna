@@ -8,8 +8,8 @@
 offer:
   price: 79 # kronor, bara siffror
   period: månad # visas som "79 kr/månad"
-  periodShort: mån # visas i menyn som "79 kr/mån"
-  buyButton: Köp # köpknapparnas text, priset läggs till: "Köp · 79 kr/månad"
+  periodShort: mån # visas på köpknapparna som "79 kr/mån"
+  buyButton: Prenumerera för {pris} # köpknapparnas text; {pris} blir "79 kr/mån"
 
 links:
   website: https://pianotopia.se # Pianotopias ordinarie webbplats
@@ -24,6 +24,7 @@ seo:
 header:
   navHowItWorks: Så fungerar det
   navPedagogue: Pedagogen
+  navSubscription: Prenumeration
 
 # Rubriker: en ny rad i texten blir en radbrytning på sidan (används med "|-").
 
@@ -39,19 +40,24 @@ hero:
     barn vidare i spelet och behålla lusten att fortsätta.
   trust: Ett komplement till barnets pianolärare.
   imageAlt: Ett barn övar vid pianot med Musikhjältarna på en surfplatta # beskrivning av bilden för skärmläsare
+  note: På svenska # handskriven rad vid bilden
 
-# Sektion 2: Så fungerar övningen
+# Sektion 2: Så fungerar övningen. Exakt tre steg; bilderna (hand, pianotangenter, stjärnor) följer ordningen.
 howItWorks:
   eyebrow: Så fungerar övningen
-  title: Veckans äventyr börjar vid pianot.
+  title: |-
+    Veckans pianoäventyr
+    börjar med Musikhjältarna.
   intro: Musikhjältarna har ett eget upplägg med korta, lekfulla pianoövningar som barnet klarar på egen hand.
   steps:
     - title: Kom igång
-      text: Barnet öppnar appen vid pianot. En musikhjälte visar vad övningen går ut på.
-    - title: Spela och få hjälp direkt
-      text: Noterna lyser upp och visar vägen. Appen följer barnets spel och ger återkoppling medan barnet spelar.
+      text: >-
+        Barnet öppnar appen och introduceras till Pianotopias musikvärld. En musikhjälte visar vad övningen går ut
+        på.
+    - title: Öva och få hjälp direkt
+      text: Musikhjältarna följer barnets övning och ger direkt återkoppling medan barnet övar.
     - title: Ta nästa steg
-      text: Efter ett avklarat pass får barnet en stjärna. Nya nivåer och utmaningar ger något att fortsätta mot.
+      text: Efter ett avklarat pass får barnet en belöning. Nya nivåer och utmaningar ger motivation att fortsätta öva.
   # Exempel på en övning, med en ritad vy av appen.
   example:
     eyebrow: Exempel på övning i appen
@@ -77,11 +83,11 @@ howItWorks:
 everyday:
   eyebrow: För hela familjen
   title: |-
-    Tid för pianot.
+    Tid för pianoövning.
     Mitt i vardagen.
   intro: >-
     Skola, kompisar och aktiviteter. Det är mycket som ska hinnas med mellan pianolektionerna. Musikhjältarna ger
-    barnet korta övningar vid pianot och hjälp medan det spelar.
+    barnet korta övningar och hjälper till medan barnet övar.
   benefits:
     - title: Korta pass som får plats
       text: Övningen behöver inte bli ett stort projekt. Korta pass gör det lättare att få in pianot i vardagen.
@@ -99,14 +105,14 @@ pedagogue:
   eyebrow: Pedagogen bakom Musikhjältarna
   title: |-
     Skapat av en pianopedagog.
-    Med barnets framsteg i fokus.
+    Med fokus på barnets framsteg.
   text:
     - >-
       Musikhjältarna är skapat av Suzana Spasevska Hermansen, pianopedagog i Kalmar. Övningarna bygger på beprövad
-      pianopedagogik och har utvecklats tillsammans med hennes elever.
+      pianopedagogik och har utvecklats tillsammans med hennes pianoelever.
     - >-
-      Målet är att hjälpa barnet framåt och hålla lusten att spela levande. Musikhjältarna kompletterar barnets
-      ordinarie undervisning och ger stöd i övningen hemma.
+      Målet är att hjälpa barnet framåt och samtidigt hålla lusten att spela levande. Musikhjältarna fungerar som ett
+      komplement till barnets ordinarie pianoundervisning och ger stöd i övningen hemma.
   photoAlt: Suzana Spasevska Hermansen, pianopedagog, i Pianotopias studio # beskrivning av fotot för skärmläsare
   captionName: Suzana Spasevska Hermansen
   captionRole: pianopedagog och grundare av Pianotopia.
@@ -122,7 +128,7 @@ subscription:
     - title: Det här ingår
       items:
         - Lekfulla pianoövningar med Musikhjältarna som guider.
-        - Noter som visar vägen och återkoppling medan barnet spelar.
+        - Återkoppling medan barnet övar.
         - Nivåer, belöningar och nya utmaningar.
         - Övningsblad att skriva ut.
         - Överblick över barnets framsteg för dig som förälder.

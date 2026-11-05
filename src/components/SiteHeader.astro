@@ -1,7 +1,8 @@
 ---
+import Art from '~/components/ui/Art.astro';
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import { routes, SECTION_IDS, site } from '~/config/site';
-import { copy, priceLabelShort } from '~/content/copy';
+import { copy } from '~/content/copy';
 
 export interface Props {
   /** Section navigation; off in the purchase flow. */
@@ -9,29 +10,33 @@ export interface Props {
 }
 
 const { nav = true } = Astro.props;
-// The section links collapse on small screens; the price link always stays visible.
+// The section links show from tablets in portrait (768px) up; the link to the subscription always stays visible.
 const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex px-3.5 py-2.5 no-underline';
 ---
 
 <header class="gutter-x border-border border-b py-[18px] short:py-2">
-  <!-- Below 360px the gaps, name and price pill shrink so the header stays on one row. -->
-  <div class="container-page flex flex-wrap items-center justify-between gap-4 max-[22.5rem]:gap-2">
-    <a href={routes.home} class="text-ink hover:text-ink flex items-center gap-3 no-underline">
-      <CharacterAvatar alt="" size={48} class="w-12 shrink-0" />
-      <span class="flex flex-col leading-[1.1]">
-        <span class="font-display text-[1.375rem] max-[22.5rem]:text-[1.25rem]">{site.name}</span>
-        <span class="text-gold-brown text-[0.8125rem] font-bold tracking-[0.04em]">{site.product}</span>
-      </span>
+  <!-- The logo and the "Musikhjältarna" wordmark. On phones, and again below 360px, they shrink so the header stays on one row. -->
+  <div class="container-page flex flex-wrap items-center justify-between gap-4 max-sm:gap-2">
+    <a href={routes.home} class="flex min-w-0 items-center gap-3 no-underline max-sm:gap-2">
+      <CharacterAvatar alt="" size={48} class="w-12 shrink-0 max-sm:w-10 max-[22.5rem]:w-8" />
+      <Art
+        name="wordmark"
+        alt={site.product}
+        widths={[190, 380]}
+        sizes="(min-width: 1024px) 190px, (min-width: 640px) 160px, 36vw"
+        loading="eager"
+        class="h-auto w-[190px] max-lg:w-[160px] max-sm:w-[min(36vw,150px)] max-[22.5rem]:w-[30vw]"
+      />
     </a>
     {nav && (
       <nav aria-label="Huvudmeny">
         <ul class="flex flex-wrap gap-2 text-[1rem] font-bold">
-          <li class="max-sm:hidden">
+          <li class="max-md:hidden">
             <a href={`/#${SECTION_IDS.hjalpen}`} class={navLink}>
               {copy.header.navHowItWorks}
             </a>
           </li>
-          <li class="max-sm:hidden">
+          <li class="max-md:hidden">
             <a href={`/#${SECTION_IDS.pedagog}`} class={navLink}>
               {copy.header.navPedagogue}
             </a>
@@ -39,9 +44,9 @@ const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex
           <li>
             <a
               href={`/#${SECTION_IDS.prenumeration}`}
-              class="text-primary-dark border-gold rounded-pill hover:bg-white inline-flex border-[1.5px] px-3.5 py-[9px] no-underline max-[22.5rem]:px-2.5"
+              class:list={[navLink, 'max-sm:px-2.5 max-sm:text-[0.9375rem] max-[22.5rem]:px-2 max-[22.5rem]:text-sm']}
             >
-              {priceLabelShort}
+              {copy.header.navSubscription}
             </a>
           </li>
         </ul>

@@ -1,6 +1,7 @@
 ---
 import MusicNotes from '~/components/doodles/MusicNotes.astro';
 import Star from '~/components/doodles/Star.astro';
+import Art from '~/components/ui/Art.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
 import Card from '~/components/ui/Card.astro';
 import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
@@ -32,8 +33,17 @@ const title = content.title.replaceAll('{pris}', `${offer.price} kr`);
     <Card class="shadow-card flex flex-col gap-9 p-[clamp(1.75rem,4.5vw,3.5rem)]">
       <div class="flex flex-wrap items-center justify-between gap-6">
         <div class="flex items-center gap-[18px]">
-          <CharacterAvatar name="pricing-avatar" alt="" size={72} class="w-[72px] shrink-0" />
-          <h3 class="text-h3">{site.product}</h3>
+          <!-- The same logo and wordmark as in the header; the wordmark's alt text names the heading. -->
+          <CharacterAvatar alt="" size={72} class="w-[72px] shrink-0 max-sm:w-14" />
+          <h3>
+            <Art
+              name="wordmark"
+              alt={site.product}
+              widths={[260, 520]}
+              sizes="(min-width: 640px) 260px, 50vw"
+              class="h-auto w-[260px] max-sm:w-[min(50vw,220px)]"
+            />
+          </h3>
         </div>
         <div class="flex flex-col items-center gap-1.5">
           <div class="relative px-[26px] py-3.5">

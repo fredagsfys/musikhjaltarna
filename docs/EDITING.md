@@ -32,13 +32,14 @@ Bilder byts genom att ladda upp filer, se [Byta bilder](#byta-bilder).
 
 - **Indrag spelar roll.** Behåll samma antal mellanslag i början av raden som det var innan.
 - **Listor** börjar med `- ` (bindestreck och mellanslag). Du kan lägga till eller ta bort punkter i listor, till
-  exempel i prenumerationsrutorna eller stegen i "Så fungerar övningen". Under "För hela familjen" ska det finnas exakt
-  tre fördelar, eftersom varje fördel har en egen ikon (klocka, stjärna, hus).
+  exempel i prenumerationsrutorna. "Så fungerar övningen" ska ha exakt tre steg, eftersom varje steg har en egen bild
+  (hand, pianotangenter, stjärnor). Under "För hela familjen" ska det finnas exakt tre fördelar, eftersom varje fördel
+  har en egen ikon (klocka, stjärna, hus).
 - **Radbrytning i en rubrik:** skriv rubriken efter `|-` med varje rad på en egen rad, till exempel
 
   ```yaml
   title: |-
-    Tid för pianot.
+    Tid för pianoövning.
     Mitt i vardagen.
   ```
 
@@ -48,8 +49,8 @@ Bilder byts genom att ladda upp filer, se [Byta bilder](#byta-bilder).
 - **Kolon i en text**: sätt hela texten inom citattecken, till exempel `title: "Pris: 79 kr"`.
 - **Priset** skrivs som en siffra utan "kr": `price: 79`.
 - **Kommentarer** efter `#` är hjälptext och syns inte på sidan.
-- `{pris}` i prenumerationens rubrik ersätts med priset, till exempel "79 kr". Låt den stå kvar, så följer rubriken
-  med när priset ändras.
+- `{pris}` i prenumerationens rubrik ersätts med priset, till exempel "79 kr", och på köpknapparna med "79 kr/mån".
+  Låt den stå kvar, så följer texten med när priset ändras.
 
 ### Om något blir fel
 

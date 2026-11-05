@@ -6,12 +6,15 @@ import type { ImageMetadata } from 'astro';
  */
 export type ImageName =
   | 'emblem'
+  | 'wordmark'
+  | 'step-start'
+  | 'step-practise'
+  | 'step-reward'
   | 'hero-photo'
   | 'app-example-avatar'
   | 'family-mascot'
   | 'pedagogue-photo'
-  | 'pedagogue-mascot'
-  | 'pricing-avatar';
+  | 'pedagogue-mascot';
 
 const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{png,jpg,jpeg,webp,avif}', {
   eager: true,
