@@ -3,7 +3,7 @@ import Button from '~/components/ui/Button.astro';
 import Card from '~/components/ui/Card.astro';
 import Eyebrow from '~/components/ui/Eyebrow.astro';
 import { CTA_IDS, CTA_SECTION, ctaSlug, routes, site, type CtaId } from '~/config/site';
-import { copy } from '~/content/copy';
+import { copy, priceLabel } from '~/content/copy';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 
 /** `/kop` for direct visits, plus one path per buy button, e.g. `/kop/hero`. */
@@ -43,9 +43,8 @@ const inputClass =
         <p>{content.subtitle}</p>
       </div>
 
-      <Card tone="bg" variant="price" class="flex items-center justify-between gap-3 px-[22px] py-4">
-        <span class="font-bold">{content.pricePeriod}</span>
-        <span class="font-display text-[2rem] leading-none">{copy.offer.price} kr</span>
+      <Card tone="bg" variant="price" class="px-[22px] py-4 text-center">
+        <p class="font-display text-ink text-[2rem] leading-none">{priceLabel}</p>
       </Card>
     </div>
 
@@ -59,6 +58,7 @@ const inputClass =
           name="name"
           type="text"
           autocomplete="name"
+          placeholder={content.namePlaceholder}
           required
           aria-describedby="kop_namn-fel"
           class={inputClass}
@@ -75,6 +75,7 @@ const inputClass =
           type="email"
           inputmode="email"
           autocomplete="email"
+          placeholder={content.emailPlaceholder}
           required
           aria-describedby="kop_epost-fel"
           class={inputClass}
@@ -83,8 +84,8 @@ const inputClass =
       </div>
     </div>
 
-    <p id="kop_integritet" class="text-[0.9375rem] text-pretty">
-      {content.privacy} <a href={routes.privacy}>{content.privacyLink}</a>.
+    <p id="kop_integritet" class="text-center text-[0.9375rem] text-pretty">
+      <a href={routes.privacy}>{content.privacyLink}</a>
     </p>
     <p id="kop_skicka-fel" role="alert" hidden class={errorClass}>
       {content.errors.sendFailed}

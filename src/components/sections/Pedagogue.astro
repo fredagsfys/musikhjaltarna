@@ -1,9 +1,7 @@
 ---
 import Star from '~/components/doodles/Star.astro';
 import Art from '~/components/ui/Art.astro';
-import Button from '~/components/ui/Button.astro';
 import BuyButton from '~/components/ui/BuyButton.astro';
-import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import Section from '~/components/ui/Section.astro';
 import SectionHeading from '~/components/ui/SectionHeading.astro';
 import { SECTION_IDS } from '~/config/site';
@@ -12,7 +10,7 @@ import { copy } from '~/content/copy';
 const { pedagogue: content } = copy;
 ---
 
-<!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzanna står bakom den pedagogiska grunden. -->
+<!-- Sektion 4: Bygg förtroende. Pianotopia är avsändaren, Suzana står bakom den pedagogiska grunden. -->
 <Section id={SECTION_IDS.pedagog} tone="white">
   <div class="flex flex-wrap items-center gap-[clamp(2.5rem,6vw,5.5rem)]">
     <figure class="flex max-w-[440px] min-w-0 flex-[1_1_340px] flex-col gap-3.5">
@@ -30,40 +28,37 @@ const { pedagogue: content } = copy;
         >
           <path d="M30 4C150 2 300 6 410 3C432 4 437 20 436 40C432 200 438 380 435 515C434 540 418 546 395 545C270 541 140 547 34 544C10 543 4 528 5 505C8 360 2 180 6 32C7 12 16 4 36 5"></path>
         </svg>
-        <Star class="text-gold absolute bottom-[60px] -left-[34px] w-[34px] max-sm:hidden" />
+        <Star class="text-gold absolute top-[60px] -right-[30px] w-[34px] max-sm:hidden" />
         <div class="bg-cream-warm border-border rounded-card shadow-card relative aspect-[4/5] overflow-hidden border">
           <Art
-            name="suzana-and-gilbert"
+            name="pedagogue-photo"
             alt={content.photoAlt}
             widths={[440, 880]}
             sizes="(min-width: 768px) 440px, 90vw"
             class="size-full object-cover object-[center_20%]"
           />
         </div>
-        <CharacterAvatar alt="" ring="thick" size={112} class="absolute -top-[18px] -right-[18px] w-28" />
+        <!-- Gilbert next to Suzana, as in the client's mock-up. Decoration: the caption names the person. -->
+        <Art
+          name="pedagogue-mascot"
+          alt=""
+          widths={[150, 300]}
+          sizes="(min-width: 640px) 150px, 30vw"
+          class="absolute -bottom-5 left-2 aspect-[291/483] w-[min(30%,150px)] drop-shadow-[0_8px_14px_rgb(0_0_0/0.18)] sm:-left-8"
+        />
       </div>
-      <figcaption class="pt-2.5">
-        <span class="font-hand text-hand text-gold-brown">{content.captionNote}</span>
-        <br />
+      <figcaption class="pt-2.5 text-[0.9375rem]">
         <strong class="text-ink">{content.captionName}</strong>, {content.captionRole}
       </figcaption>
     </figure>
 
     <div class="flex min-w-0 flex-[1_1_440px] flex-col gap-5">
       <SectionHeading id={`${SECTION_IDS.pedagog}-title`} eyebrow={content.eyebrow} title={content.title}>
-        <p>{content.text}</p>
+        {content.text.map((paragraph) => (
+          <p>{paragraph}</p>
+        ))}
       </SectionHeading>
-      <div class="mt-2 flex flex-wrap items-center gap-6">
-        <BuyButton ctaId="kop_pedagog" />
-        <Button
-          variant="link"
-          href={copy.links.website}
-          data-link-id="pianotopia_website"
-          data-link-placement="pedagogue"
-        >
-          {content.readMore}
-        </Button>
-      </div>
+      <BuyButton ctaId="kop_pedagog" class="mt-2 self-start" />
     </div>
   </div>
 </Section>

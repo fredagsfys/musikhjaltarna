@@ -32,13 +32,25 @@ Bilder byts genom att ladda upp filer, se [Byta bilder](#byta-bilder).
 
 - **Indrag spelar roll.** Behåll samma antal mellanslag i början av raden som det var innan.
 - **Listor** börjar med `- ` (bindestreck och mellanslag). Du kan lägga till eller ta bort punkter i listor, till
-  exempel i prenumerationsrutorna eller stegen i "Så fungerar övningen". Under "Framsteg som ryms i vardagen" ska det
-  finnas exakt tre fördelar, eftersom varje fördel har en egen ikon.
+  exempel i prenumerationsrutorna. "Så fungerar övningen" ska ha exakt tre steg, eftersom varje steg har en egen bild
+  (hand, pianotangenter, stjärnor). Under "För hela familjen" ska det finnas exakt tre fördelar, eftersom varje fördel
+  har en egen ikon (klocka, stjärna, hus).
+- **Radbrytning i en rubrik:** skriv rubriken efter `|-` med varje rad på en egen rad, till exempel
+
+  ```yaml
+  title: |-
+    Tid för pianoövning.
+    Mitt i vardagen.
+  ```
+
+  Varje rad börjar då på en ny rad på sidan.
+
 - **Långa texter** kan skrivas på flera rader efter `>-`. Raderna slås ihop till ett stycke.
 - **Kolon i en text**: sätt hela texten inom citattecken, till exempel `title: "Pris: 79 kr"`.
 - **Priset** skrivs som en siffra utan "kr": `price: 79`.
 - **Kommentarer** efter `#` är hjälptext och syns inte på sidan.
-- `{epost}` i tack-texten ersätts med besökarens e-postadress. Låt den stå kvar.
+- `{pris}` i prenumerationens rubrik ersätts med priset, till exempel "79 kr", och på köpknapparna med "79 kr/mån".
+  Låt den stå kvar, så följer texten med när priset ändras.
 
 ### Om något blir fel
 
@@ -67,12 +79,12 @@ visas en platshållare.
 
 1. Öppna mappen `src/assets/images/` på GitHub.
 2. Klicka **Add file → Upload files** och ladda upp bilden med **exakt** det filnamn som står i
-   [mappens README](../src/assets/images/README.md), till exempel `gilbert-thumbs-up.png`.
+   [mappens README](../src/assets/images/README.md), till exempel `family-mascot.png`.
 3. Klicka **Commit changes**.
 
 PNG, JPG, WebP och AVIF fungerar. Sidan gör automatiskt mindre och snabbare versioner för olika skärmar. För att byta en
 bild laddar du upp en ny fil med samma namn. Bildbeskrivningen för skärmläsare ändras i `copy.yaml` (till exempel
-`photoAlt`).
+`photoAlt` och `imageAlt`).
 
 ## Det här ska inte ändras
 

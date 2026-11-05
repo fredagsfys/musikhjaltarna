@@ -1,6 +1,6 @@
 ---
 import { purchasePath, type CtaId } from '~/config/site';
-import { copy, priceLabel } from '~/content/copy';
+import { buyLabel } from '~/content/copy';
 import Button from './Button.astro';
 
 export interface Props {
@@ -11,6 +11,11 @@ export interface Props {
 const { ctaId, class: className } = Astro.props;
 ---
 
-<Button href={purchasePath(ctaId)} data-cta-id={ctaId} data-astro-prefetch class={className}>
-  {copy.offer.buyButton} · {priceLabel}
+<Button
+  href={purchasePath(ctaId)}
+  data-cta-id={ctaId}
+  data-astro-prefetch
+  class:list={['max-sm:gap-3 max-sm:px-6', className]}
+>
+  {buyLabel}
 </Button>

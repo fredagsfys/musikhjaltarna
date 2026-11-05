@@ -10,8 +10,8 @@ import raw from './copy.yaml?raw';
 
 const text = z.string().trim().min(1);
 const card = z.strictObject({ title: text, text });
-const flowEnding = { title: text, text, back: text, website: text };
-const infoPage = z.strictObject({ title: text, description: text, body: z.array(text).min(1) });
+const paragraphs = z.array(text).min(1);
+const infoPage = z.strictObject({ title: text, description: text, body: paragraphs });
 
 const schema = z.strictObject({
   offer: z.strictObject({
@@ -22,22 +22,29 @@ const schema = z.strictObject({
   }),
   links: z.strictObject({ website: z.url() }),
   seo: z.strictObject({ title: text, description: text }),
-  header: z.strictObject({ navHowItWorks: text, navPedagogue: text }),
+  header: z.strictObject({ navHowItWorks: text, navPedagogue: text, navSubscription: text }),
   hero: z.strictObject({
     eyebrow: text,
     title: text,
     titleAccent: text,
     lead: text,
     trust: text,
-    imageLabel: text,
-    note: z.array(text).min(1),
+    imageAlt: text,
+    note: text,
   }),
   howItWorks: z.strictObject({
     eyebrow: text,
     title: text,
     intro: text,
-    steps: z.array(card).min(1),
-    example: z.strictObject({ eyebrow: text, title: text, text, imageLabel: text, note: text }),
+    // Exactly three: each step has a fixed picture in code.
+    steps: z.array(card).length(3),
+    example: z.strictObject({
+      eyebrow: text,
+      title: text,
+      text,
+      note: text,
+      app: z.strictObject({ speech: text, feedback: text, listen: text, play: text, alt: text }),
+    }),
   }),
   everyday: z.strictObject({
     eyebrow: text,
@@ -49,17 +56,15 @@ const schema = z.strictObject({
   pedagogue: z.strictObject({
     eyebrow: text,
     title: text,
-    text,
-    readMore: text,
+    text: paragraphs,
     photoAlt: text,
-    captionNote: text,
     captionName: text,
     captionRole: text,
   }),
   subscription: z.strictObject({
     eyebrow: text,
     title: text,
-    description: text,
+    priceNote: text,
     boxes: z.array(z.strictObject({ title: text, items: z.array(text).min(1) })).min(1),
     trust: text,
   }),
@@ -77,10 +82,10 @@ const schema = z.strictObject({
   purchase: z.strictObject({
     title: text,
     subtitle: text,
-    pricePeriod: text,
     nameLabel: text,
+    namePlaceholder: text,
     emailLabel: text,
-    privacy: text,
+    emailPlaceholder: text,
     privacyLink: text,
     submit: text,
     submitting: text,
@@ -89,7 +94,7 @@ const schema = z.strictObject({
   }),
   updates: z.strictObject({
     title: text,
-    status: text,
+    status: paragraphs,
     question: text,
     info: text,
     yes: text,
@@ -97,8 +102,8 @@ const schema = z.strictObject({
     saving: text,
     error: text,
   }),
-  thanks: z.strictObject({ ...flowEnding, text: text.includes('{epost}'), emailFallback: text }),
-  declined: z.strictObject(flowEnding),
+  thanks: z.strictObject({ title: text, text, sentTo: text, emailFallback: text, back: text }),
+  declined: z.strictObject({ title: text, text, back: text, website: text }),
   notFound: z.strictObject({ title: text, text, link: text }),
   pages: z.strictObject({ kontakt: infoPage, villkor: infoPage, integritet: infoPage }),
 });
@@ -117,5 +122,8 @@ export const contentVersion = createHash('sha256').update(raw).digest('hex').sli
 
 /** "79 kr/månad", used everywhere the price is shown. */
 export const priceLabel = `${copy.offer.price} kr/${copy.offer.period}`;
-/** "79 kr/mån", for tight spaces like the header. */
+/** "79 kr/mån", the short form used on the buy buttons. */
 export const priceLabelShort = `${copy.offer.price} kr/${copy.offer.periodShort}`;
+/** The buy buttons' text: "Prenumerera för 79 kr/mån". */
+// Non-breaking spaces keep "79 kr/mån" on one line when the button wraps on narrow phones.
+export const buyLabel = copy.offer.buyButton.replaceAll('{pris}', priceLabelShort.replaceAll(' ', '\u00a0'));
