@@ -5,16 +5,20 @@ webbläsaren på GitHub.
 
 ## Vad kan jag ändra?
 
-Allt innehåll finns i **en fil**: [`src/content/copy.yaml`](../src/content/copy.yaml). Där finns:
+Nästan allt innehåll finns i **en fil**: [`src/content/copy.yaml`](../src/content/copy.yaml). Där finns:
 
 - rubriker, brödtext och knapptexter på erbjudandesidan
 - pris och prisperiod (ändras på ett ställe och slår igenom överallt)
 - texter i köpsteget, besked och uppdateringsval, felmeddelanden och bekräftelser
 - informationen om personuppgifter i köpsteget
 - frågan om mätning (`consent`) och länken Integritetsinställningar i sidfoten
-- kontakt-, villkors- och integritetssidorna
+- kontakt- och villkorssidorna
 - bildbeskrivningar och etiketter
 - länken till Pianotopias webbplats
+
+Integritetspolicyn på `/integritet` har en egen fil, [`src/content/integritetspolicy.md`](../src/content/integritetspolicy.md),
+eftersom den har rubriker, listor och tabeller. Den ändras på samma sätt. Rubriker börjar med `## `, listor med `- `, och
+raderna överst mellan `---` är sidans titel och beskrivning. Uppdatera datumet längst ner när du ändrar policyn.
 
 Bilder byts genom att ladda upp filer, se [Byta bilder](#byta-bilder).
 
