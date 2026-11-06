@@ -38,7 +38,7 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
   always stays in place.
 - **Settings** describe the measurement and offer it as a checkbox that is never pre-ticked, with **Spara val** and
   **Godkänn alla**. Saving without ticking the box declines.
-- **Texts** are in `copy.yaml` under `consent`; the full description is under `pages.integritet`.
+- **Texts** are in `copy.yaml` under `consent`; the full description is the privacy policy, `src/content/integritetspolicy.md`.
 - **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
 - **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
