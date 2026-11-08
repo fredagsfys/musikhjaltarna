@@ -9,7 +9,7 @@ description: Abonnemangsvillkor för Pianotopia.
 
 Dessa allmänna villkor gäller när du skapar konto i, prenumererar på eller på annat sätt använder Musikhjältarna (”Tjänsten”).
 
-Tjänsten tillhandahålls av Pianotopia AB] org.nr 559514-5425, Sidenvägen 1A,393 55 Kalmar (”Pianotopia”, ”vi”, ”oss”). Du som skapar kontot och ingår avtalet med oss kallas ”du” eller ”Kontoinnehavaren”.
+Tjänsten tillhandahålls av Pianotopia AB, org.nr 559514-5425, Sidenvägen 1A, 393 55 Kalmar (”Pianotopia”, ”vi”, ”oss”). Du som skapar kontot och ingår avtalet med oss kallas ”du” eller ”Kontoinnehavaren”.
 
 Genom att skapa ett konto eller starta en prenumeration bekräftar du att du har läst och godkänner villkoren. Villkoren kompletteras av vår integritetspolicy och den information om pris och period som visas när du köper.
 
@@ -68,7 +68,7 @@ Prenumerationen ger ditt hushåll en personlig, icke-överlåtbar rätt att anv�
 - kopiera, spela in eller sprida Tjänstens innehåll
 - försöka kringgå tekniska skydd eller på annat sätt störa Tjänsten
 
-Pianolärare och skolor som vill använda Musikhjältarna i undervisning är välkomna att kontakta oss om särskilt avtal på hej@pianotopia.se
+Pianolärare och skolor som vill använda Musikhjältarna i undervisning är välkomna att kontakta oss om särskilt avtal på kontakt@pianotopia.se
 
 ## 8. Immateriella rättigheter
 
@@ -109,7 +109,7 @@ Har du frågor om villkoren, din prenumeration eller Tjänsten är du välkommen
 Pianotopia AB\
 Org.nr: 559514-5425\
 Sidenvägen 1A\
-393 55 kalmar\
+393 55 Kalmar\
 E-post: kontakt@pianotopia.se
 
 Villkoren gäller från och med 8e november 2026.
