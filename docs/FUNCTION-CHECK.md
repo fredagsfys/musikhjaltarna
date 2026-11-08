@@ -17,20 +17,21 @@ npm run test:e2e                          # HTML report in playwright-report/
 
 ## Results
 
-| Check                                                                       | Desktop Chrome | Desktop Safari | Mobile Safari (iPhone) | Mobile Chrome (Android) |
-| --------------------------------------------------------------------------- | :------------: | :------------: | :--------------------: | :---------------------: |
-| All five buy buttons open the same step with the right CTA origin           |       ✅       |       ✅       |           ✅           |           ✅            |
-| Back from the purchase step restores the offer page and scroll position     |       ✅       |       ✅       |           ✅           |           ✅            |
-| An invalid form shows the right error and keeps the input                   |       ✅       |       ✅       |           ✅           |           ✅            |
-| A successful form saves a registration and shows the status page            |       ✅       |       ✅       |           ✅           |           ✅            |
-| Failed storage shows an error and a retry option                            |       ✅       |       ✅       |           ✅           |           ✅            |
-| Yes saves "ja" on the right registration and shows the confirmation         |       ✅       |       ✅       |           ✅           |           ✅            |
-| No and no choice are saved as two different statuses                        |       ✅       |       ✅       |           ✅           |           ✅            |
-| Double click and reload create no duplicate registrations                   |       ✅       |       ✅       |           ✅           |           ✅            |
-| The whole flow works without horizontal scroll                              |       ✅       |       ✅       |           ✅           |           ✅            |
-| The fixed ids are in place independently of the content                     |       ✅       |       ✅       |           ✅           |           ✅            |
-| The export gives correct registrations with update status                   |       ✅       |       –        |           –            |            –            |
-| The purchase flow works with the keyboard and shows a clear focus indicator |       ✅       |       –        |           –            |           ✅            |
+| Check                                                                                   | Desktop Chrome | Desktop Safari | Mobile Safari (iPhone) | Mobile Chrome (Android) |
+| --------------------------------------------------------------------------------------- | :------------: | :------------: | :--------------------: | :---------------------: |
+| All five buy buttons open the same step with the right CTA origin                       |       ✅       |       ✅       |           ✅           |           ✅            |
+| Back from the purchase step restores the offer page and scroll position                 |       ✅       |       ✅       |           ✅           |           ✅            |
+| The purchase step asks for nothing and stores nothing                                   |       ✅       |       ✅       |           ✅           |           ✅            |
+| An invalid form shows the right error and keeps the input                               |       ✅       |       ✅       |           ✅           |           ✅            |
+| The box starts unticked, and the send button works only with it ticked                  |       ✅       |       ✅       |           ✅           |           ✅            |
+| Failed storage shows an error and a retry option                                        |       ✅       |       ✅       |           ✅           |           ✅            |
+| Sending with the box ticked saves the registration with "ja" and shows the confirmation |       ✅       |       ✅       |           ✅           |           ✅            |
+| "Nej tack" and leaving store nothing, even with the fields filled in                    |       ✅       |       ✅       |           ✅           |           ✅            |
+| A double click creates no duplicate registrations                                       |       ✅       |       ✅       |           ✅           |           ✅            |
+| The whole flow works without horizontal scroll                                          |       ✅       |       ✅       |           ✅           |           ✅            |
+| The fixed ids are in place independently of the content                                 |       ✅       |       ✅       |           ✅           |           ✅            |
+| The export gives correct registrations with update status                               |       ✅       |       –        |           –            |            –            |
+| The purchase flow works with the keyboard and shows a clear focus indicator             |       ✅       |       –        |           –            |           ✅            |
 
 **Skips (–), by design:**
 

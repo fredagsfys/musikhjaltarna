@@ -7,7 +7,7 @@
  *    Saving without ticking the box declines.
  *
  * Declining is only on the second layer, by the client's choice; see docs/TRACKING.md#consent for the
- * regulatory risk. "Integritetsinställningar" in the footer opens the settings layer. The page stays
+ * regulatory risk. "Cookieinställningar" in the footer opens the settings layer. The page stays
  * usable while the banner is open.
  *
  * The first layer is a slim bar at the bottom of the screen. It never sits on a buy button: while it
@@ -97,8 +97,8 @@ const button = 'max-sm:min-h-12';
   const analytics = banner.querySelector<HTMLInputElement>('#samtycke_matning')!;
   let returnFocus: HTMLElement | null = null;
 
-  // Buy buttons on the landing page, and the submit button on the purchase page.
-  const buyButtons = [...document.querySelectorAll<HTMLElement>('[data-cta-id], #kop_skicka')];
+  // Buy buttons on the landing page, the purchase page's button, and the last step's send button.
+  const buyButtons = [...document.querySelectorAll<HTMLElement>('[data-cta-id], #kop_skicka, #uppdatering_ja')];
 
   /**
    * Whether the first layer, at its place on screen, would cover a buy button. Measured from where the
@@ -186,7 +186,7 @@ const button = 'max-sm:min-h-12';
     analytics.focus();
   });
 
-  // "Integritetsinställningar" in the footer opens the settings, to change or withdraw the choice.
+  // "Cookieinställningar" in the footer opens the settings, to change or withdraw the choice.
   document.addEventListener('click', (event) => {
     const opener = (event.target as Element).closest<HTMLElement>('[data-consent-settings]');
     if (!opener) return;

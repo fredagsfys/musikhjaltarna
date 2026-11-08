@@ -2,19 +2,27 @@
 import Squiggle from '~/components/doodles/Squiggle.astro';
 import Button from '~/components/ui/Button.astro';
 import IconBadge from '~/components/ui/IconBadge.astro';
+import { routes } from '~/config/site';
 import { copy } from '~/content/copy';
 import FlowLayout from '~/layouts/FlowLayout.astro';
 import { createHash } from 'node:crypto';
 
 const { updates: content } = copy;
-/** Identifies the update information shown; stored with the choice (brief A §7) and changes with the text. */
+/** Identifies the information and consent text shown; stored with the choice (brief A §7) and changes with the text. */
 const infoVersion = createHash('sha256')
-  .update(JSON.stringify([content.question, content.info]))
+  .update(JSON.stringify([content.question, content.info, content.consent]))
   .digest('hex')
   .slice(0, 8);
+
+const errorClass = 'text-ink text-[0.9375rem] font-bold';
+const inputClass =
+  'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
 ---
 
-<!-- Köpflöde steg 2: Förklara och erbjud nästa steg. Mätpunkt: ja till information. -->
+<!--
+  Köpflöde sista steget: Förklara och erbjud nästa steg. Mätpunkt: ja till information.
+  Förnamn och e-post sparas bara när besökaren kryssar i samtyckesrutan och skickar; "Nej tack" sparar inget.
+-->
 <FlowLayout title="Inte redo ännu">
   <div id="uppdatering" data-info-version={infoVersion} class="flex flex-col gap-6 text-center">
     <IconBadge icon="sunrise" />
@@ -29,81 +37,216 @@ const infoVersion = createHash('sha256')
       <h2 class="text-h3">{content.question}</h2>
       <p class="text-pretty">{content.info}</p>
     </div>
-    <div class="flex flex-col gap-2">
-      <p id="uppdatering-fel" role="alert" hidden class="text-ink text-[0.9375rem] font-bold">
+
+    <form
+      id="uppdatering-form"
+      data-messages={JSON.stringify(content.errors)}
+      class="flex flex-col gap-4 text-left"
+      novalidate
+    >
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_namn" class="text-[1rem] font-bold">
+          {content.nameLabel}
+        </label>
+        <input
+          id="kop_namn"
+          name="name"
+          type="text"
+          autocomplete="given-name"
+          placeholder={content.namePlaceholder}
+          required
+          aria-describedby="kop_namn-fel"
+          class={inputClass}
+        />
+        <p id="kop_namn-fel" hidden class={errorClass}></p>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="kop_epost" class="text-[1rem] font-bold">
+          {content.emailLabel}
+        </label>
+        <input
+          id="kop_epost"
+          name="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          placeholder={content.emailPlaceholder}
+          required
+          aria-describedby="kop_epost-fel"
+          class={inputClass}
+        />
+        <p id="kop_epost-fel" hidden class={errorClass}></p>
+      </div>
+      <!-- Starts unticked; the send button stays disabled until it is ticked. -->
+      <div class="flex items-start gap-3 text-[0.9375rem]">
+        <input
+          id="uppdatering_samtycke"
+          name="consent"
+          type="checkbox"
+          aria-describedby="kop_integritet"
+          class="accent-primary mt-1 size-5 shrink-0"
+        />
+        <p class="text-pretty">
+          <label for="uppdatering_samtycke">{content.consent}</label>{' '}
+          <a id="kop_integritet" href={routes.privacy}>
+            {content.privacyLink}
+          </a>
+        </p>
+      </div>
+
+      <p id="uppdatering-fel" role="alert" hidden class={`${errorClass} text-center`}>
         {content.error}
       </p>
-      <Button id="uppdatering_ja" type="button" data-busy-label={content.saving}>
+      <Button id="uppdatering_ja" type="submit" disabled data-busy-label={content.saving}>
         <span data-label>{content.yes}</span>
       </Button>
+      <p id="uppdatering_info" class="-mt-2 text-center text-[0.9375rem]">
+        {content.note}
+      </p>
       <button
         id="uppdatering_nej"
         type="button"
-        data-busy-label={content.saving}
         class="text-primary-dark hover:text-ink inline-flex min-h-12 cursor-pointer items-center justify-center self-center font-bold underline disabled:opacity-60"
       >
-        <span data-label>{content.no}</span>
+        {content.no}
       </button>
-    </div>
+    </form>
   </div>
 </FlowLayout>
 
 <script>
   import { routes } from '~/config/site';
-  import { completeRegistration, loadRegistration, submitUpdateStatus, type UpdateStatus } from '~/lib/registration';
-  import { track, whenVisible } from '~/lib/tracking';
+  import { consent } from '~/lib/consent';
+  import {
+    clearCheckout,
+    completeRegistration,
+    isTestSession,
+    loadCheckout,
+    submitRegistration,
+    submitUpdateStatus,
+    type Registration,
+  } from '~/lib/registration';
+  import { adSource, pageVersion, track, whenVisible } from '~/lib/tracking';
 
-  const registration = loadRegistration();
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const checkout = loadCheckout();
   // This step only makes sense right after step 1.
-  if (!registration) location.replace(routes.purchase);
+  if (!checkout) location.replace(routes.purchase);
   // Only after step 1: a direct visit is not counted as reaching this step (brief B §7).
-  else whenVisible(() => track('availability_notice_view', { registration_id: registration.id }));
+  else whenVisible(() => track('availability_notice_view', { registration_id: checkout.id }));
 
   const root = document.querySelector<HTMLElement>('#uppdatering')!;
-  const error = document.querySelector<HTMLParagraphElement>('#uppdatering-fel')!;
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('#uppdatering_ja, #uppdatering_nej')];
+  const form = document.querySelector<HTMLFormElement>('#uppdatering-form')!;
+  const nameInput = form.querySelector<HTMLInputElement>('#kop_namn')!;
+  const emailInput = form.querySelector<HTMLInputElement>('#kop_epost')!;
+  const agree = form.querySelector<HTMLInputElement>('#uppdatering_samtycke')!;
+  const error = form.querySelector<HTMLParagraphElement>('#uppdatering-fel')!;
+  const yes = form.querySelector<HTMLButtonElement>('#uppdatering_ja')!;
+  const no = form.querySelector<HTMLButtonElement>('#uppdatering_nej')!;
+  const yesLabel = yes.querySelector<HTMLElement>('[data-label]')!;
+  const idleLabel = yesLabel.textContent;
+  const messages = JSON.parse(form.dataset.messages!) as Record<
+    'nameMissing' | 'emailMissing' | 'emailInvalid',
+    string
+  >;
+  const ctaId = checkout?.ctaId ?? null;
+  const infoVersion = root.dataset.infoVersion ?? '';
+  let saving = false;
 
-  function setSaving(active: HTMLButtonElement | null) {
-    for (const button of buttons) {
-      const label = button.querySelector<HTMLElement>('[data-label]')!;
-      label.dataset.idle ??= label.textContent ?? '';
-      button.disabled = active !== null;
-      button.setAttribute('aria-busy', String(button === active));
-      label.textContent = button === active ? (button.dataset.busyLabel ?? label.dataset.idle) : label.dataset.idle;
-    }
+  // The send button works only with the box ticked. A page restored from history keeps the tick.
+  const syncAgree = () => {
+    yes.disabled = saving || !agree.checked;
+  };
+  agree.addEventListener('change', syncAgree);
+  syncAgree();
+
+  // The first change to a field; no values are sent.
+  form.addEventListener('input', () => track('checkout_start', { cta_id: ctaId }), { once: true });
+
+  function setFieldError(input: HTMLInputElement, message: string | null) {
+    const fieldError = form.querySelector<HTMLElement>(`#${input.id}-fel`)!;
+    input.setAttribute('aria-invalid', String(message !== null));
+    fieldError.textContent = message ?? '';
+    fieldError.hidden = message === null;
   }
 
-  // Going back from the confirmation restores this page mid-save; make the choices usable again.
+  function setSaving(active: boolean) {
+    saving = active;
+    no.disabled = active;
+    yes.setAttribute('aria-busy', String(active));
+    yesLabel.textContent = active ? (yes.dataset.busyLabel ?? idleLabel) : idleLabel;
+    syncAgree();
+  }
+
+  // Going back from the confirmation restores this page mid-save; make it usable again.
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted) setSaving(null);
+    if (event.persisted) setSaving(false);
   });
 
-  async function choose(button: HTMLButtonElement, status: UpdateStatus, next: string) {
-    if (!registration || button.disabled) return;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // Enter in a field submits the form even while the button is disabled.
+    if (!checkout || saving || !agree.checked) return;
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const nameError = name ? null : messages.nameMissing;
+    const emailError = !email ? messages.emailMissing : EMAIL.test(email) ? null : messages.emailInvalid;
+    setFieldError(nameInput, nameError);
+    setFieldError(emailInput, emailError);
     error.hidden = true;
-    setSaving(button);
+    if (nameError || emailError) {
+      const fields = [nameError && 'name', emailError && 'email'].filter((field): field is string => !!field);
+      track('checkout_error', { category: 'validation', fields, cta_id: ctaId });
+    }
+    if (nameError) return nameInput.focus();
+    if (emailError) return emailInput.focus();
+
+    // The checkout's id is the registration's, so retries update one row and PostHog's intent matches it.
+    const registration: Registration = {
+      id: checkout.id,
+      name,
+      email,
+      ctaId,
+      isTest: isTestSession(),
+      source: consent() === 'granted' ? adSource() : {},
+      analyticsConsent: consent(),
+      pageVersion: pageVersion(),
+    };
+    setSaving(true);
     try {
-      await submitUpdateStatus(registration.id, status, root.dataset.infoVersion ?? '');
+      await submitRegistration(registration);
+      await submitUpdateStatus(registration.id, 'ja', infoVersion);
     } catch (err) {
-      // Keep the visitor here so they can try again.
+      // Stay here with the input intact, so the visitor can try again.
       console.error(err);
-      setSaving(null);
+      setSaving(false);
       error.hidden = false;
+      track('checkout_error', { category: 'save_failed', cta_id: ctaId });
       return;
     }
-    // Sent on confirmed storage (brief B §4); a missing choice is never sent as "nej".
+    // Sent on confirmed storage (brief B §4).
     track('updates_choice', {
-      event_id: `updates_choice:${registration.id}:${status}`,
+      event_id: `updates_choice:${registration.id}:ja`,
       registration_id: registration.id,
-      choice: status,
-      info_version: root.dataset.infoVersion,
+      choice: 'ja',
+      info_version: infoVersion,
     });
-    // Only confirm once the choice is stored, and end this registration right away.
     completeRegistration(registration);
-    location.assign(next);
-  }
+    location.assign(routes.thanks);
+  });
 
-  const [yes, no] = buttons;
-  yes.addEventListener('click', () => choose(yes, 'ja', routes.thanks));
-  no.addEventListener('click', () => choose(no, 'nej', routes.declined));
+  // "Nej tack" stores nothing, and anything typed is left behind.
+  no.addEventListener('click', () => {
+    if (!checkout || saving) return;
+    track('updates_choice', {
+      event_id: `updates_choice:${checkout.id}:nej`,
+      registration_id: checkout.id,
+      choice: 'nej',
+      info_version: infoVersion,
+    });
+    clearCheckout();
+    location.assign(routes.declined);
+  });
 </script>

@@ -95,10 +95,24 @@ export async function arrivedAt(page: Page, path: string) {
   await page.waitForLoadState('domcontentloaded');
 }
 
-export async function submitPurchase(page: Page, ctaSlug: string, name: string, email: string) {
+/** Step 1: from the purchase page on to the last step. Nothing is stored. */
+export async function startCheckout(page: Page, ctaSlug: string) {
   await page.goto(`/kop/${ctaSlug}`);
-  await page.fill('#kop_namn', name);
-  await page.fill('#kop_epost', email);
   await page.click('#kop_skicka');
   await arrivedAt(page, '/kop/uppdatering');
+}
+
+/** The last step: first name, e-mail and the consent box, ready to send. */
+export async function fillAndAgree(page: Page, name: string, email: string) {
+  await page.fill('#kop_namn', name);
+  await page.fill('#kop_epost', email);
+  await page.check('#uppdatering_samtycke');
+}
+
+/** The whole flow with consent: the registration is stored with "ja" and the confirmation shows. */
+export async function register(page: Page, ctaSlug: string, name: string, email: string) {
+  await startCheckout(page, ctaSlug);
+  await fillAndAgree(page, name, email);
+  await page.click('#uppdatering_ja');
+  await arrivedAt(page, '/kop/tack');
 }

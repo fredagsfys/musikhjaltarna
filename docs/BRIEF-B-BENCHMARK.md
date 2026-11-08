@@ -52,14 +52,14 @@ What remains is outside the code:
 
 Not scored; this is how far the current setup gets.
 
-| Question                                                                 | Today                                                                                   |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| Which ads bring visitors to the page and further through the flow?       | Yes: ad source on every event and registration; "Per ad and message" report             |
-| Which sections do visitors see before acting?                            | Yes: `section_view` episodes and `sections_seen` on each click                          |
-| Where do visitors click Buy, and how far had they come before the click? | Yes: `cta_id`, `max_section_seen`, `max_scroll_percent` and time to click on each click |
-| How many leave their details to continue to payment?                     | Yes: `purchase_intent_submit` (measured) and D1 registrations (stored)                  |
-| How many then choose to stay updated?                                    | Yes: `updates_choice` (measured) and `update_status = 'ja'` (stored)                    |
-| Where does visitor activity stop?                                        | Yes: lowest section seen and maximum scroll per session, and every step of the flow     |
+| Question                                                                 | Today                                                                                                                  |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Which ads bring visitors to the page and further through the flow?       | Yes: ad source on every event and registration; "Per ad and message" report                                            |
+| Which sections do visitors see before acting?                            | Yes: `section_view` episodes and `sections_seen` on each click                                                         |
+| Where do visitors click Buy, and how far had they come before the click? | Yes: `cta_id`, `max_section_seen`, `max_scroll_percent` and time to click on each click                                |
+| How many leave their details to continue to payment?                     | Partly: `purchase_intent_submit` (measured) counts who continue; details are only left, with consent, in the last step |
+| How many then choose to stay updated?                                    | Yes: `updates_choice` (measured) and D1 registrations (stored)                                                         |
+| Where does visitor activity stop?                                        | Yes: lowest section seen and maximum scroll per session, and every step of the flow                                    |
 
 PostHog answers cover visitors who accepted measurement; D1 counts every registration.
 
@@ -102,22 +102,22 @@ PostHog answers cover visitors who accepted measurement; D1 counts every registr
 
 ## 4. Events
 
-| Event / rule                                                                                 | Status | Evidence                                                   | Gap |
-| -------------------------------------------------------------------------------------------- | :----: | ---------------------------------------------------------- | --- |
-| `offer_view` with arrival source, page version, device type                                  |   ✅   | Sent in an active tab; `$device_type` from PostHog         | –   |
-| `section_view` per the exposure definition                                                   |   ✅   | `src/lib/exposure.ts`; tested                              | –   |
-| `cta_view`: at least 50% of the button visible for 1 second                                  |   ✅   | Tested                                                     | –   |
-| `purchase_click` with click context (§6)                                                     |   ✅   | Tested                                                     | –   |
-| `checkout_view` with the CTA that led there                                                  |   ✅   | `cta_id`                                                   | –   |
-| `checkout_start`: first change to a form field, no values                                    |   ✅   | Once per form view                                         | –   |
-| `checkout_error` with category (validation, save_failed), no values                          |   ✅   | `category` and `fields`; tested                            | –   |
-| `purchase_intent_submit` with `registration_id`, CTA and price, on confirmed storage         |   ✅   | Plus currency; tested                                      | –   |
-| `availability_notice_view` with `registration_id`                                            |   ✅   | Only after step 1                                          | –   |
-| `updates_choice` with `registration_id`, choice and information version                      |   ✅   | Tested against D1's `update_info_version`                  | –   |
-| `updates_confirmation_view` with `registration_id`                                           |   ✅   | Only after a stored ja                                     | –   |
-| `checkout_back` with CTA origin                                                              |   ✅   | Tested                                                     | –   |
-| `external_link_click` with link id and placement                                             |   ✅   | Four placements; tested                                    | –   |
-| `purchase_intent_submit` and `updates_choice` triggered by confirmed storage, not the button |   ✅   | Sent after the server confirms; tested with failed storage | –   |
+| Event / rule                                                                                 | Status | Evidence                                                                                             | Gap |
+| -------------------------------------------------------------------------------------------- | :----: | ---------------------------------------------------------------------------------------------------- | --- |
+| `offer_view` with arrival source, page version, device type                                  |   ✅   | Sent in an active tab; `$device_type` from PostHog                                                   | –   |
+| `section_view` per the exposure definition                                                   |   ✅   | `src/lib/exposure.ts`; tested                                                                        | –   |
+| `cta_view`: at least 50% of the button visible for 1 second                                  |   ✅   | Tested                                                                                               | –   |
+| `purchase_click` with click context (§6)                                                     |   ✅   | Tested                                                                                               | –   |
+| `checkout_view` with the CTA that led there                                                  |   ✅   | `cta_id`                                                                                             | –   |
+| `checkout_start`: first change to a form field, no values                                    |   ✅   | Once per form view                                                                                   | –   |
+| `checkout_error` with category (validation, save_failed), no values                          |   ✅   | `category` and `fields`, in the last step; tested                                                    | –   |
+| `purchase_intent_submit` with `registration_id`, CTA and price, on confirmed storage         |   🟡   | Sent on "Gå vidare"; nothing is stored there since 2026-11-08                                        | –   |
+| `availability_notice_view` with `registration_id`                                            |   ✅   | Only after step 1                                                                                    | –   |
+| `updates_choice` with `registration_id`, choice and information version                      |   ✅   | Tested against D1's `update_info_version`                                                            | –   |
+| `updates_confirmation_view` with `registration_id`                                           |   ✅   | Only after a stored ja                                                                               | –   |
+| `checkout_back` with CTA origin                                                              |   ✅   | Tested                                                                                               | –   |
+| `external_link_click` with link id and placement                                             |   ✅   | Four placements; tested                                                                              | –   |
+| `purchase_intent_submit` and `updates_choice` triggered by confirmed storage, not the button |   🟡   | `updates_choice` ja after the server confirms; the intent on the button, since step 1 stores nothing | –   |
 
 ## 5. Section exposure
 
@@ -146,15 +146,15 @@ PostHog answers cover visitors who accepted measurement; D1 counts every registr
 
 ## 7. Double counting and loss
 
-| Rule                                                                                  | Status | Evidence                                                   | Gap |
-| ------------------------------------------------------------------------------------- | :----: | ---------------------------------------------------------- | --- |
-| Repeated buy clicks kept as behaviour, counted once per session in the conversion     |   ✅   | Every click is sent; reports count sessions                | –   |
-| One `purchase_intent_submit` per registration, even on double click, reload or resend |   ✅   | Tested: double click and resend                            | –   |
-| "Ja" or "nej" recorded only after successful storage                                  |   ✅   | Tested                                                     | –   |
-| A missing choice is never turned into "nej"                                           |   ✅   | `inget_val` in D1; no choice event in PostHog; tested      | –   |
-| Internal tests and known automated traffic can be excluded                            |   ✅   | `environment`, `is_test`; PostHog drops automated browsers | –   |
-| Direct visits to later steps not counted as a completed flow                          |   ✅   | No step events without the flow; tested                    | –   |
-| Drop-off computed from the session's recorded progress, not a last "leaving" event    |   ✅   | "Without a click" report; progress on section events       | –   |
+| Rule                                                                                  | Status | Evidence                                                     | Gap |
+| ------------------------------------------------------------------------------------- | :----: | ------------------------------------------------------------ | --- |
+| Repeated buy clicks kept as behaviour, counted once per session in the conversion     |   ✅   | Every click is sent; reports count sessions                  | –   |
+| One `purchase_intent_submit` per registration, even on double click, reload or resend |   ✅   | One per visit to the flow; tested: double click, back and on | –   |
+| "Ja" or "nej" recorded only after successful storage                                  |   ✅   | Ja after storage; nej stores nothing; tested                 | –   |
+| A missing choice is never turned into "nej"                                           |   ✅   | Nothing stored; no choice event in PostHog; tested           | –   |
+| Internal tests and known automated traffic can be excluded                            |   ✅   | `environment`, `is_test`; PostHog drops automated browsers   | –   |
+| Direct visits to later steps not counted as a completed flow                          |   ✅   | No step events without the flow; tested                      | –   |
+| Drop-off computed from the session's recorded progress, not a last "leaving" event    |   ✅   | "Without a click" report; progress on section events         | –   |
 
 ## 8. Reporting
 

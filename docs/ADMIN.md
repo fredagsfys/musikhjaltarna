@@ -34,11 +34,11 @@ One row per submission of the purchase form:
 
 | Column                | Meaning                                                                               |
 | --------------------- | ------------------------------------------------------------------------------------- |
-| `id`                  | Registration id (UUID), unique per submission; retries reuse it                       |
-| `created_at`          | Time of the successful registration (UTC)                                             |
-| `name`, `email`       | From the purchase form                                                                |
+| `id`                  | Registration id (UUID), created in step 1; retries reuse it                           |
+| `created_at`          | Time the visitor sent the last step with the consent box ticked (UTC)                 |
+| `name`, `email`       | First name and e-mail from the last step                                              |
 | `cta_id`              | Buy button the visitor came from (`kop_hero` … `kop_avslut`)                          |
-| `update_status`       | `inget_val` (default), `ja` or `nej`                                                  |
+| `update_status`       | `ja`; `inget_val` only if the send's second request failed. `nej` is never stored     |
 | `update_status_at`    | When `ja` or `nej` was recorded (UTC)                                                 |
 | `update_info_version` | Which version of the update information the visitor responded to (a hash of its text) |
 | `is_test`             | `1` for internal tests: open any page with `?test` first, for example `/?test`        |

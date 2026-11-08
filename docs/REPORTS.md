@@ -251,8 +251,8 @@ SELECT
 FROM registrations
 ```
 
-D1 is the record for registrations and choices: `npm run export:registrations` lists each one with its
-`update_status` (`ja`, `nej` or `inget_val`).
+Since 2026-11-08 a purchase intent stores nothing; only a "ja" with the consent box ticked is stored in D1, with first
+name and e-mail. `npm run export:registrations` lists them; "nej" and no choice are only in PostHog.
 
 ## Data quality
 
@@ -277,14 +277,16 @@ FROM sessions
 ```
 
 **Stored vs measured registrations** (brief B §8 and §9). PostHog can only count what it received: blockers, and
-visitors who decline or don't answer the consent question, mean fewer registrations there than in D1.
+visitors who decline or don't answer the consent question, mean fewer registrations there than in D1. A registration is
+a stored "ja" from the last step.
 
 1. Set the period on the dashboard and read the tile **Mätta registreringar**:
 
    ```sql
    SELECT uniq(properties.registration_id) AS measured_registrations
    FROM events
-   WHERE event = 'purchase_intent_submit' AND properties.environment = 'production' AND {filters}
+   WHERE event = 'updates_choice' AND properties.choice = 'ja'
+     AND properties.environment = 'production' AND {filters}
    ```
 
 2. Run the D1 side for the same period (Swedish dates, both included; see [`ADMIN.md`](ADMIN.md)):
