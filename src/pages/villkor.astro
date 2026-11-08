@@ -1,0 +1,12 @@
+---
+/** /villkor: the terms, written in Markdown so they keep their headings and lists. */
+import Prose from '~/components/ui/Prose.astro';
+import { Content, frontmatter } from '~/content/villkor.md';
+import PageLayout from '~/layouts/PageLayout.astro';
+---
+
+<PageLayout title={frontmatter.title} description={frontmatter.description}>
+  <Prose>
+    <Content />
+  </Prose>
+</PageLayout>

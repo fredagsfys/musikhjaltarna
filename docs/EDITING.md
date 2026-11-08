@@ -12,13 +12,14 @@ Nästan allt innehåll finns i **en fil**: [`src/content/copy.yaml`](../src/cont
 - texter i köpsteget, besked och uppdateringsval, felmeddelanden och bekräftelser
 - informationen om personuppgifter i köpsteget
 - frågan om mätning (`consent`) och länken Integritetsinställningar i sidfoten
-- kontakt- och villkorssidorna
+- kontaktsidan, med rutan med adress och e-post längst ner
 - bildbeskrivningar och etiketter
 - länken till Pianotopias webbplats
 
-Integritetspolicyn på `/integritet` har en egen fil, [`src/content/integritetspolicy.md`](../src/content/integritetspolicy.md),
-eftersom den har rubriker, listor och tabeller. Den ändras på samma sätt. Rubriker börjar med `## `, listor med `- `, och
-raderna överst mellan `---` är sidans titel och beskrivning. Uppdatera datumet längst ner när du ändrar policyn.
+Integritetspolicyn på `/integritet` och villkoren på `/villkor` har egna filer,
+[`src/content/integritetspolicy.md`](../src/content/integritetspolicy.md) och
+[`src/content/villkor.md`](../src/content/villkor.md), eftersom de har rubriker, listor och tabeller. De ändras på samma sätt. Rubriker börjar med `## `, listor med `- `, och
+raderna överst mellan `---` är sidans titel och beskrivning. Uppdatera datumet längst ner när du ändrar dem. En rad som slutar med `\` fortsätter på en ny rad, som i adressen i villkoren.
 
 Bilder byts genom att ladda upp filer, se [Byta bilder](#byta-bilder).
 

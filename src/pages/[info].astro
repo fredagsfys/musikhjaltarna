@@ -1,17 +1,32 @@
 ---
+import Card from '~/components/ui/Card.astro';
 import { copy } from '~/content/copy';
 import PageLayout from '~/layouts/PageLayout.astro';
 
-/** /kontakt, /villkor and /integritet, with their text from src/content/copy.yaml. */
+/** /kontakt, with its text from src/content/copy.yaml. */
 export function getStaticPaths() {
   return Object.entries(copy.pages).map(([info, page]) => ({ params: { info }, props: { page } }));
 }
 
 const { page } = Astro.props;
+const box = 'box' in page ? page.box : null;
 ---
 
 <PageLayout title={page.title} description={page.description}>
   {page.body.map((paragraph) => (
     <p>{paragraph}</p>
   ))}
+  {box && (
+    <Card tone="bg" class="mt-10! flex flex-col gap-5 p-7 sm:p-10">
+      <p class="text-ink text-lg font-bold text-balance sm:text-xl">{box.intro}</p>
+      <address class="not-italic">
+        {box.address.map((line) => (
+          <span class="block">{line}</span>
+        ))}
+        <a href={`mailto:${box.email}`} class="text-primary-dark block font-bold">
+          {box.email}
+        </a>
+      </address>
+    </Card>
+  )}
 </PageLayout>
