@@ -13,11 +13,11 @@ const box = 'box' in page ? page.box : null;
 ---
 
 <PageLayout title={page.title} description={page.description}>
-  {page.body.map((paragraph) => (
+  {page.body?.map((paragraph) => (
     <p>{paragraph}</p>
   ))}
   {box && (
-    <Card tone="bg" class="mt-10! flex flex-col gap-5 p-7 sm:p-10">
+    <Card tone="bg" class="flex flex-col gap-5 p-7 sm:p-10">
       <p class="text-ink text-lg font-bold text-balance sm:text-xl">{box.intro}</p>
       <address class="not-italic">
         {box.address.map((line) => (

@@ -11,7 +11,7 @@ import raw from './copy.yaml?raw';
 const text = z.string().trim().min(1);
 const card = z.strictObject({ title: text, text });
 const paragraphs = z.array(text).min(1);
-const infoPage = z.strictObject({ title: text, description: text, body: paragraphs });
+const infoPage = z.strictObject({ title: text, description: text, body: paragraphs.optional() });
 
 const schema = z.strictObject({
   offer: z.strictObject({

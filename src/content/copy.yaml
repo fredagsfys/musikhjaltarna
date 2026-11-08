@@ -217,9 +217,9 @@ pages:
   kontakt:
     title: Kontakt
     description: Kontakta Pianotopia.
-    body:
-      - Innehåll preciseras före produktion.
-      - Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    # Stycken ovanför rutan, om det behövs. Varje rad blir ett eget stycke, till exempel
+    # body:
+    #   - Första stycket.
     # Rutan längst ner på kontaktsidan. Varje rad i "address" blir en egen rad; e-postadressen blir en länk.
     box:
       intro: Vill du komma i kontakt med oss? Släng iväg ett mail.
