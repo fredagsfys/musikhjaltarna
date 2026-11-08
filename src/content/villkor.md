@@ -68,7 +68,7 @@ Prenumerationen ger ditt hushåll en personlig, icke-överlåtbar rätt att anv�
 - kopiera, spela in eller sprida Tjänstens innehåll
 - försöka kringgå tekniska skydd eller på annat sätt störa Tjänsten
 
-Pianolärare och skolor som vill använda Musikhjältarna i undervisning är välkomna att kontakta oss om särskilt avtal på hej@pianotopia.se
+Pianolärare och skolor som vill använda Musikhjältarna i undervisning är välkomna att kontakta oss om särskilt avtal på kontakt@pianotopia.se
 
 ## 8. Immateriella rättigheter
 
