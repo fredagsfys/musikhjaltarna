@@ -144,7 +144,7 @@ footer:
   terms: Villkor
   privacy: Integritet
   # Öppnar valet om mätning igen.
-  consentSettings: Integritetsinställningar
+  consentSettings: Cookieinställningar
 
 # Frågan om mätning, längst ner på sidan tills besökaren har valt.
 # "accept" och "decline" ska vara lika tydliga; ingen av dem får framhävas.
@@ -154,8 +154,8 @@ consent:
   privacyLink: Läs mer
   acceptAll: Godkänn alla
   manage: Hantera inställningar
-  # Inställningarna, som också öppnas från Integritetsinställningar i sidfoten.
-  settingsTitle: Integritetsinställningar
+  # Inställningarna, som också öppnas från Cookieinställningar i sidfoten.
+  settingsTitle: Cookieinställningar
   analyticsLabel: Mätning av hur sidan används
   analyticsDescription: Visar vilka delar av sidan som ses och vilka knappar som klickas, så att vi förstår om tjänsten är intressant.
   save: Spara val

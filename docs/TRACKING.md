@@ -43,7 +43,7 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
 - **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
 - **Declined:** nothing is sent, now or on later pages, and registrations get no ad source.
-- **Change of mind:** _Integritetsinställningar_ in the footer opens the settings. Unticking and saving stops all
+- **Change of mind:** _Cookieinställningar_ in the footer opens the settings. Unticking and saving stops all
   measurement from that moment.
 - **Remembered** in `localStorage` (`musikhjaltarna:consent`) for 12 months. Bump `CONSENT_VERSION` in
   `src/lib/consent.ts` when the analytics tools or their purpose change: everyone is asked again.

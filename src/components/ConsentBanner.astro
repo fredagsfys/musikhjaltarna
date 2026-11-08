@@ -7,7 +7,7 @@
  *    Saving without ticking the box declines.
  *
  * Declining is only on the second layer, by the client's choice; see docs/TRACKING.md#consent for the
- * regulatory risk. "Integritetsinställningar" in the footer opens the settings layer. The page stays
+ * regulatory risk. "Cookieinställningar" in the footer opens the settings layer. The page stays
  * usable while the banner is open.
  *
  * The first layer is a slim bar at the bottom of the screen. It never sits on a buy button: while it
@@ -186,7 +186,7 @@ const button = 'max-sm:min-h-12';
     analytics.focus();
   });
 
-  // "Integritetsinställningar" in the footer opens the settings, to change or withdraw the choice.
+  // "Cookieinställningar" in the footer opens the settings, to change or withdraw the choice.
   document.addEventListener('click', (event) => {
     const opener = (event.target as Element).closest<HTMLElement>('[data-consent-settings]');
     if (!opener) return;

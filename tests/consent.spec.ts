@@ -33,7 +33,7 @@ test.describe('before the visitor has decided', () => {
     await page.goto('/');
     await expect(page.locator('#samtycke_godkann')).toHaveText('Godkänn alla');
     await page.click('#samtycke_hantera');
-    await expect(page.getByRole('dialog', { name: 'Integritetsinställningar' })).toBeVisible();
+    await expect(page.getByRole('dialog', { name: 'Cookieinställningar' })).toBeVisible();
     const box = page.locator('#samtycke_matning');
     await expect(box).toBeFocused();
     await expect(box).not.toBeChecked();
@@ -216,7 +216,7 @@ test('the choice can be withdrawn from the footer', async ({ page, analytics }) 
   await analytics.waitFor('offer_view');
   await expect(page.locator(banner)).toBeHidden();
 
-  const settings = page.getByRole('button', { name: 'Integritetsinställningar' });
+  const settings = page.getByRole('button', { name: 'Cookieinställningar' });
   await settings.click();
   await expect(page.locator(banner)).toBeVisible();
   const box = page.locator('#samtycke_matning');
