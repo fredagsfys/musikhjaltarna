@@ -86,9 +86,10 @@ Cloudflare Web Analytics.
 The event catalogue, how to tag ads, report queries and known measurement loss are in
 [`docs/TRACKING.md`](docs/TRACKING.md).
 
-Each submission of the purchase form is one row in `registrations` (see [`docs/ADMIN.md`](docs/ADMIN.md)). Its
-`update_status` starts as `inget_val` and becomes `ja` or `nej` on the same row. Retries, double clicks and resubmits
-reuse the registration id, so they never create duplicates. Internal tests are flagged with `is_test` when the session
+Each visitor who ticks the consent box in the last step and sends is one row in `registrations` (see
+[`docs/ADMIN.md`](docs/ADMIN.md)), with `update_status` `ja`. "Nej tack" stores nothing. `inget_val` remains only if
+the second request of a send failed and was never retried. Retries and double clicks reuse the registration id, so they
+never create duplicates. Internal tests are flagged with `is_test` when the session
 starts on a page opened with `?test`. No cookies, IP addresses or user agents are stored.
 
 ```sql

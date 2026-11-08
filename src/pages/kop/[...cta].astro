@@ -18,19 +18,17 @@ const { ctaId } = Astro.props as { ctaId: CtaId | null };
 // Without history to go back to, return to the section of the button the visitor came from.
 const backHref = ctaId ? `${routes.home}#${CTA_SECTION[ctaId]}` : routes.home;
 
-const errorClass = 'text-ink text-[0.9375rem] font-bold';
 const { purchase: content } = copy;
-
-const inputClass =
-  'border-border bg-bg text-ink focus:border-primary rounded-tile min-h-14 border-2 px-[18px] aria-[invalid=true]:border-gold-dark';
 ---
 
-<!-- Köpflöde steg 1: Fånga fördjupad köpavsikt. Mätpunkt: köpintention. -->
+<!--
+  Köpflöde steg 1: Bekräfta erbjudandet. Mätpunkt: köpintention, när besökaren går vidare.
+  Inga personuppgifter här: namn och e-post lämnas bara i sista steget, med samtycke.
+-->
 <FlowLayout title="Köp prenumeration">
   <form
     id="lead-form"
     data-cta={ctaId}
-    data-messages={JSON.stringify(content.errors)}
     data-price={copy.offer.price}
     data-currency={site.currency}
     class="flex flex-col gap-[22px]"
@@ -48,50 +46,8 @@ const inputClass =
       </Card>
     </div>
 
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label for="kop_namn" class="text-[1rem] font-bold">
-          {content.nameLabel}
-        </label>
-        <input
-          id="kop_namn"
-          name="name"
-          type="text"
-          autocomplete="name"
-          placeholder={content.namePlaceholder}
-          required
-          aria-describedby="kop_namn-fel"
-          class={inputClass}
-        />
-        <p id="kop_namn-fel" hidden class={errorClass}></p>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label for="kop_epost" class="text-[1rem] font-bold">
-          {content.emailLabel}
-        </label>
-        <input
-          id="kop_epost"
-          name="email"
-          type="email"
-          inputmode="email"
-          autocomplete="email"
-          placeholder={content.emailPlaceholder}
-          required
-          aria-describedby="kop_epost-fel"
-          class={inputClass}
-        />
-        <p id="kop_epost-fel" hidden class={errorClass}></p>
-      </div>
-    </div>
-
-    <p id="kop_integritet" class="text-center text-[0.9375rem] text-pretty">
-      <a href={routes.privacy}>{content.privacyLink}</a>
-    </p>
-    <p id="kop_skicka-fel" role="alert" hidden class={errorClass}>
-      {content.errors.sendFailed}
-    </p>
-    <Button id="kop_skicka" type="submit" data-busy-label={content.submitting}>
-      <span data-label>{content.submit}</span>
+    <Button id="kop_skicka" type="submit">
+      {content.submit}
     </Button>
     <Button id="kop_tillbaka" variant="link" arrow={false} href={backHref} class="self-center">
       {content.back}
@@ -101,53 +57,13 @@ const inputClass =
 
 <script>
   import { isCtaId, routes } from '~/config/site';
-  import {
-    isTestSession,
-    loadRegistration,
-    saveRegistration,
-    submitRegistration,
-    type Registration,
-  } from '~/lib/registration';
-  import { consent } from '~/lib/consent';
-  import { adSource, pageVersion, track, whenVisible } from '~/lib/tracking';
-
-  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  import { loadCheckout, saveCheckout, type Checkout } from '~/lib/registration';
+  import { track, whenVisible } from '~/lib/tracking';
 
   const form = document.querySelector<HTMLFormElement>('#lead-form')!;
-  const nameInput = form.querySelector<HTMLInputElement>('#kop_namn')!;
-  const emailInput = form.querySelector<HTMLInputElement>('#kop_epost')!;
-  const messages = JSON.parse(form.dataset.messages!) as Record<
-    'nameMissing' | 'emailMissing' | 'emailInvalid',
-    string
-  >;
-  const sendError = form.querySelector<HTMLParagraphElement>('#kop_skicka-fel')!;
-  const submit = form.querySelector<HTMLButtonElement>('#kop_skicka')!;
-  const submitLabel = submit.querySelector<HTMLElement>('[data-label]')!;
-  const idleLabel = submitLabel.textContent;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
 
   whenVisible(() => track('checkout_view', { cta_id: ctaId }));
-  // The first change to either field; no values are sent.
-  form.addEventListener('input', () => track('checkout_start', { cta_id: ctaId }), { once: true });
-
-  /** Shows (or clears) the message under a field and marks the field invalid for assistive tech. */
-  function setFieldError(input: HTMLInputElement, message: string | null) {
-    const error = form.querySelector<HTMLElement>(`#${input.id}-fel`)!;
-    input.setAttribute('aria-invalid', String(message !== null));
-    error.textContent = message ?? '';
-    error.hidden = message === null;
-  }
-
-  function setSending(sending: boolean) {
-    submit.disabled = sending;
-    submit.setAttribute('aria-busy', String(sending));
-    submitLabel.textContent = sending ? (submit.dataset.busyLabel ?? idleLabel) : idleLabel;
-  }
-
-  // Going back from step 2 restores this page as it was left, mid-send; make the form usable again.
-  window.addEventListener('pageshow', (event) => {
-    if (event.persisted) setSending(false);
-  });
 
   // Coming from the offer page, go back in history so the browser restores the scroll position.
   document.querySelector('#kop_tillbaka')!.addEventListener('click', (event) => {
@@ -159,61 +75,35 @@ const inputClass =
     }
   });
 
-  form.addEventListener('submit', async (event) => {
+  let leaving = false;
+  form.addEventListener('submit', (event) => {
     event.preventDefault();
-    if (submit.disabled) return;
+    if (leaving) return;
+    leaving = true;
 
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    const nameError = name ? null : messages.nameMissing;
-    const emailError = !email ? messages.emailMissing : EMAIL.test(email) ? null : messages.emailInvalid;
-    setFieldError(nameInput, nameError);
-    setFieldError(emailInput, emailError);
-    sendError.hidden = true;
-    if (nameError || emailError) {
-      const fields = [nameError && 'name', emailError && 'email'].filter((field): field is string => !!field);
-      track('checkout_error', { category: 'validation', fields, cta_id: ctaId });
-    }
-    if (nameError) return nameInput.focus();
-    if (emailError) return emailInput.focus();
-
-    // Reuse the id of an earlier attempt in this session, so retries and resubmits update one registration.
-    const previous = loadRegistration();
-    const registration: Registration = {
+    // Going back and on again continues the same visit, so it gives one purchase intent.
+    const previous = loadCheckout();
+    const checkout: Checkout = {
       id: previous?.id ?? crypto.randomUUID(),
-      name,
-      email,
       ctaId,
-      isTest: isTestSession(),
-      source: consent() === 'granted' ? adSource() : {},
-      analyticsConsent: consent(),
-      pageVersion: pageVersion(),
       intentTracked: previous?.intentTracked,
     };
-    saveRegistration(registration);
-    setSending(true);
-    try {
-      await submitRegistration(registration);
-    } catch (err) {
-      // Stay on the form with the input intact, so the visitor can try again.
-      console.error(err);
-      setSending(false);
-      sendError.hidden = false;
-      track('checkout_error', { category: 'save_failed', cta_id: ctaId });
-      return;
-    }
-    // Sent on confirmed storage, once per registration; the event id lets reports dedupe resends.
-    if (!registration.intentTracked) {
+    if (!checkout.intentTracked) {
       track('purchase_intent_submit', {
-        event_id: `purchase_intent_submit:${registration.id}`,
-        registration_id: registration.id,
+        event_id: `purchase_intent_submit:${checkout.id}`,
+        registration_id: checkout.id,
         cta_id: ctaId,
         price: Number(form.dataset.price),
         currency: form.dataset.currency,
       });
-      saveRegistration({ ...registration, intentTracked: true });
+      checkout.intentTracked = true;
     }
-    // Only move on once the registration is stored.
+    saveCheckout(checkout);
     location.assign(routes.updates);
+  });
+
+  // Going back from step 2 restores this page as it was left; let the button work again.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) leaving = false;
   });
 </script>

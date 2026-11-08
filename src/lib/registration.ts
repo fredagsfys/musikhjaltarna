@@ -8,7 +8,20 @@ const TEST_KEY = 'musikhjaltarna:test';
 /** The address and registration shown on the thank-you page, set when the flow completes. */
 const CONFIRMED_KEY = 'musikhjaltarna:confirmation';
 
-/** One submission of the purchase form. The id is reused for retries, so the server never stores it twice. */
+/**
+ * A visit to the purchase flow, started by "Gå vidare till betalning" in step 1. Nothing is sent to the
+ * server for it: the name and e-mail are only asked for in the last step, and only stored when the
+ * visitor ticks the consent box there. The id becomes the registration's id, so PostHog's purchase
+ * intent and a stored registration can be matched.
+ */
+export interface Checkout {
+  id: string;
+  ctaId: CtaId | null;
+  /** Set once purchase_intent_submit has been sent, so going back and on again doesn't send it twice. */
+  intentTracked?: boolean;
+}
+
+/** What the last step stores, with the visitor's consent. Retries reuse the id, so it is never stored twice. */
 export interface Registration {
   id: string;
   name: string;
@@ -21,8 +34,6 @@ export interface Registration {
   analyticsConsent: ConsentChoice | null;
   /** The page and content version the visitor saw (brief B §2). */
   pageVersion: string;
-  /** Set once purchase_intent_submit has been sent, so a resubmit doesn't send it again (brief B §7). */
-  intentTracked?: boolean;
 }
 
 /** What the thank-you page needs once the flow is complete. */
@@ -42,24 +53,24 @@ export function isTestSession() {
   }
 }
 
-export function saveRegistration(registration: Registration) {
+export function saveCheckout(checkout: Checkout) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(registration));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(checkout));
   } catch {
     // Storage can be unavailable (private mode); the flow still works within the page.
   }
 }
 
-export function loadRegistration(): Registration | null {
+export function loadCheckout(): Checkout | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Registration) : null;
+    return raw ? (JSON.parse(raw) as Checkout) : null;
   } catch {
     return null;
   }
 }
 
-export function clearRegistration() {
+export function clearCheckout() {
   try {
     sessionStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -68,11 +79,11 @@ export function clearRegistration() {
 }
 
 /**
- * Ends the flow once the update choice is saved: the next submission starts a new registration,
+ * Ends the flow once the registration is stored: the next visit to the purchase flow starts afresh,
  * even if the visitor moves on before the confirmation page has loaded.
  */
 export function completeRegistration(registration: Registration) {
-  clearRegistration();
+  clearCheckout();
   try {
     const confirmation: Confirmation = { email: registration.email, registrationId: registration.id };
     sessionStorage.setItem(CONFIRMED_KEY, JSON.stringify(confirmation));

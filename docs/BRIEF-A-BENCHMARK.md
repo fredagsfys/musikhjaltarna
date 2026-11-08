@@ -7,6 +7,11 @@ How much of _Pianotopia Musikhjältarna – A. Teknisk produktionsbrief_ the bui
   ([`docs/FUNCTION-CHECK.md`](FUNCTION-CHECK.md)) in Chrome and Safari, desktop and mobile.
 - **Scoring:** ✅ fulfilled = 1, 🟡 partly = ½, ❌ missing = 0.
 - The brief itself (PDF) is not committed; it is client material.
+- **Changed 2026-11-08, by the client's privacy policy (section 2.4):** the purchase step no longer asks for name and
+  e-mail. First name and e-mail are asked for in the last step, beside an unticked consent box, and stored only when
+  it is ticked; "Nej tack" and leaving store nothing. So the rows below about saving name and e-mail in the purchase
+  step, and about storing "nej" and "inget val", describe the build before that change. The client chose this over
+  the brief.
 
 ## Summary
 

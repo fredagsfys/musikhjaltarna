@@ -4,7 +4,7 @@
  */
 import type { Page } from '@playwright/test';
 import { registrationsFor } from './d1';
-import { arrivedAt, expect, stored, submitPurchase, test, uniqueEmail } from './fixtures';
+import { arrivedAt, expect, fillAndAgree, register, startCheckout, stored, test, uniqueEmail } from './fixtures';
 
 const AD = {
   utm_source: 'facebook',
@@ -33,7 +33,7 @@ test('the ad source follows the visitor through the flow and onto the registrati
 
   // Internal navigation drops the parameters from the URL; the session keeps them.
   const email = uniqueEmail('kalla');
-  await submitPurchase(page, 'hjalpen', 'Källa Test', email);
+  await register(page, 'hjalpen', 'Källa', email);
   const [checkout] = await analytics.waitFor('checkout_view');
   expect(checkout.properties).toMatchObject(AD);
 
@@ -95,42 +95,42 @@ test('a buy click carries what the visitor had seen', async ({ page, analytics }
   expect(click.properties.active_time_to_click).toBeGreaterThan(0);
 });
 
-test('the purchase step reports view, start, errors and back', async ({ page, analytics }) => {
+test('the purchase step reports view and back, and the last step start and errors', async ({ page, analytics }) => {
   await page.goto('/');
   await page.locator('[data-cta-id="kop_vardag"]').click();
   await arrivedAt(page, '/kop/vardag');
   await analytics.waitFor('checkout_view');
+  await page.click('#kop_tillbaka');
+  await expect(page).toHaveURL('/');
+  const [back] = await analytics.waitFor('checkout_back');
+  expect(back.properties.cta_id).toBe('kop_vardag');
 
+  await page.goto('/kop/vardag');
   await page.click('#kop_skicka');
+  await arrivedAt(page, '/kop/uppdatering');
+  await page.check('#uppdatering_samtycke');
+  await page.click('#uppdatering_ja');
   const [error] = await analytics.waitFor('checkout_error');
   expect(error.properties).toMatchObject({ category: 'validation', fields: ['name', 'email'], cta_id: 'kop_vardag' });
 
   await page.fill('#kop_namn', 'Någon');
   await page.fill('#kop_epost', 'inte-en-adress');
   await analytics.waitFor('checkout_start');
-  await page.click('#kop_skicka');
+  await page.click('#uppdatering_ja');
   const errors = await analytics.waitFor('checkout_error', 2);
   expect(errors[1].properties.fields).toEqual(['email']);
-
-  await page.click('#kop_tillbaka');
-  await expect(page).toHaveURL('/');
-  const [back] = await analytics.waitFor('checkout_back');
-  expect(back.properties.cta_id).toBe('kop_vardag');
   expect(analytics.named('checkout_start')).toHaveLength(1);
 });
 
-test('the registration, choice and confirmation are each sent once, on confirmed storage', async ({
+test('the purchase intent, choice and confirmation are each sent once, the choice on confirmed storage', async ({
   page,
   analytics,
 }) => {
-  const email = uniqueEmail('spar');
-  await submitPurchase(page, 'pedagog', 'Spår Test', email);
-  const [{ id }] = await stored(email);
-
+  await startCheckout(page, 'pedagog');
   const [intent] = await analytics.waitFor('purchase_intent_submit');
+  const id = intent.properties.registration_id as string;
   expect(intent.properties).toMatchObject({
     event_id: `purchase_intent_submit:${id}`,
-    registration_id: id,
     cta_id: 'kop_pedagog',
     price: 79,
     currency: 'SEK',
@@ -138,7 +138,7 @@ test('the registration, choice and confirmation are each sent once, on confirmed
   const [notice] = await analytics.waitFor('availability_notice_view');
   expect(notice.properties.registration_id).toBe(id);
 
-  // Going back and sending again updates the same registration without a second intent.
+  // Going back and on again continues the same visit, without a second intent.
   await page.goBack();
   await arrivedAt(page, '/kop/pedagog');
   await page.click('#kop_skicka');
@@ -146,8 +146,12 @@ test('the registration, choice and confirmation are each sent once, on confirmed
   await analytics.waitFor('availability_notice_view', 2);
   expect(analytics.named('purchase_intent_submit')).toHaveLength(1);
 
+  const email = uniqueEmail('spar');
+  await fillAndAgree(page, 'Spår', email);
   await page.click('#uppdatering_ja');
   await arrivedAt(page, '/kop/tack');
+  // The stored registration has the id PostHog saw with the intent.
+  expect((await stored(email))[0].id).toBe(id);
   const [choice] = await analytics.waitFor('updates_choice');
   expect(choice.properties).toMatchObject({ event_id: `updates_choice:${id}:ja`, registration_id: id, choice: 'ja' });
   expect(choice.properties.info_version).toBe(registrationsFor(email)[0].update_info_version);
@@ -157,8 +161,16 @@ test('the registration, choice and confirmation are each sent once, on confirmed
   // Names and addresses never reach the analytics.
   for (const body of analytics.bodies) {
     expect(body).not.toContain(email);
-    expect(body).not.toContain('Spår Test');
+    expect(body).not.toContain('Spår');
   }
+});
+
+test('"Nej tack" is sent as a choice, without storing anything', async ({ page, analytics }) => {
+  await startCheckout(page, 'hero');
+  await page.click('#uppdatering_nej');
+  await arrivedAt(page, '/kop/nej-tack');
+  const [choice] = await analytics.waitFor('updates_choice');
+  expect(choice.properties.choice).toBe('nej');
 });
 
 test('direct visits to later steps send no step events', async ({ page, analytics }) => {
@@ -203,13 +215,12 @@ test.describe('with PostHog blocked', () => {
     await page.goto('/');
     await page.locator('[data-cta-id="kop_avslut"]').click();
     await arrivedAt(page, '/kop/avslut');
-    await page.fill('#kop_namn', 'Blockerad Test');
-    await page.fill('#kop_epost', email);
     await page.click('#kop_skicka');
     await arrivedAt(page, '/kop/uppdatering');
-    await page.click('#uppdatering_nej');
-    await arrivedAt(page, '/kop/nej-tack');
-    await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('nej');
+    await fillAndAgree(page, 'Blockerad', email);
+    await page.click('#uppdatering_ja');
+    await arrivedAt(page, '/kop/tack');
+    await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('ja');
   });
 });
 
@@ -263,28 +274,30 @@ test('a visit without a click still records the sections seen and how far it scr
   expect(analytics.named('purchase_click')).toHaveLength(0);
 });
 
-test('failed storage is recorded as an error, with no purchase intent', async ({ page, analytics }) => {
+test('failed storage is recorded as an error, with no choice', async ({ page, analytics }) => {
   await page.route('**/api/registrations', (route) => route.fulfill({ status: 500 }));
-  await page.goto('/kop/hero');
-  await page.fill('#kop_namn', 'Fel Test');
-  await page.fill('#kop_epost', uniqueEmail('fel'));
-  await page.click('#kop_skicka');
-  await expect(page.locator('#kop_skicka-fel')).toBeVisible();
+  await startCheckout(page, 'hero');
+  await fillAndAgree(page, 'Fel', uniqueEmail('fel'));
+  await page.click('#uppdatering_ja');
+  await expect(page.locator('#uppdatering-fel')).toBeVisible();
 
   const [error] = await analytics.waitFor('checkout_error');
   expect(error.properties).toMatchObject({ category: 'save_failed', cta_id: 'kop_hero' });
-  expect(analytics.named('purchase_intent_submit')).toHaveLength(0);
+  expect(analytics.named('updates_choice')).toHaveLength(0);
 });
 
-test('a double click on send gives one registration and one purchase intent', async ({ page, analytics }) => {
+test('double clicks give one purchase intent, one registration and one choice', async ({ page, analytics }) => {
   const email = uniqueEmail('dubbel');
   await page.goto('/kop/avslut');
-  await page.fill('#kop_namn', 'Dubbel Test');
-  await page.fill('#kop_epost', email);
   await page.dblclick('#kop_skicka');
   await arrivedAt(page, '/kop/uppdatering');
-
   await analytics.waitFor('availability_notice_view');
   expect(analytics.named('purchase_intent_submit')).toHaveLength(1);
+
+  await fillAndAgree(page, 'Dubbel', email);
+  await page.dblclick('#uppdatering_ja');
+  await arrivedAt(page, '/kop/tack');
+  await analytics.waitFor('updates_choice');
+  expect(analytics.named('updates_choice')).toHaveLength(1);
   expect(await stored(email)).toHaveLength(1);
 });

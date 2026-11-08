@@ -97,8 +97,8 @@ const button = 'max-sm:min-h-12';
   const analytics = banner.querySelector<HTMLInputElement>('#samtycke_matning')!;
   let returnFocus: HTMLElement | null = null;
 
-  // Buy buttons on the landing page, and the submit button on the purchase page.
-  const buyButtons = [...document.querySelectorAll<HTMLElement>('[data-cta-id], #kop_skicka')];
+  // Buy buttons on the landing page, the purchase page's button, and the last step's send button.
+  const buyButtons = [...document.querySelectorAll<HTMLElement>('[data-cta-id], #kop_skicka, #uppdatering_ja')];
 
   /**
    * Whether the first layer, at its place on screen, would cover a buy button. Measured from where the

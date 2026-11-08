@@ -160,26 +160,16 @@ consent:
   analyticsDescription: Visar vilka delar av sidan som ses och vilka knappar som klickas, så att vi förstår om tjänsten är intressant.
   save: Spara val
 
-# Köpsteget (/kop)
+# Köpsteget (/kop): erbjudandet och priset, utan några fält.
 purchase:
   title: Hjälpen mellan pianolektionerna
   subtitle: Lekfulla pianoövningar med vägledning och återkoppling medan barnet spelar.
-  nameLabel: Namn
-  namePlaceholder: Ditt namn
-  emailLabel: E-post
-  emailPlaceholder: Din e-postadress
-  privacyLink: Läs om hur Pianotopia hanterar dina personuppgifter. # länkar till integritetssidan
   submit: Gå vidare till betalning
-  submitting: Skickar…
   back: Tillbaka till erbjudandet
-  errors:
-    nameMissing: Fyll i ditt namn.
-    emailMissing: Fyll i din e-postadress.
-    emailInvalid: Kontrollera e-postadressen, till exempel namn@exempel.se.
-    sendFailed: Det gick inte att skicka just nu. Kontrollera uppkopplingen och försök igen.
 
-# Besked och uppdateringsval (/kop/uppdatering). Varje rad i "status" blir ett eget stycke.
-# När "question" eller "info" ändras sparas en ny version tillsammans med besökarnas val.
+# Sista steget (/kop/uppdatering): besked, förnamn, e-post och samtycke. Varje rad i "status" blir ett eget stycke.
+# Uppgifterna sparas bara om besökaren kryssar i rutan; knappen "yes" går inte att trycka på utan kryss.
+# När "question", "info" eller "consent" ändras sparas en ny version tillsammans med besökarnas val.
 updates:
   title: Musikhjältarna är inte lanserat ännu.
   status:
@@ -187,9 +177,22 @@ updates:
     - Inget köp har genomförts, ingen betalning har gjorts och inget abonnemang har startats.
   question: Vill du veta när vi är igång?
   info: Vi kan mejla dig när Musikhjältarna går att köpa.
+  nameLabel: Förnamn
+  namePlaceholder: Ditt förnamn
+  emailLabel: E-post
+  emailPlaceholder: Din e-postadress
+  # Texten vid kryssrutan. Den börjar alltid tom.
+  consent: >-
+    Ja, jag vill få information om när Musikhjältarna lanseras och erbjudanden som early bird-pris. Jag godkänner att
+    Pianotopia AB sparar mitt förnamn och min e-postadress för detta. Jag kan när som helst avregistrera mig.
+  privacyLink: Läs vår integritetspolicy. # länkar till integritetssidan, direkt efter texten ovan
   yes: Ja, mejla mig vid lansering
   no: Nej tack
   saving: Sparar…
+  errors:
+    nameMissing: Fyll i ditt förnamn.
+    emailMissing: Fyll i din e-postadress.
+    emailInvalid: Kontrollera e-postadressen, till exempel namn@exempel.se.
   error: Det gick inte att spara ditt val just nu. Försök igen.
 
 # Bekräftelse efter ja (/kop/tack). Besökarens e-postadress visas under "sentTo".

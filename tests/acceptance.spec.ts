@@ -3,7 +3,7 @@
  * Runs against `wrangler dev` with an isolated local D1 (see playwright.config.ts).
  */
 import { exportCsv, registrationsFor } from './d1';
-import { arrivedAt, expect, stored, submitPurchase, test, uniqueEmail } from './fixtures';
+import { arrivedAt, expect, fillAndAgree, register, startCheckout, stored, test, uniqueEmail } from './fixtures';
 
 const CTAS = [
   { ctaId: 'kop_hero', slug: 'hero' },
@@ -25,10 +25,12 @@ test('all five buy buttons open the same step with the right CTA origin', async 
   const email = uniqueEmail('cta');
   await page.goto('/');
   await page.locator('[data-cta-id="kop_pedagog"]').click();
-  await page.fill('#kop_namn', 'CTA Test');
-  await page.fill('#kop_epost', email);
+  await arrivedAt(page, '/kop/pedagog');
   await page.click('#kop_skicka');
   await arrivedAt(page, '/kop/uppdatering');
+  await fillAndAgree(page, 'CTA Test', email);
+  await page.click('#uppdatering_ja');
+  await arrivedAt(page, '/kop/tack');
   expect((await stored(email))[0].cta_id).toBe('kop_pedagog');
 });
 
@@ -47,108 +49,119 @@ test('back from the purchase step restores the offer page and scroll position', 
   expect(await page.evaluate(() => Math.round(window.scrollY))).toBeLessThan(before + 40);
 });
 
-test('an invalid form shows the right error and keeps the input', async ({ page }) => {
+test('the purchase step asks for nothing and stores nothing', async ({ page }) => {
   await page.goto('/kop/hero');
+  await expect(page.locator('#lead-form input')).toHaveCount(0);
+  const posts: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/')) posts.push(request.url());
+  });
   await page.click('#kop_skicka');
-  await expect(page.locator('#kop_namn-fel')).toHaveText('Fyll i ditt namn.');
+  await arrivedAt(page, '/kop/uppdatering');
+  expect(posts).toEqual([]);
+});
+
+test('an invalid form shows the right error and keeps the input', async ({ page }) => {
+  await startCheckout(page, 'hero');
+  await page.check('#uppdatering_samtycke');
+  await page.click('#uppdatering_ja');
+  await expect(page.locator('#kop_namn-fel')).toHaveText('Fyll i ditt förnamn.');
   await expect(page.locator('#kop_epost-fel')).toHaveText('Fyll i din e-postadress.');
   await expect(page.locator('#kop_namn')).toHaveAttribute('aria-invalid', 'true');
 
-  await page.fill('#kop_namn', 'Åsa Öberg-Lind');
+  await page.fill('#kop_namn', 'Åsa');
   await page.fill('#kop_epost', 'asa@');
-  await page.click('#kop_skicka');
+  await page.click('#uppdatering_ja');
   await expect(page.locator('#kop_namn-fel')).toBeHidden();
   await expect(page.locator('#kop_epost-fel')).toHaveText('Kontrollera e-postadressen, till exempel namn@exempel.se.');
-  await expect(page).toHaveURL('/kop/hero');
-  await expect(page.locator('#kop_namn')).toHaveValue('Åsa Öberg-Lind');
+  await expect(page).toHaveURL('/kop/uppdatering');
+  await expect(page.locator('#kop_namn')).toHaveValue('Åsa');
   await expect(page.locator('#kop_epost')).toHaveValue('asa@');
 });
 
-test('a successful form saves a registration and shows the status page', async ({ page }) => {
-  const email = uniqueEmail('success');
-  await submitPurchase(page, 'hero', 'Åsa Öberg-Lind', email);
-  await expect(page.locator('#uppdatering_ja')).toBeVisible();
+test('the box starts unticked, and the send button works only with it ticked', async ({ page }) => {
+  await startCheckout(page, 'hero');
+  const agree = page.locator('#uppdatering_samtycke');
+  const send = page.locator('#uppdatering_ja');
+  await expect(agree).not.toBeChecked();
+  await expect(send).toBeDisabled();
 
-  const [row] = await stored(email);
-  expect(row).toMatchObject({ name: 'Åsa Öberg-Lind', cta_id: 'kop_hero', update_status: 'inget_val', is_test: 0 });
-  expect(row.created_at).toBeTruthy();
+  const email = uniqueEmail('kryss');
+  await page.fill('#kop_namn', 'Kryss Test');
+  await page.fill('#kop_epost', email);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(1000);
+  await expect(page).toHaveURL('/kop/uppdatering');
+  expect(registrationsFor(email)).toHaveLength(0);
+
+  await agree.check();
+  await expect(send).toBeEnabled();
+  await agree.uncheck();
+  await expect(send).toBeDisabled();
 });
 
 test('failed storage shows an error and a retry option', async ({ page }) => {
   const email = uniqueEmail('retry');
+  await startCheckout(page, 'hero');
+  await fillAndAgree(page, 'Retry', email);
+
   await page.route('**/api/registrations', (route) => route.abort(), { times: 1 });
-  await page.goto('/kop/hero');
-  await page.fill('#kop_namn', 'Retry Test');
-  await page.fill('#kop_epost', email);
-  await page.click('#kop_skicka');
-
-  await expect(page.locator('#kop_skicka-fel')).toBeVisible();
-  await expect(page).toHaveURL('/kop/hero');
+  await page.click('#uppdatering_ja');
+  await expect(page.locator('#uppdatering-fel')).toBeVisible();
+  await expect(page).toHaveURL('/kop/uppdatering');
   await expect(page.locator('#kop_epost')).toHaveValue(email);
-  await expect(page.locator('#kop_skicka')).toBeEnabled();
-
-  await page.click('#kop_skicka');
-  await arrivedAt(page, '/kop/uppdatering');
+  await expect(page.locator('#uppdatering_ja')).toBeEnabled();
 
   await page.route('**/update-status', (route) => route.abort(), { times: 1 });
   await page.click('#uppdatering_ja');
   await expect(page.locator('#uppdatering-fel')).toBeVisible();
-  await arrivedAt(page, '/kop/uppdatering');
+  await expect(page).toHaveURL('/kop/uppdatering');
+
   await page.click('#uppdatering_ja');
   await expect(page).toHaveURL('/kop/tack');
   await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('ja');
   expect(registrationsFor(email)).toHaveLength(1);
 });
 
-test('yes saves "ja" on the right registration and shows the confirmation', async ({ page }) => {
+test('sending with the box ticked saves the registration with "ja" and shows the confirmation', async ({ page }) => {
   const email = uniqueEmail('ja');
-  await submitPurchase(page, 'vardag', 'Ja Test', email);
-  const [{ id }] = await stored(email);
-
-  await page.click('#uppdatering_ja');
-  await expect(page).toHaveURL('/kop/tack');
+  await register(page, 'vardag', 'Åsa', email);
   await expect(page.locator('#lead-email')).toHaveText(email);
 
   await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('ja');
   const rows = registrationsFor(email);
   expect(rows).toHaveLength(1);
-  expect(rows[0]).toMatchObject({ id, update_status: 'ja' });
+  expect(rows[0]).toMatchObject({ name: 'Åsa', cta_id: 'kop_vardag', update_status: 'ja', is_test: 0 });
+  expect(rows[0].created_at).toBeTruthy();
   expect(rows[0].update_status_at).toBeTruthy();
   expect(rows[0].update_info_version).toMatch(/^[0-9a-f]{8}$/);
 });
 
-test('no and no choice are saved as two different statuses', async ({ page }) => {
+test('"Nej tack" and leaving store nothing, even with the fields filled in', async ({ page }) => {
   const declined = uniqueEmail('nej');
-  await submitPurchase(page, 'hjalpen', 'Nej Test', declined);
+  await startCheckout(page, 'hjalpen');
+  await fillAndAgree(page, 'Nej', declined);
   await page.click('#uppdatering_nej');
   await expect(page).toHaveURL('/kop/nej-tack');
 
-  const undecided = uniqueEmail('ingetval');
-  await submitPurchase(page, 'hjalpen', 'Inget Val Test', undecided);
+  const left = uniqueEmail('ingetval');
+  await startCheckout(page, 'hjalpen');
+  await fillAndAgree(page, 'Inget Val', left);
   await page.goto('/');
 
-  await expect.poll(() => registrationsFor(declined)[0]?.update_status).toBe('nej');
-  expect(registrationsFor(declined)[0].update_status_at).toBeTruthy();
-  const [undecidedRow] = await stored(undecided);
-  expect(undecidedRow.update_status).toBe('inget_val');
-  expect(undecidedRow.update_status_at).toBeNull();
+  await page.waitForTimeout(1000);
+  expect(registrationsFor(declined)).toHaveLength(0);
+  expect(registrationsFor(left)).toHaveLength(0);
 });
 
-test('double click and reload create no duplicate registrations', async ({ page }) => {
+test('a double click creates no duplicate registrations', async ({ page }) => {
   const email = uniqueEmail('dupes');
   await page.goto('/kop/avslut');
-  await page.fill('#kop_namn', 'Dupe Test');
-  await page.fill('#kop_epost', email);
   await page.locator('#kop_skicka').dblclick();
   await arrivedAt(page, '/kop/uppdatering');
-
-  await page.reload();
-  await page.goBack();
-  await expect(page).toHaveURL('/kop/avslut');
-  await page.fill('#kop_namn', 'Dupe Test');
-  await page.fill('#kop_epost', email);
-  await page.click('#kop_skicka');
-  await arrivedAt(page, '/kop/uppdatering');
+  await fillAndAgree(page, 'Dupe', email);
+  await page.locator('#uppdatering_ja').dblclick();
+  await arrivedAt(page, '/kop/tack');
 
   await stored(email);
   // Give any late duplicate time to land before counting.
@@ -163,8 +176,9 @@ test('the whole flow works without horizontal scroll', async ({ page }) => {
     await page.goto(path);
     expect(await noHorizontalScroll(), path).toBe(true);
   }
-  await submitPurchase(page, 'hero', 'Layout Test', uniqueEmail('layout'));
+  await startCheckout(page, 'hero');
   expect(await noHorizontalScroll(), '/kop/uppdatering').toBe(true);
+  await fillAndAgree(page, 'Layout', uniqueEmail('layout'));
   await page.click('#uppdatering_ja');
   await expect(page).toHaveURL('/kop/tack');
   expect(await noHorizontalScroll(), '/kop/tack').toBe(true);
@@ -180,20 +194,26 @@ test('the fixed ids are in place independently of the content', async ({ page })
   for (const { ctaId } of CTAS) await expect(page.locator(`[data-cta-id="${ctaId}"]`)).toHaveCount(1);
 
   await page.goto('/kop/hero');
-  for (const id of ['kop_sammanfattning', 'kop_namn', 'kop_epost', 'kop_skicka', 'kop_tillbaka', 'kop_integritet']) {
+  for (const id of ['kop_sammanfattning', 'kop_skicka', 'kop_tillbaka']) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
-  await submitPurchase(page, 'hero', 'Ids Test', uniqueEmail('ids'));
-  await expect(page.locator('#uppdatering_ja')).toHaveCount(1);
-  await expect(page.locator('#uppdatering_nej')).toHaveCount(1);
+  await startCheckout(page, 'hero');
+  for (const id of [
+    'kop_namn',
+    'kop_epost',
+    'uppdatering_samtycke',
+    'kop_integritet',
+    'uppdatering_ja',
+    'uppdatering_nej',
+  ]) {
+    await expect(page.locator(`#${id}`)).toHaveCount(1);
+  }
 });
 
 test('the export gives correct registrations with update status', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chrome', 'The export reads the database, so one browser is enough.');
   const email = uniqueEmail('export');
-  await submitPurchase(page, 'pedagog', 'Export Test', email);
-  await page.click('#uppdatering_ja');
-  await expect(page).toHaveURL('/kop/tack');
+  await register(page, 'pedagog', 'Export Test', email);
 
   const csv = exportCsv(testInfo.outputPath('registrations.csv'));
   const [header, ...lines] = csv.replace(/^﻿/, '').trim().split(/\r\n/);
@@ -231,13 +251,16 @@ test('the purchase flow works with the keyboard and shows a clear focus indicato
   }
 
   await page.goto('/kop/hero');
-  await tabTo('#kop_namn');
-  await page.keyboard.type('Tangent Bord');
-  await tabTo('#kop_epost');
-  await page.keyboard.type(uniqueEmail('keyboard'));
+  await tabTo('#kop_skicka');
   await page.keyboard.press('Enter');
   await arrivedAt(page, '/kop/uppdatering');
 
+  await tabTo('#kop_namn');
+  await page.keyboard.type('Tangent');
+  await tabTo('#kop_epost');
+  await page.keyboard.type(uniqueEmail('keyboard'));
+  await tabTo('#uppdatering_samtycke');
+  await page.keyboard.press('Space');
   await tabTo('#uppdatering_ja');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/kop/tack');

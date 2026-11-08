@@ -144,17 +144,17 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 | Rubrik        | Hjälpen mellan pianolektionerna           |
 | Underrubrik   | Prenumeration på övningsverktyget i appen |
 | Pris          | 79 kr/månad                               |
-| Fält          | Namn, E-post                              |
 | Primär knapp  | Gå vidare till betalning                  |
 | Sekundär länk | Tillbaka till erbjudandet                 |
 
 **Anteckningar:**
 
 - Bekräfta samma erbjudande och pris.
-- Be endast om namn och e-post.
-- Registrera när uppgifterna skickas in.
+- Inga fält: namn och e-post lämnas bara i sista steget, med samtycke (integritetspolicyn avsnitt 2.4). Ändrat
+  2026-11-08; tidigare frågade steget efter namn och e-post och sparade dem.
 
-**Mätpunkt:** `köpintention` (event: `purchase_intent`). Registreras med CTA-ID för den knapp som ledde hit.
+**Mätpunkt:** `köpintention` (event: `purchase_intent_submit`), när besökaren går vidare. Med CTA-ID för den knapp som
+ledde hit. Mäts bara i PostHog, för besökare som har godkänt mätning.
 
 ### Steg 2 – Förklara och erbjud nästa steg (`/kop/uppdatering`)
 
@@ -164,13 +164,16 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
 | Text          | Tjänsten är under utveckling. Inget köp har genomförts och ingen betalning har skett.             |
 | Rubrik        | Vill du hålla dig uppdaterad?                                                                     |
 | Text          | Det kan handla om early bird-erbjudande. Eller att bli inbjuden att testa tidigt innan lansering. |
-| Primär knapp  | Ja, jag vill hållas uppdaterad                                                                    |
+| Fält          | Förnamn, E-post                                                                                   |
+| Kryssruta     | Kundens samtyckestext, tom från början, med länk till integritetspolicyn                          |
+| Primär knapp  | Ja, jag vill hållas uppdaterad (går bara att trycka på med ikryssad ruta)                         |
 | Sekundär länk | Nej tack                                                                                          |
 
 **Anteckningar:**
 
 - Visa beskedet direkt efter köpsteget.
 - Kräver ett separat aktivt val.
+- Förnamn och e-post sparas bara när rutan är ikryssad och besökaren skickar. "Nej tack" sparar ingenting.
 
 **Mätpunkt:** `ja till information` (event: `updates_opt_in`).
 
@@ -197,8 +200,8 @@ Mätningen följer spårningsbriefen (B) och beskrivs i [`TRACKING.md`](TRACKING
 | Exponering per sektion        | `section_view` och `section_exposure_end`                            | PostHog Cloud EU |
 | Visning och klick på köpknapp | `cta_view` och `purchase_click`, med köpknappens `cta_id`            | PostHog Cloud EU |
 | Köpflödet                     | `checkout_view`, `checkout_start`, `checkout_error`, `checkout_back` | PostHog Cloud EU |
-| Köpavsikt (steg 1)            | `purchase_intent_submit`, när registreringen är sparad               | PostHog och D1   |
-| Ja eller nej till information | `updates_choice`, när valet är sparat                                | PostHog och D1   |
+| Köpavsikt (steg 1)            | `purchase_intent_submit`, när besökaren går vidare                   | PostHog Cloud EU |
+| Ja eller nej till information | `updates_choice`; ja sparas med förnamn och e-post, nej sparas inte  | PostHog och D1   |
 | Annonskälla                   | UTM-parametrar, `message_id` och `ad_id` från annonslänken           | PostHog och D1   |
 | Sidvisningar                  | Sidvisning per adress                                                | Web Analytics    |
 
@@ -209,7 +212,7 @@ Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 ## Öppna frågor
 
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
-2. **Samtycke och GDPR.** Namn och e-post samlas in i steg 1, innan besökaren får veta att tjänsten inte finns. Vi behöver bestämma rättslig grund, informationstext och hur länge uppgifterna sparas. Uppgifter från dem som säger "Nej tack" bör troligen raderas.
+2. ~~**Samtycke och GDPR.**~~ Löst 2026-11-08: förnamn och e-post lämnas i sista steget, efter beskedet att tjänsten inte finns, och sparas bara med ikryssad samtyckesruta, enligt kundens integritetspolicy. "Nej tack" sparar ingenting.
 3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
 4. ~~**Analysverktyg.**~~ Löst: PostHog Cloud EU för händelser, utan cookies, och Cloudflare Web Analytics för sidvisningar. Ingen mätning sker innan besökaren har godkänt den i samtyckesrutan, och valet kan ändras via Cookieinställningar i sidfoten.
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.

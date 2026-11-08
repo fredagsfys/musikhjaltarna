@@ -5,7 +5,7 @@
 import type { Page } from '@playwright/test';
 import { CONSENT_KEY, CONSENT_VERSION } from '../src/lib/consent';
 import { registrationReport, registrationsFor } from './d1';
-import { arrivedAt, expect, stored, test, uniqueEmail } from './fixtures';
+import { arrivedAt, expect, fillAndAgree, register, stored, test, uniqueEmail } from './fixtures';
 
 const banner = '#samtycke';
 
@@ -59,10 +59,11 @@ test.describe('before the visitor has decided', () => {
     const email = uniqueEmail('godkand');
     await page.goto('/kop/hero');
     await expect(page.locator(banner)).toBeHidden();
-    await page.fill('#kop_namn', 'Godkänd Test');
-    await page.fill('#kop_epost', email);
     await page.click('#kop_skicka');
     await arrivedAt(page, '/kop/uppdatering');
+    await fillAndAgree(page, 'Godkänd', email);
+    await page.click('#uppdatering_ja');
+    await arrivedAt(page, '/kop/tack');
     const [checkout] = await analytics.waitFor('checkout_view');
     expect(checkout.properties.utm_source).toBe('facebook');
     expect((await stored(email))[0]).toMatchObject({ analytics_consent: 'granted', utm_source: 'facebook' });
@@ -79,10 +80,9 @@ test.describe('before the visitor has decided', () => {
     await page.locator('[data-cta-id="kop_hero"]').click();
     await arrivedAt(page, '/kop/hero');
     await expect(page.locator(banner)).toBeHidden();
-    await page.fill('#kop_namn', 'Nekad Test');
-    await page.fill('#kop_epost', email);
     await page.click('#kop_skicka');
     await arrivedAt(page, '/kop/uppdatering');
+    await fillAndAgree(page, 'Nekad', email);
     await page.click('#uppdatering_ja');
     await arrivedAt(page, '/kop/tack');
     await page.waitForTimeout(1000);
@@ -99,10 +99,11 @@ test.describe('before the visitor has decided', () => {
     await page.locator('[data-cta-id="kop_hero"]').click();
     await arrivedAt(page, '/kop/hero');
     await expect(page.locator(banner)).toBeVisible();
-    await page.fill('#kop_namn', 'Obesvarad Test');
-    await page.fill('#kop_epost', email);
     await page.click('#kop_skicka');
     await arrivedAt(page, '/kop/uppdatering');
+    await fillAndAgree(page, 'Obesvarad', email);
+    await page.click('#uppdatering_ja');
+    await arrivedAt(page, '/kop/tack');
 
     expect(analytics.events).toEqual([]);
     expect((await stored(email))[0].analytics_consent).toBeNull();
@@ -270,24 +271,20 @@ test('the registrations report splits stored registrations by the analytics choi
   // Accepted (the default in these tests), no choice, and declined. New contexts would inherit the stored
   // choice, so they start from empty storage.
   const fresh = { baseURL, storageState: { cookies: [], origins: [] } };
-  const register = async (target: typeof page, label: string) => {
+  const registerAs = async (target: typeof page, label: string) => {
     const email = uniqueEmail(label);
-    await target.goto('/kop/hero');
-    await target.fill('#kop_namn', 'Rapport Test');
-    await target.fill('#kop_epost', email);
-    await target.click('#kop_skicka');
-    await arrivedAt(target, '/kop/uppdatering');
+    await register(target, 'hero', 'Rapport', email);
     await stored(email);
   };
-  await register(page, 'rapport-godkand');
+  await registerAs(page, 'rapport-godkand');
   const undecided = await browser.newContext(fresh);
-  await register(await undecided.newPage(), 'rapport-obesvarad');
+  await registerAs(await undecided.newPage(), 'rapport-obesvarad');
   const declined = await browser.newContext(fresh);
   const declinedPage = await declined.newPage();
   await declinedPage.goto('/');
   await declinedPage.click('#samtycke_hantera');
   await declinedPage.click('#samtycke_spara');
-  await register(declinedPage, 'rapport-nekad');
+  await registerAs(declinedPage, 'rapport-nekad');
   await Promise.all([undecided.close(), declined.close()]);
 
   const after = registrationReport();

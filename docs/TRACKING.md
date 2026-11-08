@@ -101,23 +101,23 @@ exact value.
 Every event has `event_id` (unique, or deterministic where noted), `event_timestamp` (UTC, ISO 8601), `$session_id`,
 `page_version`, `environment` and the ad source parameters that are set.
 
-| Event                       | When                                                  | Properties                                                                                                                                           |
-| --------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$pageview`                 | Every page load                                       | PostHog's standard (`$current_url`, `$referrer`, device)                                                                                             |
-| `offer_view`                | The offer page is shown in an active tab              |                                                                                                                                                      |
-| `section_view`              | A section has been in view for 2 s (see below)        | `section_id`, `section_position` (1–5), `view_order`, `view_count` (this section), `time_since_arrival` (ms), `max_scroll_percent`                   |
-| `section_exposure_end`      | That view ends (scrolled away or tab hidden)          | `section_id`, `exposure_ms`, `max_scroll_percent`                                                                                                    |
-| `cta_view`                  | A buy button has been at least 50% visible for 1 s    | `cta_id`, `section_id`                                                                                                                               |
-| `purchase_click`            | A buy button is clicked                               | `cta_id`, `section_id`, `sections_seen`, `max_section_seen`, `last_section_seen`, `max_scroll_percent`, `time_to_click`, `active_time_to_click` (ms) |
-| `checkout_view`             | The purchase form is shown                            | `cta_id`                                                                                                                                             |
-| `checkout_start`            | First input in the form                               | `cta_id`                                                                                                                                             |
-| `checkout_error`            | Sending fails validation, or storage fails            | `category` (`validation` or `save_failed`), `fields` (`name`, `email`), `cta_id`                                                                     |
-| `checkout_back`             | "Tillbaka" on the purchase form                       | `cta_id`                                                                                                                                             |
-| `purchase_intent_submit`    | The registration is **stored**, once per registration | `event_id` = `purchase_intent_submit:<id>`, `registration_id`, `cta_id`, `price`, `currency`                                                         |
-| `availability_notice_view`  | The update question is shown after step 1             | `registration_id`                                                                                                                                    |
-| `updates_choice`            | Ja or nej is **stored**                               | `event_id` = `updates_choice:<id>:<choice>`, `registration_id`, `choice` (`ja`/`nej`), `info_version`                                                |
-| `updates_confirmation_view` | The confirmation after a stored ja is shown           | `registration_id`                                                                                                                                    |
-| `external_link_click`       | A link to Pianotopia's website is clicked             | `link_id` (`pianotopia_website`), `placement` (`footer`, `declined`)                                                                                 |
+| Event                       | When                                                   | Properties                                                                                                                                           |
+| --------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `$pageview`                 | Every page load                                        | PostHog's standard (`$current_url`, `$referrer`, device)                                                                                             |
+| `offer_view`                | The offer page is shown in an active tab               |                                                                                                                                                      |
+| `section_view`              | A section has been in view for 2 s (see below)         | `section_id`, `section_position` (1–5), `view_order`, `view_count` (this section), `time_since_arrival` (ms), `max_scroll_percent`                   |
+| `section_exposure_end`      | That view ends (scrolled away or tab hidden)           | `section_id`, `exposure_ms`, `max_scroll_percent`                                                                                                    |
+| `cta_view`                  | A buy button has been at least 50% visible for 1 s     | `cta_id`, `section_id`                                                                                                                               |
+| `purchase_click`            | A buy button is clicked                                | `cta_id`, `section_id`, `sections_seen`, `max_section_seen`, `last_section_seen`, `max_scroll_percent`, `time_to_click`, `active_time_to_click` (ms) |
+| `checkout_view`             | The purchase step (offer and price) is shown           | `cta_id`                                                                                                                                             |
+| `checkout_start`            | First input in the last step's form                    | `cta_id`                                                                                                                                             |
+| `checkout_error`            | The last step fails validation, or storage fails       | `category` (`validation` or `save_failed`), `fields` (`name`, `email`), `cta_id`                                                                     |
+| `checkout_back`             | "Tillbaka" on the purchase step                        | `cta_id`                                                                                                                                             |
+| `purchase_intent_submit`    | "Gå vidare till betalning", once per visit to the flow | `event_id` = `purchase_intent_submit:<id>`, `registration_id`, `cta_id`, `price`, `currency`                                                         |
+| `availability_notice_view`  | The update question is shown after step 1              | `registration_id`                                                                                                                                    |
+| `updates_choice`            | Ja is **stored**, or nej is chosen (nothing stored)    | `event_id` = `updates_choice:<id>:<choice>`, `registration_id`, `choice` (`ja`/`nej`), `info_version`                                                |
+| `updates_confirmation_view` | The confirmation after a stored ja is shown            | `registration_id`                                                                                                                                    |
+| `external_link_click`       | A link to Pianotopia's website is clicked              | `link_id` (`pianotopia_website`), `placement` (`footer`, `declined`)                                                                                 |
 
 Rules behind the events:
 
@@ -127,9 +127,13 @@ Rules behind the events:
   `sektion_prenumeration`.
 - **Scroll depth:** scroll position divided by the scrollable height, 0–100.
 - **Active time:** time the tab was visible, from arrival on the offer page to the click.
-- **Stored, not attempted:** `purchase_intent_submit` and `updates_choice` are only sent after the server confirmed
-  the save. A visitor who never answers the update question has no `updates_choice`: count them as "no choice", not as
-  nej.
+- **The flow:** step 1 asks for nothing; "Gå vidare till betalning" sends `purchase_intent_submit` and stores nothing.
+  The last step asks for first name and e-mail beside an unticked consent box, and its send button only works with the
+  box ticked. Only then is anything stored in D1, with `update_status` `ja`. "Nej tack" stores nothing.
+- **One id per visit:** `registration_id` is created in step 1 and kept for the tab's visit to the flow, so the intent,
+  the notice, the choice and a stored registration share it.
+- **Stored, not attempted:** `updates_choice` with `ja` is only sent after the server confirmed the save. A visitor who
+  never answers has no `updates_choice`: count them as "no choice", not as nej.
 - **Direct visits:** opening `/kop/uppdatering` or `/kop/tack` without going through the flow sends no step event.
 - **Repeat clicks:** every buy click is sent; count them once per session for conversion rates.
 
@@ -142,11 +146,12 @@ All reports from brief B §8, with filters and the session rates, are in [`REPOR
 Expect PostHog to count fewer events than actually happened:
 
 - **Declined or unanswered consent:** the largest loss. PostHog only sees visitors who accepted, so every rate is
-  computed within that group (brief B §9). D1 still stores every registration, with `analytics_consent`.
+  computed within that group (brief B §9). D1 stores only registrations with the consent box ticked, whatever the
+  analytics choice, with `analytics_consent`. Purchase intent itself is only in PostHog.
 - **Deciding after leaving the arrival page:** the ad source is only in the arrival URL until the visitor accepts. A
   visitor who accepts on a later page is measured without a source.
 - **Blockers:** ad and tracking blockers block `eu.i.posthog.com`. Registrations still reach D1, so compare
-  `purchase_intent_submit` with the D1 count to see the share lost.
+  `updates_choice` with `ja` against the D1 count to see the share lost.
 - **Closing the tab:** `section_exposure_end` is sent when a view ends; when a visitor closes the tab mid-view it may
   not arrive, so exposure times are lower bounds.
 - **Bots:** PostHog drops events from browsers that identify as automated.
@@ -158,17 +163,17 @@ Expect PostHog to count fewer events than actually happened:
 The verification scenarios from brief B §10 run as automated tests in `tests/tracking.spec.ts`. They run on desktop
 Chrome, desktop Safari, iPhone 15 (Safari) and Pixel 7 (Chrome).
 
-| Scenario                                                                          | Result                                                                                                      |
-| --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| An ad-tagged link to a registration keeps the source and message through the flow | Passes: the same source on `offer_view`, `checkout_view` and the D1 registration                            |
-| Each of the five buy buttons records its own CTA id, which follows along          | Passes (`tests/acceptance.spec.ts`)                                                                         |
-| Down the whole page, back to the hero, then buy                                   | Passes: `cta_id` `kop_hero`, `max_section_seen` `sektion_prenumeration`, `last_section_seen` `sektion_hero` |
-| A visit without a click keeps the sections seen and the maximum scroll            | Passes                                                                                                      |
-| A form error and failed storage are recorded, without a purchase intent           | Passes: `checkout_error` with `validation` and `save_failed`; no `purchase_intent_submit`                   |
-| A double click or a resend gives one registration and one intent                  | Passes                                                                                                      |
-| Ja, nej and no choice give three separate outcomes                                | Passes (`tests/acceptance.spec.ts`)                                                                         |
-| With analytics blocked, the purchase flow works                                   | Passes; the loss is described above                                                                         |
-| Changing a heading or button text keeps events and fixed ids working              | Passes: ids are fixed in code, independent of `copy.yaml` (`tests/acceptance.spec.ts`)                      |
+| Scenario                                                                              | Result                                                                                                      |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| An ad-tagged link to a registration keeps the source and message through the flow     | Passes: the same source on `offer_view`, `checkout_view` and the D1 registration                            |
+| Each of the five buy buttons records its own CTA id, which follows along              | Passes (`tests/acceptance.spec.ts`)                                                                         |
+| Down the whole page, back to the hero, then buy                                       | Passes: `cta_id` `kop_hero`, `max_section_seen` `sektion_prenumeration`, `last_section_seen` `sektion_hero` |
+| A visit without a click keeps the sections seen and the maximum scroll                | Passes                                                                                                      |
+| A form error and failed storage are recorded, without a choice                        | Passes: `checkout_error` with `validation` and `save_failed`; no `updates_choice`                           |
+| A double click or going back and on gives one intent, one registration and one choice | Passes                                                                                                      |
+| Nothing is stored without the ticked box; nej and leaving store nothing               | Passes (`tests/acceptance.spec.ts`)                                                                         |
+| With analytics blocked, the purchase flow works                                       | Passes; the loss is described above                                                                         |
+| Changing a heading or button text keeps events and fixed ids working                  | Passes: ids are fixed in code, independent of `copy.yaml` (`tests/acceptance.spec.ts`)                      |
 
 Checked by hand: events from a branch preview arrive in the PostHog project, tagged `environment = preview`.
 
