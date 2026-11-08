@@ -1,0 +1,72 @@
+---
+/** Long documents written in Markdown, such as the privacy policy and the terms: headings, lists and tables. */
+---
+
+<div class="prose-doc">
+  <slot />
+</div>
+
+<style>
+  /* Markdown output has no classes of its own, so their elements are styled here. */
+  .prose-doc > :global(* + *) {
+    margin-top: 1rem;
+  }
+  .prose-doc :global(h2) {
+    margin-top: 2.5rem;
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    line-height: 1.2;
+    color: var(--color-ink);
+  }
+  .prose-doc :global(h3) {
+    margin-top: 1.75rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+  .prose-doc :global(:is(h2, h3) + *) {
+    margin-top: 0.75rem;
+  }
+  .prose-doc :global(ul) {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  .prose-doc :global(li + li) {
+    margin-top: 0.25rem;
+  }
+  .prose-doc :global(strong) {
+    color: var(--color-ink);
+  }
+  .prose-doc :global(a) {
+    color: var(--color-primary-dark);
+    font-weight: 700;
+  }
+  .prose-doc :global(code) {
+    font-size: 0.875em;
+    overflow-wrap: anywhere;
+  }
+  /* Wide tables scroll sideways inside the text column on phones instead of widening the page. */
+  .prose-doc :global(table) {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+  .prose-doc :global(th),
+  .prose-doc :global(td) {
+    min-width: 9rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .prose-doc :global(th) {
+    background: var(--color-cream-warm);
+    color: var(--color-ink);
+  }
+  .prose-doc :global(td:nth-child(3)) {
+    min-width: 14rem;
+  }
+</style>
