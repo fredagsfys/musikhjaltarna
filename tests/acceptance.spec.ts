@@ -65,7 +65,7 @@ test('an invalid form shows the right error and keeps the input', async ({ page 
   await startCheckout(page, 'hero');
   await page.check('#uppdatering_samtycke');
   await page.click('#uppdatering_ja');
-  await expect(page.locator('#kop_namn-fel')).toHaveText('Fyll i ditt förnamn.');
+  await expect(page.locator('#kop_namn-fel')).toHaveText('Fyll i ditt namn.');
   await expect(page.locator('#kop_epost-fel')).toHaveText('Fyll i din e-postadress.');
   await expect(page.locator('#kop_namn')).toHaveAttribute('aria-invalid', 'true');
 

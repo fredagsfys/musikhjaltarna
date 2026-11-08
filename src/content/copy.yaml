@@ -178,7 +178,7 @@ updates:
   question: Vill du veta när vi är igång?
   info: Vi kan mejla dig när Musikhjältarna går att köpa.
   nameLabel: Förnamn
-  namePlaceholder: Ditt förnamn
+  namePlaceholder: Ditt namn
   emailLabel: E-post
   emailPlaceholder: Din e-postadress
   # Texten vid kryssrutan. Den börjar alltid tom.
@@ -187,10 +187,11 @@ updates:
     Pianotopia AB sparar mitt förnamn och min e-postadress för detta. Jag kan när som helst avregistrera mig.
   privacyLink: Läs vår integritetspolicy. # länkar till integritetssidan, direkt efter texten ovan
   yes: Ja, mejla mig vid lansering
+  note: Vi skickar ingen spam och delar aldrig din e-post. # kort text under knappen
   no: Nej tack
   saving: Sparar…
   errors:
-    nameMissing: Fyll i ditt förnamn.
+    nameMissing: Fyll i ditt namn.
     emailMissing: Fyll i din e-postadress.
     emailInvalid: Kontrollera e-postadressen, till exempel namn@exempel.se.
   error: Det gick inte att spara ditt val just nu. Försök igen.

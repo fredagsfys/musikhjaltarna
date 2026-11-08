@@ -92,6 +92,7 @@ const schema = z.strictObject({
     consent: text,
     privacyLink: text,
     yes: text,
+    note: text,
     no: text,
     saving: text,
     errors: z.strictObject({ nameMissing: text, emailMissing: text, emailInvalid: text }),
