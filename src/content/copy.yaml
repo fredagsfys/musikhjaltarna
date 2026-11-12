@@ -69,15 +69,19 @@ howItWorks:
       att barnet får hjälp medan det övar.
     note: Tonen lyser – barnet spelar! # handskriven rad under appvyn
     # Texterna i den ritade appvyn.
+    # Övningen går att spela: tonen som lyser visar vilken tangent man ska trycka på.
     app:
       speech: Spela tonerna när de lyser upp – jag lyssnar!
       feedback: Rätt ton!
+      tryAgain: Nästan! Prova igen.
+      done: Bra spelat! Alla fem stjärnor.
       listen: Lyssna
       play: Spela
-      # Beskrivning av appvyn för skärmläsare.
+      playAgain: Börja om
+      # Beskrivning av övningen för skärmläsare.
       alt: >-
-        Exempel på en övning i appen: en musikhjälte ber barnet spela tonerna när de lyser upp. Tonerna C, D, E, F och
-        G står på ett notsystem och lyser upp en i taget, och appen svarar "Rätt ton!".
+        Exempel på en övning i appen att prova: tonerna C, D, E, F och G lyser upp en i taget, och du spelar dem på
+        tangenterna under notsystemet.
 
 # Sektion 3: För hela familjen. Exakt tre fördelar; ikonerna (klocka, stjärna, hus) följer ordningen.
 everyday:
