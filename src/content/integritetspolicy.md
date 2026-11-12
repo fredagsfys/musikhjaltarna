@@ -9,15 +9,13 @@ description: Så hanterar Pianotopia dina personuppgifter i samband med Musikhj�
 
 Den här integritetspolicyn beskriver hur Pianotopia AB, org.nr. 559514-5425 ("Pianotopia", "vi" eller "oss") samlar in och använder personuppgifter i samband med Musikhjältarna.
 
-Musikhjältarna är en digital pianotjänst för barn som är under utveckling. Innan tjänsten lanseras undersöker vi intresset och betalviljan hos föräldrar. Policyn gäller när du:
+Musikhjältarna är en digital pianotjänst för barn. Policyn gäller när du:
 
 - besöker webbplatsen musikhjaltarna.se,
 - klickar dig vidare till köpsteget på webbplatsen,
 - väljer att lämna förnamn och e-postadress i köpstegets sista steg,
 - ser eller klickar på våra annonser på Facebook och Instagram, eller
 - kontaktar oss via e-post.
-
-Ingen betalning genomförs och inga betaluppgifter samlas in. Du skapar inte heller något konto. När tjänsten lanseras får den en egen, utökad integritetspolicy.
 
 Begrepp i policyn ska tolkas enligt dataskyddsförordningen (GDPR, 2016/679) och lagen (2022:482) om elektronisk kommunikation.
 

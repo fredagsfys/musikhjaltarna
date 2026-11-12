@@ -12,8 +12,13 @@ import { SECTION_IDS } from '~/config/site';
 import { copy } from '~/content/copy';
 
 const { howItWorks: content } = copy;
-// One picture per step, from the app's own medallions: start (the hand), practise (the keys), reward (stars).
-const stepImages = ['step-start', 'step-practise', 'step-reward'] as const;
+// One picture per step: a child with the app (start), the app screen (practise), the reward. Photos fill the frame;
+// app art and stickers are shown whole.
+const stepImages = [
+  { name: 'step-start', fit: 'object-cover object-[center_30%]' },
+  { name: 'step-practise', fit: 'object-contain p-3' },
+  { name: 'step-reward', fit: 'object-contain p-10' },
+] as const;
 ---
 
 <!-- Sektion 2: Konkretisera hjälpen. Visa hur barnet använder verktyget hemma. -->
@@ -25,24 +30,27 @@ const stepImages = ['step-start', 'step-practise', 'step-reward'] as const;
 
     <ol class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-5">
       {content.steps.map((step, i) => (
-        <Card as="li" tone="bg" class="flex flex-col gap-4 px-7 py-8">
-          <div class="flex items-center justify-between gap-4">
+        <Card as="li" tone="bg" class="flex flex-col overflow-hidden">
+          <div class="border-border aspect-[4/3] overflow-hidden border-b bg-white">
+            <Art
+              name={stepImages[i]!.name}
+              alt=""
+              widths={[360, 720]}
+              sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
+              class:list={['size-full', stepImages[i]!.fit]}
+            />
+          </div>
+          <div class="flex flex-col gap-4 px-7 pb-8">
+            <!-- The step number sits on the picture's lower edge. -->
             <span
               aria-hidden="true"
-              class="border-gold text-primary-dark font-display grid size-13 place-items-center rounded-full border-2 bg-white text-2xl"
+              class="border-gold text-primary-dark font-display relative -mt-[26px] grid size-13 place-items-center rounded-full border-2 bg-white text-2xl"
             >
               {i + 1}
             </span>
-            <Art
-              name={stepImages[i]!}
-              alt=""
-              widths={[84, 168]}
-              sizes="84px"
-              class="size-[84px] drop-shadow-[0_6px_10px_rgb(0_0_0/0.12)]"
-            />
+            <h3 class="text-h3">{step.title}</h3>
+            <p>{step.text}</p>
           </div>
-          <h3 class="text-h3">{step.title}</h3>
-          <p>{step.text}</p>
         </Card>
       ))}
     </ol>

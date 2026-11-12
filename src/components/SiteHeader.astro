@@ -1,6 +1,5 @@
 ---
 import Art from '~/components/ui/Art.astro';
-import CharacterAvatar from '~/components/ui/CharacterAvatar.astro';
 import { routes, SECTION_IDS, site } from '~/config/site';
 import { copy } from '~/content/copy';
 
@@ -15,17 +14,16 @@ const navLink = 'text-ink rounded-pill hover:bg-white hover:text-ink inline-flex
 ---
 
 <header class="gutter-x border-border border-b py-[18px] short:py-2">
-  <!-- The logo and the "Musikhjältarna" wordmark. On phones, and again below 360px, they shrink so the header stays on one row. -->
+  <!-- The "Musikhjältarna" title banner. On phones, and again below 360px, it shrinks so the header stays on one row. -->
   <div class="container-page flex flex-wrap items-center justify-between gap-4 max-sm:gap-2">
-    <a href={routes.home} class="flex min-w-0 items-center gap-3 no-underline max-sm:gap-2">
-      <CharacterAvatar alt="" size={48} class="w-12 shrink-0 max-sm:w-10 max-[22.5rem]:w-8" />
+    <a href={routes.home} class="flex min-w-0 items-center no-underline">
       <Art
         name="wordmark"
         alt={site.product}
-        widths={[190, 380]}
-        sizes="(min-width: 1024px) 190px, (min-width: 640px) 160px, 36vw"
+        widths={[220, 440]}
+        sizes="(min-width: 1024px) 220px, (min-width: 640px) 180px, 40vw"
         loading="eager"
-        class="h-auto w-[190px] max-lg:w-[160px] max-sm:w-[min(36vw,150px)] max-[22.5rem]:w-[30vw]"
+        class="h-auto w-[220px] max-lg:w-[180px] max-sm:w-[min(40vw,160px)] max-[22.5rem]:w-[34vw]"
       />
     </a>
     {nav && (

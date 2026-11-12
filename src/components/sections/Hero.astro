@@ -46,17 +46,17 @@ const { hero } = copy;
       />
     </div>
 
-    <!-- The photo in the arch from the design file: domed top, straight sides, softly rounded bottom. -->
-    <div class="relative mx-auto w-full max-w-[500px] min-w-0 px-[6%] pt-[6%] sm:w-[90%]">
-      <div class="border-gold-light bg-cream-warm aspect-[1/1.043] overflow-hidden rounded-[48%_48%_40px_40px] border-2">
+    <!-- The photo in a wide arch: domed top, straight sides, softly rounded bottom. -->
+    <div class="relative mx-auto w-full max-w-[680px] min-w-0 pt-[9%] sm:w-[94%] lg:w-full">
+      <div class="border-gold-light bg-cream-warm aspect-[4/3] overflow-hidden rounded-[50%_50%_40px_40px/30%_30%_40px_40px] border-2">
         <Art
           name="hero-photo"
           alt={hero.imageAlt}
-          widths={[460, 700, 920]}
-          sizes="(min-width: 1024px) 460px, (min-width: 640px) 450px, 88vw"
+          widths={[640, 960, 1280]}
+          sizes="(min-width: 1024px) 640px, (min-width: 640px) 90vw, 100vw"
           loading="eager"
           fetchpriority="high"
-          class="size-full object-cover object-[62%_center]"
+          class="size-full object-cover"
         />
       </div>
       <!-- Handwritten "På svenska" in the empty corner above the arch, with an arrow down to the photo. -->

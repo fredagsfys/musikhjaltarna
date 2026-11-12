@@ -242,6 +242,8 @@ test('down the whole page, back to the hero and buy: the click knows the last se
   await page.goto('/');
   for (const id of SECTIONS) await dwellOn(page, id);
   await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+  // Let the browser deliver the scroll to the bottom before jumping back up, or the two are merged into one.
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await dwellOn(page, 'sektion_hero');
   await page.locator('[data-cta-id="kop_hero"]').click();
   await arrivedAt(page, '/kop/hero');

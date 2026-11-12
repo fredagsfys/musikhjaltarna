@@ -39,7 +39,7 @@ hero:
     Musikhjältarna är en app med lekfulla pianoövningar för stunderna hemma mellan lektionerna. För att hjälpa ditt
     barn vidare i spelet och behålla lusten att fortsätta.
   trust: Ett komplement till barnets pianolärare.
-  imageAlt: Ett barn övar vid pianot med Musikhjältarna på en surfplatta # beskrivning av bilden för skärmläsare
+  imageAlt: Ett barn övar vid pianot med Musikhjältarna på en surfplatta, med Gilbert G-klav bredvid # beskrivning av bilden för skärmläsare
   note: På svenska # handskriven rad vid bilden
 
 # Sektion 2: Så fungerar övningen. Exakt tre steg; bilderna (hand, pianotangenter, stjärnor) följer ordningen.
@@ -77,7 +77,7 @@ howItWorks:
       # Beskrivning av appvyn för skärmläsare.
       alt: >-
         Exempel på en övning i appen: en musikhjälte ber barnet spela tonerna när de lyser upp. Tonerna C, D, E, F och
-        G står på ett notsystem, E lyser och appen svarar "Rätt ton!".
+        G står på ett notsystem och lyser upp en i taget, och appen svarar "Rätt ton!".
 
 # Sektion 3: För hela familjen. Exakt tre fördelar; ikonerna (klocka, stjärna, hus) följer ordningen.
 everyday:
@@ -109,11 +109,12 @@ pedagogue:
   text:
     - >-
       Musikhjältarna är skapat av Suzana Spasevska Hermansen, pianopedagog i Kalmar. Övningarna bygger på beprövad
-      pianopedagogik och har utvecklats tillsammans med hennes pianoelever.
+      pianopedagogik och har utvecklats tillsammans med hennes pianoelever. Appen utvecklas i linje med kulturskolans mål
+      och riktlinjer.
     - >-
       Målet är att hjälpa barnet framåt och samtidigt hålla lusten att spela levande. Musikhjältarna fungerar som ett
       komplement till barnets ordinarie pianoundervisning och ger stöd i övningen hemma.
-  photoAlt: Suzana Spasevska Hermansen, pianopedagog, i Pianotopias studio # beskrivning av fotot för skärmläsare
+  photoAlt: Suzana Spasevska Hermansen, pianopedagog, i Pianotopias studio med Gilbert G-klav # beskrivning av fotot för skärmläsare
   captionName: Suzana Spasevska Hermansen
   captionRole: pianopedagog och grundare av Pianotopia.
 

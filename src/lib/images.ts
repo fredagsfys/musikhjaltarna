@@ -12,9 +12,8 @@ export type ImageName =
   | 'step-reward'
   | 'hero-photo'
   | 'app-example-avatar'
-  | 'family-mascot'
-  | 'pedagogue-photo'
-  | 'pedagogue-mascot';
+  | 'family-photo'
+  | 'pedagogue-photo';
 
 const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{png,jpg,jpeg,webp,avif}', {
   eager: true,
