@@ -1,22 +1,22 @@
 /**
- * Event tracking for brief B, sent to Google Analytics 4 through Google Tag Manager.
+ * Event tracking for brief B, sent to Google Analytics 4 with gtag.js, without Tag Manager.
  *
- * - Only with the visitor's consent (src/lib/consent.ts). Tag Manager isn't loaded before they accept;
- *   until they decide, events from the current page wait in memory, sent if the visitor accepts and
- *   discarded if they decline. Declining later stops all events and deletes Google Analytics' cookies.
- * - Consent Mode is set before the container loads: analytics storage granted, every advertising
- *   signal denied, since the choice covers statistics only.
- * - Each event is pushed to the data layer with its parameters, and with page_version, environment and
- *   the ad source. Parameters from an earlier event are cleared, so one event's values never leak into
- *   the next. Lists are sent as comma-separated text, which is what GA4 can store.
+ * - Only with the visitor's consent (src/lib/consent.ts). gtag.js isn't loaded before they accept; until
+ *   they decide, events from the current page wait in memory, sent if the visitor accepts and discarded if
+ *   they decline. Declining later stops all events and deletes Google Analytics' cookies.
+ * - Consent Mode is set first: analytics storage granted, every advertising signal denied, since the
+ *   choice covers statistics only. Google signals and ad personalisation are off, and the cookies last
+ *   13 months, as the privacy policy says.
+ * - Each event carries its own parameters plus page_version, environment and the ad source. Lists are sent
+ *   as comma-separated text, which is what GA4 can store.
  * - The ad source (UTM parameters, message_id, ad_id) is read from the arrival URL and, with consent,
  *   kept for the tab's session in sessionStorage, so it follows the visitor through the purchase flow
  *   and onto the registration, and internal navigation never overwrites it (brief B §3).
- * - If Tag Manager is blocked or fails to load, events are dropped and the purchase flow is unaffected
+ * - If gtag.js is blocked or fails to load, events are dropped and the purchase flow is unaffected
  *   (brief B §9).
  * - Never pass names, e-mail addresses or form values here.
  *
- * Event catalogue and the Tag Manager setup: docs/TRACKING.md.
+ * Event catalogue and the GA4 setup: docs/TRACKING.md.
  */
 import { site } from '~/config/site';
 import { consent, onConsentChange } from './consent';
@@ -62,7 +62,9 @@ export type AdSource = Partial<Record<(typeof AD_PARAMETERS)[number], string>>;
 
 const SOURCE_KEY = 'musikhjaltarna:source';
 
-const GTM_ID: string = import.meta.env.PUBLIC_GTM_ID || site.gtmId;
+const GA4_ID: string = import.meta.env.PUBLIC_GA4_ID || site.ga4Id;
+/** GA4 cookie lifetime: 13 months, in seconds. */
+const COOKIE_EXPIRES = 395 * 24 * 60 * 60;
 
 /** production, preview (Cloudflare branch previews), test (sessions started with ?test) or development. */
 export function environment(): string {
@@ -109,19 +111,15 @@ export function adSource(): AdSource {
 /** Events recorded before the visitor decided, in memory only. */
 let pending: (() => void)[] = [];
 let started = false;
-/** Parameter names pushed so far, cleared on the next push. */
-const pushed = new Set<string>();
 
-const dataLayer = () => (window.dataLayer ??= []);
-
-/** The gtag() command format, which Consent Mode reads from the data layer. */
+/** Google's command queue: gtag.js reads it, including the commands queued before it loaded. */
 function gtag(..._args: unknown[]) {
-  dataLayer().push(arguments);
+  (window.dataLayer ??= []).push(arguments);
 }
 
-/** Sets Consent Mode and loads the Tag Manager container once per page. */
-function startTagManager() {
-  if (started || !GTM_ID) return;
+/** Sets Consent Mode, configures the stream and loads gtag.js, once per page. */
+function startAnalytics() {
+  if (started || !GA4_ID) return;
   started = true;
   gtag('consent', 'default', {
     analytics_storage: 'granted',
@@ -129,15 +127,22 @@ function startTagManager() {
     ad_user_data: 'denied',
     ad_personalization: 'denied',
   });
-  dataLayer().push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+  gtag('js', new Date());
+  gtag('config', GA4_ID, {
+    cookie_expires: COOKIE_EXPIRES,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+    page_version: pageVersion(),
+    environment: environment(),
+  });
   const script = document.createElement('script');
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_ID)}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA4_ID)}`;
   document.head.append(script);
 }
 
-/** Withdrawn consent: tell the tags, and remove Google Analytics' cookies (_ga, _ga_<id>). */
-function stopTagManager() {
+/** Withdrawn consent: tell gtag.js, and remove Google Analytics' cookies (_ga, _ga_<id>). */
+function stopAnalytics() {
   if (started) gtag('consent', 'update', { analytics_storage: 'denied' });
   // Google Analytics sets its cookies on the widest domain it can; try each level of the host name.
   const parts = location.hostname.split('.');
@@ -150,20 +155,15 @@ function stopTagManager() {
   }
 }
 
-/** Pushes one event, with every parameter of the previous push cleared. */
-function push(event: TrackingEvent, properties: TrackingProperties) {
-  // Consent Mode must come before the first event in the data layer.
-  startTagManager();
-  const entry: Record<string, unknown> = {};
-  for (const name of pushed) entry[name] = undefined;
-  const parameters = { page_version: pageVersion(), environment: environment(), ...adSource(), ...properties };
-  for (const [name, value] of Object.entries(parameters)) {
-    if (value === undefined) continue;
-    entry[name] = Array.isArray(value) ? value.join(',') : value;
-    pushed.add(name);
+/** Sends one event with its parameters; lists become comma-separated text. */
+function send(event: TrackingEvent, properties: TrackingProperties) {
+  startAnalytics();
+  const parameters: Record<string, string | number | boolean | null> = {};
+  const all = { page_version: pageVersion(), environment: environment(), ...adSource(), ...properties };
+  for (const [name, value] of Object.entries(all)) {
+    if (value !== undefined) parameters[name] = Array.isArray(value) ? value.join(',') : value;
   }
-  entry.event = event;
-  dataLayer().push(entry);
+  gtag('event', event, parameters);
 }
 
 /** Records an event. */
@@ -173,12 +173,12 @@ export function track(event: TrackingEvent, properties: TrackingProperties = {})
     event_timestamp: new Date().toISOString(),
     ...properties,
   };
-  const send = () => {
-    if (GTM_ID) push(event, payload);
+  const record = () => {
+    if (GA4_ID) send(event, payload);
   };
   const choice = consent();
-  if (choice === 'granted') send();
-  else if (choice === null) pending.push(send);
+  if (choice === 'granted') record();
+  else if (choice === null) pending.push(record);
 }
 
 /** Cloudflare Web Analytics page views, in production builds only. */
@@ -195,7 +195,7 @@ function startWebAnalytics() {
 export function initTracking() {
   const start = () => {
     adSource();
-    startTagManager();
+    startAnalytics();
     startWebAnalytics();
     for (const send of pending) send();
     pending = [];
@@ -204,7 +204,7 @@ export function initTracking() {
   onConsentChange((choice) => {
     if (choice === 'granted') return start();
     pending = [];
-    stopTagManager();
+    stopAnalytics();
     try {
       sessionStorage.removeItem(SOURCE_KEY);
     } catch {

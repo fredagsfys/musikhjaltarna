@@ -2,7 +2,7 @@
  * The visitor's choice about analytics (brief B §9). Nothing is measured until they accept:
  *
  * - undecided: events from the current page are held in memory only, and nothing is sent or stored;
- * - granted: Google Tag Manager (with Google Analytics) and Cloudflare Web Analytics run;
+ * - granted: Google Analytics and Cloudflare Web Analytics run;
  * - denied: nothing is sent, and the held events are discarded.
  *
  * The choice itself is kept in localStorage, which is strictly necessary to remember it. It is asked

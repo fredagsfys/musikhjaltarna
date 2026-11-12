@@ -1,9 +1,16 @@
 /**
- * Registers the site's event parameters as GA4 custom dimensions and metrics (docs/TRACKING.md), through the
- * Google Analytics Admin API. Definitions that already exist are left alone, so it is safe to run again.
+ * Sets up the GA4 property for the site through the Google Analytics Admin API, in three steps that are each
+ * skipped when already done, so it is safe to run again:
  *
- *   GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789          → shows what would be created
- *   GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789 --yes    → creates them
+ * 1. a web data stream for the site, created here and never combined with a Tag Manager container (a stream
+ *    set up through Tag Manager got combined with its container, and then received no data);
+ * 2. event data kept for 14 months instead of the default 2, so explorations reach back that far;
+ * 3. the event parameters registered as custom dimensions and metrics (docs/TRACKING.md).
+ *
+ *   GA_ACCESS_TOKEN=… npm run ga4:setup -- --property=564064130          → shows what it would do
+ *   GA_ACCESS_TOKEN=… npm run ga4:setup -- --property=564064130 --yes    → does it
+ *
+ * It prints the stream's measurement ID (G-…), which goes in `site.ga4Id` in src/config/site.ts.
  *
  * --property is the numeric property ID (GA4 → Admin → Property details), not the G- measurement ID.
  * GA_ACCESS_TOKEN is an OAuth access token with the scope https://www.googleapis.com/auth/analytics.edit, for
@@ -11,6 +18,9 @@
  * https://developers.google.com/oauthplayground → "Google Analytics Admin API v1" → analytics.edit →
  * Authorize APIs → Exchange authorization code for tokens → copy "Access token".
  */
+
+const STREAM_NAME = 'Musikhjältarna direkt';
+const SITE_URL = 'https://musikhjaltarna.se';
 
 /** Event-scoped custom dimensions: text values to group and filter by. */
 const DIMENSIONS = [
@@ -89,6 +99,40 @@ async function existing(kind) {
   return names;
 }
 
+// 1. The web data stream.
+const streams = (await call('dataStreams?pageSize=200')).dataStreams ?? [];
+let stream = streams.find((candidate) => candidate.displayName === STREAM_NAME);
+if (stream) {
+  console.log(`Stream "${STREAM_NAME}" exists.`);
+} else if (apply) {
+  stream = await call('dataStreams', {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'WEB_DATA_STREAM',
+      displayName: STREAM_NAME,
+      webStreamData: { defaultUri: SITE_URL },
+    }),
+  });
+  console.log(`Created stream "${STREAM_NAME}".`);
+} else {
+  console.log(`Would create the web stream "${STREAM_NAME}" for ${SITE_URL}.`);
+}
+
+// 2. Data retention.
+const retention = await call('dataRetentionSettings');
+if (retention.eventDataRetention === 'FOURTEEN_MONTHS') {
+  console.log('Event data is kept for 14 months.');
+} else if (apply) {
+  await call('dataRetentionSettings?updateMask=eventDataRetention', {
+    method: 'PATCH',
+    body: JSON.stringify({ eventDataRetention: 'FOURTEEN_MONTHS' }),
+  });
+  console.log('Event data is now kept for 14 months.');
+} else {
+  console.log(`Would keep event data for 14 months instead of ${retention.eventDataRetention}.`);
+}
+
+// 3. Custom dimensions and metrics.
 const plan = [
   ...DIMENSIONS.map(([parameterName, description]) => ({
     kind: 'customDimensions',
@@ -113,4 +157,5 @@ for (const { kind, body } of missing) {
   await call(kind, { method: 'POST', body: JSON.stringify(body) });
   console.log(`  created ${label}`);
 }
-if (!apply && missing.length > 0) console.log('\nRun again with --yes to create them.');
+if (stream) console.log(`\nMeasurement ID: ${stream.webStreamData?.measurementId} → site.ga4Id in src/config/site.ts`);
+if (!apply) console.log('\nRun again with --yes to do it.');
