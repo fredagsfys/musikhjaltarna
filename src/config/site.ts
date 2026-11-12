@@ -22,7 +22,7 @@ export const site = {
    * design: it is in every page's JavaScript. Empty means tracking is off; PUBLIC_GA4_ID overrides it (used
    * by the tests). The stream is created by `npm run ga4:setup` (docs/TRACKING.md).
    */
-  ga4Id: '',
+  ga4Id: 'G-QM4S4L04TV',
   /** The Worker's name, to tell its own workers.dev address from branch previews. */
   workerName: 'musikhjaltarna',
 } as const;
