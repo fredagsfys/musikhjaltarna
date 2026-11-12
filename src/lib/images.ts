@@ -13,7 +13,8 @@ export type ImageName =
   | 'hero-photo'
   | 'app-example-avatar'
   | 'family-photo'
-  | 'pedagogue-photo';
+  | 'pedagogue-photo'
+  | 'pedagogue-mascot';
 
 const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/images/*.{png,jpg,jpeg,webp,avif}', {
   eager: true,

@@ -35,9 +35,17 @@ const { pedagogue: content } = copy;
             alt={content.photoAlt}
             widths={[440, 880]}
             sizes="(min-width: 768px) 440px, 90vw"
-            class="size-full object-cover"
+            class="size-full object-cover object-[center_20%]"
           />
         </div>
+        <!-- Gilbert with his idea next to Suzana, as in the client's example. Decoration: the caption names the person. -->
+        <Art
+          name="pedagogue-mascot"
+          alt=""
+          widths={[170, 340]}
+          sizes="(min-width: 640px) 170px, 36vw"
+          class="absolute -bottom-5 left-2 aspect-[597/900] w-[min(36%,170px)] drop-shadow-[0_8px_14px_rgb(0_0_0/0.18)] sm:-left-8"
+        />
       </div>
       <figcaption class="pt-2.5 text-[0.9375rem]">
         <strong class="text-ink">{content.captionName}</strong>, {content.captionRole}
