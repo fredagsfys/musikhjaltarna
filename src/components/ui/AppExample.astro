@@ -454,6 +454,8 @@ const pill =
 </style>
 
 <script>
+  import { track } from '~/lib/tracking';
+
   type Messages = Record<'speech' | 'feedback' | 'tryAgain' | 'done' | 'play' | 'playAgain', string>;
   type State = 'idle' | 'listening' | 'playing' | 'done';
 
@@ -515,6 +517,11 @@ const pill =
     let state: State = 'idle';
     let step = 0;
     let misses = 0;
+    // For tracking (docs/TRACKING.md): games played on this page view, and the current game's first key and misses.
+    let attempt = 0;
+    let startedAt: number | null = null;
+    let totalMisses = 0;
+    let hinted = false;
     let timers: number[] = [];
     const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
     const keyTimers = new WeakMap<Element, number>();
@@ -592,6 +599,9 @@ const pill =
       setState('playing');
       step = 0;
       misses = 0;
+      startedAt = null;
+      totalMisses = 0;
+      hinted = false;
       stars.forEach((star) => star.classList.remove('is-earned'));
       noteEls.forEach((el) => el.classList.remove('is-done'));
       hint(null);
@@ -601,6 +611,7 @@ const pill =
     }
 
     function listen() {
+      track('practice_listen', { attempt });
       start();
       setState('listening');
       light(null);
@@ -626,14 +637,24 @@ const pill =
         return;
       }
       if (state !== 'playing') start();
+      // A game counts as started at its first key.
+      if (startedAt === null) {
+        startedAt = performance.now();
+        attempt++;
+        track('practice_start', { attempt });
+      }
 
       const target = TUNE[step]!;
       if (name !== target) {
         misses++;
+        totalMisses++;
         mark(key, 'is-wrong', 420);
         say(messages.tryAgain, false);
         // After two misses, show which key it is.
-        if (misses >= 2) hint(target);
+        if (misses >= 2) {
+          hint(target);
+          hinted = true;
+        }
         return;
       }
 
@@ -655,6 +676,12 @@ const pill =
       speech.textContent = messages.done;
       setState('done');
       celebrate();
+      track('practice_complete', {
+        attempt,
+        misses: totalMisses,
+        hinted,
+        duration_ms: Math.round(performance.now() - startedAt),
+      });
     }
 
     // Pointer input plays at once, without waiting for the click; the keyboard (Enter or Space) comes as a click.

@@ -1,7 +1,7 @@
 /**
  * Stored registrations for a period, split by the visitor's analytics choice (brief B §8 and §9).
- * Compare "measurable" with the PostHog dashboard tile "Mätta registreringar" for the same period:
- * the difference is what blockers cost. Declined and undecided registrations are never in PostHog.
+ * Compare "measurable" with "Mätta registreringar" in GA4 (docs/REPORTS.md) for the same period:
+ * the difference is what blockers cost. Declined and undecided registrations are never in GA4.
  *
  *   npm run report:registrations                                     → the last 30 days
  *   npm run report:registrations -- --from=2026-11-01 --to=2026-11-30  (Swedish dates, both included)
@@ -76,14 +76,14 @@ if (process.argv.includes('--json')) {
   console.log(`Registrations ${from} to ${to}, Swedish time (${report.database} D1, tests left out)
 
 Stored registrations             ${row.stored}
-  measurement accepted           ${row.measurable}${pct(row.measurable)}   <- compare with "Mätta registreringar" in PostHog
+  measurement accepted           ${row.measurable}${pct(row.measurable)}   <- compare with "Mätta registreringar" in GA4
   measurement declined           ${row.declined}${pct(row.declined)}
   no choice about measurement    ${row.undecided}${pct(row.undecided)}
 
 Update choice                    ja ${row.ja}, nej ${row.nej}, no choice ${row.inget_val}
 Test registrations (left out)    ${row.tests}
 
-Set the same period on the dashboard. "Measurement accepted" minus "Mätta registreringar"
+Count "Mätta registreringar" in GA4 for the same period. "Measurement accepted" minus "Mätta registreringar"
 is measurement loss, such as blockers. Declined and no-choice registrations never reach
-PostHog. Registrations from before the consent banner (2026-11-02) count as no choice.`);
+GA4. Registrations from before the consent banner (2026-11-02) count as no choice.`);
 }

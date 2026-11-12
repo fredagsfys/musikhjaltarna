@@ -11,8 +11,8 @@ const CONFIRMED_KEY = 'musikhjaltarna:confirmation';
 /**
  * A visit to the purchase flow, started by "Gå vidare till betalning" in step 1. Nothing is sent to the
  * server for it: the name and e-mail are only asked for in the last step, and only stored when the
- * visitor ticks the consent box there. The id becomes the registration's id, so PostHog's purchase
- * intent and a stored registration can be matched.
+ * visitor ticks the consent box there. The id becomes the registration's id, so the purchase
+ * intent in Google Analytics and a stored registration can be matched.
  */
 export interface Checkout {
   id: string;
@@ -30,7 +30,7 @@ export interface Registration {
   isTest: boolean;
   /** The session's ad source, so registrations can be counted per ad (brief B §3). Empty without consent. */
   source: AdSource;
-  /** The analytics choice when sending: tells stored registrations PostHog can see from those it can't. */
+  /** The analytics choice when sending: tells stored registrations Google Analytics can see from those it can't. */
   analyticsConsent: ConsentChoice | null;
   /** The page and content version the visitor saw (brief B §2). */
   pageVersion: string;

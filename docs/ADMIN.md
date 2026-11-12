@@ -9,7 +9,7 @@ Content editing is covered separately in [`EDITING.md`](EDITING.md) (Swedish).
 | ------------------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
 | Site and API              | Cloudflare Workers with static assets (`musikhjaltarna`) | Pages are static files; only `/api/*` runs `worker/index.ts`    |
 | Registrations             | Cloudflare D1 database `musikhjaltarna`                  | Table `registrations`, created by the Worker on first use       |
-| Events and funnel         | PostHog Cloud EU, project `330450`                       | Cookieless; see [`TRACKING.md`](TRACKING.md)                    |
+| Events and funnel         | Google Analytics 4 via Tag Manager (`GTM-M8WZZXQZ`)      | After consent; see [`TRACKING.md`](TRACKING.md)                 |
 | Page views                | Cloudflare Web Analytics                                 | Cookieless; beacon in every page (`site.webAnalyticsToken`)     |
 | DNS, HTTPS, redirects     | Cloudflare (zone `musikhjaltarna.se`)                    | `www` and `http://` redirect to `https://musikhjaltarna.se`     |
 | Domain registration       | Loopia (registrar for `.se`)                             | Nameservers point to Cloudflare; DNSSEC record from Cloudflare  |
@@ -59,7 +59,7 @@ once first. Add `--local` to use the local database from `npx wrangler dev`.
 npm run export:registrations                       # → registrations-YYYY-MM-DD.csv
 npm run export:registrations -- --out=export.csv
 
-# Stored registrations per analytics choice, to compare with PostHog (docs/REPORTS.md)
+# Stored registrations per analytics choice, to compare with GA4 (docs/REPORTS.md)
 npm run report:registrations                       # the last 30 days
 npm run report:registrations -- --from=2026-11-01 --to=2026-11-30
 
@@ -85,15 +85,15 @@ DROP TABLE leads;
 
 At the expected volume of a purchase-intent test, the platform runs within free plans:
 
-| Service                    | Plan and limits (check current terms)                                                                   | Cost                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------- |
-| Cloudflare Workers         | Free: static asset requests are free and unlimited; Worker requests (`/api/*` only) up to 100,000 a day | 0 kr                |
-| Cloudflare D1              | Free: 5 GB storage, 5 million rows read and 100,000 rows written a day                                  | 0 kr                |
-| Cloudflare Web Analytics   | Free                                                                                                    | 0 kr                |
-| PostHog Cloud EU           | Free: 1 million events a month                                                                          | 0 kr                |
-| Cloudflare DNS and HTTPS   | Free                                                                                                    | 0 kr                |
-| GitHub and GitHub Actions  | Free for public repositories                                                                            | 0 kr                |
-| Domain `musikhjaltarna.se` | Yearly registration at Loopia                                                                           | Loopia's price list |
+| Service                            | Plan and limits (check current terms)                                                                   | Cost                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------- |
+| Cloudflare Workers                 | Free: static asset requests are free and unlimited; Worker requests (`/api/*` only) up to 100,000 a day | 0 kr                |
+| Cloudflare D1                      | Free: 5 GB storage, 5 million rows read and 100,000 rows written a day                                  | 0 kr                |
+| Cloudflare Web Analytics           | Free                                                                                                    | 0 kr                |
+| Google Analytics 4 and Tag Manager | Free (standard properties)                                                                              | 0 kr                |
+| Cloudflare DNS and HTTPS           | Free                                                                                                    | 0 kr                |
+| GitHub and GitHub Actions          | Free for public repositories                                                                            | 0 kr                |
+| Domain `musikhjaltarna.se`         | Yearly registration at Loopia                                                                           | Loopia's price list |
 
 Current limits: [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/),
 [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/).

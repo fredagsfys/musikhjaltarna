@@ -1,23 +1,32 @@
 /**
- * Event tracking for brief B, sent to PostHog Cloud EU.
+ * Event tracking for brief B, sent to Google Analytics 4 through Google Tag Manager.
  *
- * - Cookieless: PostHog sets no cookies and uses no browser storage. Sessions (30 minutes of
- *   inactivity) are assigned by PostHog's servers.
+ * - Only with the visitor's consent (src/lib/consent.ts). Tag Manager isn't loaded before they accept;
+ *   until they decide, events from the current page wait in memory, sent if the visitor accepts and
+ *   discarded if they decline. Declining later stops all events and deletes Google Analytics' cookies.
+ * - Consent Mode is set before the container loads: analytics storage granted, every advertising
+ *   signal denied, since the choice covers statistics only.
+ * - Each event is pushed to the data layer with its parameters, and with page_version, environment and
+ *   the ad source. Parameters from an earlier event are cleared, so one event's values never leak into
+ *   the next. Lists are sent as comma-separated text, which is what GA4 can store.
  * - The ad source (UTM parameters, message_id, ad_id) is read from the arrival URL and, with consent,
  *   kept for the tab's session in sessionStorage, so it follows the visitor through the purchase flow
  *   and onto the registration, and internal navigation never overwrites it (brief B §3).
- * - Only with the visitor's consent (src/lib/consent.ts). Until they decide, events from the current
- *   page wait in memory; they are sent if the visitor accepts and discarded if they decline.
- * - PostHog loads lazily and only when a project key is configured. If it is blocked or fails to
- *   load, events are dropped and the purchase flow is unaffected (brief B §9).
+ * - If Tag Manager is blocked or fails to load, events are dropped and the purchase flow is unaffected
+ *   (brief B §9).
  * - Never pass names, e-mail addresses or form values here.
  *
- * Event catalogue: docs/TRACKING.md.
+ * Event catalogue and the Tag Manager setup: docs/TRACKING.md.
  */
-import type { PostHog } from 'posthog-js/dist/module.slim.no-external';
 import { site } from '~/config/site';
 import { consent, onConsentChange } from './consent';
 import { isTestSession } from './registration';
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+  }
+}
 
 export type TrackingEvent =
   | 'offer_view'
@@ -33,7 +42,10 @@ export type TrackingEvent =
   | 'availability_notice_view'
   | 'updates_choice'
   | 'updates_confirmation_view'
-  | 'external_link_click';
+  | 'external_link_click'
+  | 'practice_listen'
+  | 'practice_start'
+  | 'practice_complete';
 
 export type TrackingProperties = Record<string, string | number | boolean | string[] | null | undefined>;
 
@@ -50,7 +62,7 @@ export type AdSource = Partial<Record<(typeof AD_PARAMETERS)[number], string>>;
 
 const SOURCE_KEY = 'musikhjaltarna:source';
 
-const KEY: string = import.meta.env.PUBLIC_POSTHOG_KEY || site.posthog.key;
+const GTM_ID: string = import.meta.env.PUBLIC_GTM_ID || site.gtmId;
 
 /** production, preview (Cloudflare branch previews), test (sessions started with ?test) or development. */
 export function environment(): string {
@@ -58,7 +70,7 @@ export function environment(): string {
   const host = location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') return 'development';
   // Branch previews are served as <branch>-musikhjaltarna.<account>.workers.dev.
-  if (host.endsWith('.workers.dev') && !host.startsWith(`${site.posthog.workerName}.`)) return 'preview';
+  if (host.endsWith('.workers.dev') && !host.startsWith(`${site.workerName}.`)) return 'preview';
   return 'production';
 }
 
@@ -94,58 +106,76 @@ export function adSource(): AdSource {
   return source;
 }
 
-let client: Promise<PostHog | null> | undefined;
 /** Events recorded before the visitor decided, in memory only. */
 let pending: (() => void)[] = [];
+let started = false;
+/** Parameter names pushed so far, cleared on the next push. */
+const pushed = new Set<string>();
 
-/** Loads and configures PostHog once per page. Resolves to null when tracking is off or blocked. */
-function startTracking(): Promise<PostHog | null> {
-  if (client) return client;
-  client = KEY
-    ? import('posthog-js/dist/module.slim.no-external')
-        .then(({ default: posthog }) => {
-          posthog.init(KEY, {
-            api_host: site.posthog.host,
-            cookieless_mode: 'always',
-            person_profiles: 'never',
-            session_idle_timeout_seconds: 30 * 60,
-            // Only our own events, plus $pageview for each session's entry URL and UTM parameters.
-            capture_pageview: true,
-            capture_pageleave: false,
-            // The session's first-touch source is ours to keep; PostHog would overwrite it on every tagged URL.
-            save_campaign_params: false,
-            autocapture: false,
-            rageclick: false,
-            capture_dead_clicks: false,
-            capture_exceptions: false,
-            capture_performance: false,
-            enable_heatmaps: false,
-            disable_session_recording: true,
-            disable_surveys: true,
-            disable_web_experiments: true,
-            advanced_disable_flags: true,
-            disable_external_dependency_loading: true,
-          });
-          posthog.register({ page_version: pageVersion(), environment: environment(), ...adSource() });
-          return posthog;
-        })
-        .catch(() => null)
-    : Promise.resolve(null);
-  return client;
+const dataLayer = () => (window.dataLayer ??= []);
+
+/** The gtag() command format, which Consent Mode reads from the data layer. */
+function gtag(..._args: unknown[]) {
+  dataLayer().push(arguments);
 }
 
-/**
- * Records an event. Each one is sent right away, in its own request that survives the page navigating
- * away: queued or asynchronously compressed events are lost when a click navigates, and in-app browsers
- * don't reliably signal that they are closing. The traffic is low enough for one request per event.
- */
+/** Sets Consent Mode and loads the Tag Manager container once per page. */
+function startTagManager() {
+  if (started || !GTM_ID) return;
+  started = true;
+  gtag('consent', 'default', {
+    analytics_storage: 'granted',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+  });
+  dataLayer().push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(GTM_ID)}`;
+  document.head.append(script);
+}
+
+/** Withdrawn consent: tell the tags, and remove Google Analytics' cookies (_ga, _ga_<id>). */
+function stopTagManager() {
+  if (started) gtag('consent', 'update', { analytics_storage: 'denied' });
+  // Google Analytics sets its cookies on the widest domain it can; try each level of the host name.
+  const parts = location.hostname.split('.');
+  const domains = ['', ...parts.map((_, i) => `.${parts.slice(i).join('.')}`)];
+  for (const name of document.cookie.split(';').map((cookie) => cookie.split('=')[0]!.trim())) {
+    if (!name.startsWith('_ga')) continue;
+    for (const domain of domains) {
+      document.cookie = `${name}=; Max-Age=0; path=/${domain ? `; domain=${domain}` : ''}`;
+    }
+  }
+}
+
+/** Pushes one event, with every parameter of the previous push cleared. */
+function push(event: TrackingEvent, properties: TrackingProperties) {
+  // Consent Mode must come before the first event in the data layer.
+  startTagManager();
+  const entry: Record<string, unknown> = {};
+  for (const name of pushed) entry[name] = undefined;
+  const parameters = { page_version: pageVersion(), environment: environment(), ...adSource(), ...properties };
+  for (const [name, value] of Object.entries(parameters)) {
+    if (value === undefined) continue;
+    entry[name] = Array.isArray(value) ? value.join(',') : value;
+    pushed.add(name);
+  }
+  entry.event = event;
+  dataLayer().push(entry);
+}
+
+/** Records an event. */
 export function track(event: TrackingEvent, properties: TrackingProperties = {}) {
   const payload = {
     event_id: crypto.randomUUID(),
     event_timestamp: new Date().toISOString(),
     ...properties,
   };
-  const send = () => void startTracking().then((posthog) => posthog?.capture(event, payload, { send_instantly: true }));
+  const send = () => {
+    if (GTM_ID) push(event, payload);
+  };
   const choice = consent();
   if (choice === 'granted') send();
   else if (choice === null) pending.push(send);
@@ -165,7 +195,7 @@ function startWebAnalytics() {
 export function initTracking() {
   const start = () => {
     adSource();
-    void startTracking();
+    startTagManager();
     startWebAnalytics();
     for (const send of pending) send();
     pending = [];
@@ -174,6 +204,7 @@ export function initTracking() {
   onConsentChange((choice) => {
     if (choice === 'granted') return start();
     pending = [];
+    stopTagManager();
     try {
       sessionStorage.removeItem(SOURCE_KEY);
     } catch {

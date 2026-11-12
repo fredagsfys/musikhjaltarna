@@ -78,7 +78,8 @@ Components pick them up automatically and Astro generates AVIF/WebP in the right
 
 ## Measurement
 
-Behaviour on the page is tracked in **PostHog Cloud EU**, cookieless: which sections are seen and for how long, which
+Behaviour on the page is tracked in **Google Analytics 4**, through Google Tag Manager and only after the visitor
+accepts: which sections are seen and for how long, which
 buy buttons are seen and clicked, every step of the purchase flow, and the ad each visit came from. Registrations and
 update choices are stored in **Cloudflare D1**, with the same ad source and page version. Page views also show in
 Cloudflare Web Analytics.

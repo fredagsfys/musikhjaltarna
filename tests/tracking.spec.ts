@@ -1,6 +1,6 @@
 /**
- * The tracking from brief B, checked against the events the page sends to PostHog (stubbed in
- * tests/fixtures.ts). Event catalogue: docs/TRACKING.md.
+ * The tracking from brief B, checked against the events the page pushes to Google Tag Manager's data
+ * layer (the container is stubbed in tests/fixtures.ts). Event catalogue: docs/TRACKING.md.
  */
 import type { Page } from '@playwright/test';
 import { registrationsFor } from './d1';
@@ -23,7 +23,6 @@ test('every event carries ids, a UTC timestamp, the page version and the environ
   expect(view.properties.event_timestamp).toMatch(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/);
   expect(view.properties.page_version).toMatch(/^[0-9a-f]+\.[0-9a-f]{8}$/);
   expect(view.properties.environment).toBe('development');
-  expect(view.properties.$session_id).toBeUndefined(); // Assigned by PostHog's servers in cookieless mode.
 });
 
 test('the ad source follows the visitor through the flow and onto the registration', async ({ page, analytics }) => {
@@ -86,7 +85,7 @@ test('a buy click carries what the visitor had seen', async ({ page, analytics }
   expect(click.properties).toMatchObject({
     cta_id: 'kop_hero',
     section_id: 'sektion_hero',
-    sections_seen: ['sektion_hero'],
+    sections_seen: 'sektion_hero',
     max_section_seen: 'sektion_hero',
     last_section_seen: 'sektion_hero',
   });
@@ -111,14 +110,14 @@ test('the purchase step reports view and back, and the last step start and error
   await page.check('#uppdatering_samtycke');
   await page.click('#uppdatering_ja');
   const [error] = await analytics.waitFor('checkout_error');
-  expect(error.properties).toMatchObject({ category: 'validation', fields: ['name', 'email'], cta_id: 'kop_vardag' });
+  expect(error.properties).toMatchObject({ category: 'validation', fields: 'name,email', cta_id: 'kop_vardag' });
 
   await page.fill('#kop_namn', 'Någon');
   await page.fill('#kop_epost', 'inte-en-adress');
   await analytics.waitFor('checkout_start');
   await page.click('#uppdatering_ja');
   const errors = await analytics.waitFor('checkout_error', 2);
-  expect(errors[1].properties.fields).toEqual(['email']);
+  expect(errors[1].properties.fields).toBe('email');
   expect(analytics.named('checkout_start')).toHaveLength(1);
 });
 
@@ -150,7 +149,7 @@ test('the purchase intent, choice and confirmation are each sent once, the choic
   await fillAndAgree(page, 'Spår', email);
   await page.click('#uppdatering_ja');
   await arrivedAt(page, '/kop/tack');
-  // The stored registration has the id PostHog saw with the intent.
+  // The stored registration has the id the analytics saw with the intent.
   expect((await stored(email))[0].id).toBe(id);
   const [choice] = await analytics.waitFor('updates_choice');
   expect(choice.properties).toMatchObject({ event_id: `updates_choice:${id}:ja`, registration_id: id, choice: 'ja' });
@@ -175,7 +174,8 @@ test('"Nej tack" is sent as a choice, without storing anything', async ({ page, 
 
 test('direct visits to later steps send no step events', async ({ page, analytics }) => {
   await page.goto('/kop/tack');
-  await analytics.waitFor('$pageview');
+  await expect.poll(() => analytics.containerLoads).toBe(1);
+  await page.waitForTimeout(500);
   await page.goto('/kop/uppdatering');
   await arrivedAt(page, '/kop');
   await analytics.waitFor('checkout_view');
@@ -191,14 +191,9 @@ test('links to Pianotopia are tracked with their placement', async ({ page, anal
   expect(link.properties).toMatchObject({ link_id: 'pianotopia_website', placement: 'footer' });
 });
 
-test('tracking sets no cookies and stores nothing but the choice and the session source', async ({
-  page,
-  context,
-  analytics,
-}) => {
+test('the site itself stores nothing but the choice and the session source', async ({ page, analytics }) => {
   await page.goto(adUrl('/'));
   await analytics.waitFor('section_view');
-  expect(await context.cookies()).toEqual([]);
   const storage = await page.evaluate(() => ({
     local: Object.keys(localStorage),
     session: Object.keys(sessionStorage),
@@ -207,7 +202,7 @@ test('tracking sets no cookies and stores nothing but the choice and the session
   expect(storage.session).toEqual(['musikhjaltarna:source']);
 });
 
-test.describe('with PostHog blocked', () => {
+test.describe('with Tag Manager blocked', () => {
   test.use({ blockAnalytics: true });
 
   test('the purchase flow still works', async ({ page }) => {
@@ -222,6 +217,36 @@ test.describe('with PostHog blocked', () => {
     await arrivedAt(page, '/kop/tack');
     await expect.poll(() => registrationsFor(email)[0]?.update_status).toBe('ja');
   });
+});
+
+test('Consent Mode allows statistics only, before the container and every event', async ({ page, analytics }) => {
+  await page.goto('/');
+  await analytics.waitFor('offer_view');
+  const layer = await page.evaluate(() =>
+    (window.dataLayer ?? []).map((entry) => JSON.parse(JSON.stringify(entry)) as Record<string, unknown>),
+  );
+  expect(layer[0]).toEqual({
+    0: 'consent',
+    1: 'default',
+    2: { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' },
+  });
+  expect(layer[1]).toMatchObject({ event: 'gtm.js' });
+  expect(await page.evaluate(() => document.querySelector('script[src*="gtm.js"]')?.getAttribute('src'))).toBe(
+    'https://www.googletagmanager.com/gtm.js?id=GTM-E2E',
+  );
+});
+
+test("one event's parameters never carry over to the next", async ({ page, analytics }) => {
+  await page.goto('/kop/vardag');
+  await page.click('#kop_skicka');
+  await arrivedAt(page, '/kop/uppdatering');
+  await page.check('#uppdatering_samtycke');
+  await page.click('#uppdatering_ja');
+  await analytics.waitFor('checkout_error');
+  await page.fill('#kop_namn', 'Någon');
+  const [start] = await analytics.waitFor('checkout_start');
+  expect(start.properties.fields).toBeUndefined();
+  expect(start.properties.category).toBeUndefined();
 });
 
 /** Jumps to a section (the page scrolls smoothly otherwise) and waits until it qualifies as seen. */
@@ -252,7 +277,7 @@ test('down the whole page, back to the hero and buy: the click knows the last se
   expect(click.properties).toMatchObject({
     cta_id: 'kop_hero',
     section_id: 'sektion_hero',
-    sections_seen: SECTIONS,
+    sections_seen: SECTIONS.join(','),
     max_section_seen: 'sektion_prenumeration',
     last_section_seen: 'sektion_hero',
   });
@@ -302,4 +327,32 @@ test('double clicks give one purchase intent, one registration and one choice', 
   await analytics.waitFor('updates_choice');
   expect(analytics.named('updates_choice')).toHaveLength(1);
   expect(await stored(email)).toHaveLength(1);
+});
+
+test('the practice game: listen, start at the first key, and complete with misses and time', async ({
+  page,
+  analytics,
+}) => {
+  await page.goto('/');
+  const example = page.locator('[data-app-example]');
+  await example.scrollIntoViewIfNeeded();
+
+  await example.locator('[data-listen]').click();
+  await analytics.waitFor('practice_listen');
+  // "Spela" alone starts nothing; the first key does.
+  await example.locator('[data-play]').click();
+  expect(analytics.named('practice_start')).toHaveLength(0);
+
+  await example.locator('[data-key="D"]').click();
+  for (const key of ['C', 'D', 'E', 'F', 'G']) await example.locator(`[data-key="${key}"]`).click();
+  const [start] = await analytics.waitFor('practice_start');
+  expect(start.properties.attempt).toBe(1);
+  const [complete] = await analytics.waitFor('practice_complete');
+  expect(complete.properties).toMatchObject({ attempt: 1, misses: 1, hinted: false });
+  expect(complete.properties.duration_ms).toBeGreaterThan(0);
+
+  // A key after a finished game is the next attempt.
+  await example.locator('[data-key="C"]').click();
+  await expect.poll(() => analytics.named('practice_start').length).toBe(2);
+  expect(analytics.named('practice_start')[1]!.properties.attempt).toBe(2);
 });

@@ -17,6 +17,7 @@
     "export:registrations": "node scripts/export-registrations.mjs",
     "delete:registration": "node scripts/delete-registration.mjs",
     "report:registrations": "node scripts/report-registrations.mjs",
+    "ga4:definitions": "node scripts/ga4-custom-definitions.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -26,7 +27,6 @@
     "@fontsource/dm-serif-display": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.4.4",
-    "posthog-js": "^1.444.0",
     "tailwindcss": "^4.3.3",
     "yaml": "^2.9.1"
   },

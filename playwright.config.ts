@@ -20,8 +20,8 @@ export default defineConfig({
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    // A placeholder PostHog key turns tracking on; the tests stub PostHog (tests/fixtures.ts).
-    command: `rm -rf ${E2E_STATE} && PUBLIC_POSTHOG_KEY=phc_e2e npx astro build && npx wrangler dev --port ${PORT} --local --persist-to ${E2E_STATE}`,
+    // A placeholder container id, so a missing stub never reaches the real one (tests/fixtures.ts).
+    command: `rm -rf ${E2E_STATE} && PUBLIC_GTM_ID=GTM-E2E npx astro build && npx wrangler dev --port ${PORT} --local --persist-to ${E2E_STATE}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 180_000,
