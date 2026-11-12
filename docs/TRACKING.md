@@ -6,50 +6,41 @@ How visits, exposure and the purchase flow are measured (brief B), and how to re
 
 ## Setup
 
-| Part         | Value                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------- |
-| Service      | Google Analytics 4, loaded through Google Tag Manager                                  |
-| Container    | `GTM-M8WZZXQZ`, `site.gtmId` in `src/config/site.ts` (public by design)                |
-| GA4 stream   | Measurement ID `G-H9SG7679XK`, set in the container (variable **GA4 measurement ID**)  |
-| Data layer   | The site pushes each event to `window.dataLayer`; Tag Manager sends it on to GA4       |
-| Consent Mode | `analytics_storage` granted, `ad_storage`, `ad_user_data`, `ad_personalization` denied |
-| Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`)            |
+| Part         | Value                                                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| Service      | Google Analytics 4, property `564064130`, loaded directly with gtag.js (no Tag Manager)        |
+| GA4 stream   | Web stream "Musikhjältarna direkt"; its measurement ID is `site.ga4Id` in `src/config/site.ts` |
+| Consent Mode | `analytics_storage` granted, `ad_storage`, `ad_user_data`, `ad_personalization` denied         |
+| Settings     | Google signals and ad personalisation off; `_ga` cookies kept 13 months; data kept 14 months   |
+| Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`)                    |
 
-Tag Manager is loaded only after the visitor accepts, and only the events below are sent, plus GA4's own page views.
-If Tag Manager is blocked or fails, the purchase flow works as usual and the events are lost (see
-[Measurement loss](#measurement-loss)).
+gtag.js is loaded only after the visitor accepts, and only the events below are sent, plus GA4's own page views and
+its enhanced measurement (scrolls, outbound clicks and the like, which can be turned off on the stream). If gtag.js is
+blocked or fails, the purchase flow works as usual and the events are lost (see [Measurement loss](#measurement-loss)).
 
-### Setting up Tag Manager and GA4
+### Setting up GA4
 
-The site only pushes events; the tags that send them to GA4 live in the Tag Manager container.
-[`gtm/musikhjaltarna-container.json`](gtm/musikhjaltarna-container.json) holds them, ready to import:
+`scripts/ga4-setup.mjs` sets up the property through the Admin API, and skips what is already done:
 
-1. In Tag Manager, open container `GTM-M8WZZXQZ`, then **Admin → Import container**: choose the file, the workspace, and
-   **Merge** (rename conflicting). The GA4 measurement ID `G-H9SG7679XK` is already in the file.
-2. Check in **Preview** that `offer_view` fires the tag **GA4 event – site events**, then **Submit** to publish.
-
-What the import contains:
-
-- **Google tag – GA4** on every page, with Google signals and ad personalisation off and cookies kept for 13 months
-  (`cookie_expires`), as the privacy policy says.
-- **GA4 event – site events**, triggered by the site's events (a regular expression over the names below), sending the
-  event name and every parameter. A parameter the event doesn't have isn't sent.
-- One data layer variable per parameter (`DLV - section_id`, …).
-
-When an event or parameter is added in the code, add it to the trigger and the tag, or regenerate the file.
-
-**Custom dimensions:** GA4 only shows a parameter in reports once it is registered as a custom dimension or metric,
-and only from that moment on, so do it before the ads start. `scripts/ga4-custom-definitions.mjs` registers them all
-through the Admin API and skips those that exist:
+1. creates the web stream "Musikhjältarna direkt" for `https://musikhjaltarna.se` and prints its measurement ID;
+2. keeps event data for 14 months instead of the default 2, so explorations reach back that far;
+3. registers the event parameters as custom dimensions and metrics. GA4 only shows a parameter in reports once it is
+   registered, and only from that moment on.
 
 ```sh
-GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789        # shows what it would create
-GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789 --yes  # creates them
+GA_ACCESS_TOKEN=… npm run ga4:setup -- --property=564064130        # shows what it would do
+GA_ACCESS_TOKEN=… npm run ga4:setup -- --property=564064130 --yes  # does it
 ```
 
-The property ID is the number under **Admin → Property details**. The top of the script explains how to get an access
-token. The script's lists are the ones to keep up to date. `event_id`, `event_timestamp` and `registration_id` are for
+Put the printed measurement ID in `site.ga4Id`. The top of the script explains how to get an access token. Its lists
+of dimensions and metrics are the ones to keep up to date. `event_id`, `event_timestamp` and `registration_id` are for
 matching single events and are left unregistered (GA4 limits dimensions with many values).
+
+**No Tag Manager.** The first two streams were set up through Tag Manager, and Google combined each with its container:
+it then served the container for the GA4 ID, with no GA4 destination, and no data arrived. Removing the combination
+didn't undo it. Loading gtag.js directly, for a stream created by the script, avoids that. If a stream ever stops
+receiving data, check on the live site after accepting: `window.google_tag_data.tidr.destination` should list the
+`G-` ID.
 
 ### Consent
 
@@ -71,7 +62,7 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
 - **Texts** are in `copy.yaml` under `consent`; the full description is the privacy policy, `src/content/integritetspolicy.md`.
 - **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
-- **Accepted:** Tag Manager (with GA4) and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
+- **Accepted:** Google Analytics and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
 - **Declined:** nothing is sent, now or on later pages, and registrations get no ad source.
 - **Change of mind:** _Cookieinställningar_ in the footer opens the settings. Unticking and saving stops all
   measurement from that moment, and deletes GA4's cookies (`_ga`, `_ga_<id>`).
@@ -218,8 +209,8 @@ Chrome, desktop Safari, iPhone 15 (Safari) and Pixel 7 (Chrome).
 | With analytics blocked, the purchase flow works                                       | Passes; the loss is described above                                                                         |
 | Changing a heading or button text keeps events and fixed ids working                  | Passes: ids are fixed in code, independent of `copy.yaml` (`tests/acceptance.spec.ts`)                      |
 
-Still to check by hand once the container is published: events from a branch preview arrive in GA4's **Realtime**
-report, tagged `environment = preview`.
+Checked by hand on the preview: events reach GA4 (requests to `google-analytics.com/g/collect` with the stream's ID),
+tagged `environment = preview`.
 
 ### Known limitations
 
@@ -239,6 +230,7 @@ report, tagged `environment = preview`.
 ## Testing
 
 - Open the site with `?test` to mark the whole tab as `environment = test`; its registrations get `is_test = 1`.
-- `npm run test:e2e` runs `tests/tracking.spec.ts` with Tag Manager stubbed out: nothing reaches Google. The stub
-  merges the data layer like Tag Manager does, so the tests also check that no parameter carries over between events.
-- In Tag Manager's **Preview**, or GA4's **DebugView**, events from your own browser show as they happen.
+- `npm run test:e2e` runs `tests/tracking.spec.ts` with gtag.js stubbed out: nothing reaches Google. The stub forwards
+  each `gtag('event', …)` the site queues, so the tests check exactly what GA4 would receive.
+- GA4's **Realtime** report, or **DebugView** with Google's Tag Assistant, shows events from your own browser as they
+  happen.

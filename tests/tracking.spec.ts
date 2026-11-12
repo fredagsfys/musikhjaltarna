@@ -1,6 +1,6 @@
 /**
- * The tracking from brief B, checked against the events the page pushes to Google Tag Manager's data
- * layer (the container is stubbed in tests/fixtures.ts). Event catalogue: docs/TRACKING.md.
+ * The tracking from brief B, checked against the events the page sends with gtag() (gtag.js is stubbed
+ * in tests/fixtures.ts). Event catalogue: docs/TRACKING.md.
  */
 import type { Page } from '@playwright/test';
 import { registrationsFor } from './d1';
@@ -174,7 +174,7 @@ test('"Nej tack" is sent as a choice, without storing anything', async ({ page, 
 
 test('direct visits to later steps send no step events', async ({ page, analytics }) => {
   await page.goto('/kop/tack');
-  await expect.poll(() => analytics.containerLoads).toBe(1);
+  await expect.poll(() => analytics.scriptLoads).toBe(1);
   await page.waitForTimeout(500);
   await page.goto('/kop/uppdatering');
   await arrivedAt(page, '/kop');
@@ -202,7 +202,7 @@ test('the site itself stores nothing but the choice and the session source', asy
   expect(storage.session).toEqual(['musikhjaltarna:source']);
 });
 
-test.describe('with Tag Manager blocked', () => {
+test.describe('with Google Analytics blocked', () => {
   test.use({ blockAnalytics: true });
 
   test('the purchase flow still works', async ({ page }) => {
@@ -219,7 +219,7 @@ test.describe('with Tag Manager blocked', () => {
   });
 });
 
-test('Consent Mode allows statistics only, before the container and every event', async ({ page, analytics }) => {
+test('Consent Mode allows statistics only, set before the stream and every event', async ({ page, analytics }) => {
   await page.goto('/');
   await analytics.waitFor('offer_view');
   const layer = await page.evaluate(() =>
@@ -230,9 +230,14 @@ test('Consent Mode allows statistics only, before the container and every event'
     1: 'default',
     2: { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' },
   });
-  expect(layer[1]).toMatchObject({ event: 'gtm.js' });
-  expect(await page.evaluate(() => document.querySelector('script[src*="gtm.js"]')?.getAttribute('src'))).toBe(
-    'https://www.googletagmanager.com/gtm.js?id=GTM-E2E',
+  expect(layer[1]![0]).toBe('js');
+  expect(layer[2]).toMatchObject({
+    0: 'config',
+    1: 'G-E2E',
+    2: { cookie_expires: 34128000, allow_google_signals: false, allow_ad_personalization_signals: false },
+  });
+  expect(await page.evaluate(() => document.querySelector('script[src*="gtag/js"]')?.getAttribute('src'))).toBe(
+    'https://www.googletagmanager.com/gtag/js?id=G-E2E',
   );
 });
 

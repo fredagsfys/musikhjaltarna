@@ -1,8 +1,7 @@
 # Reports
 
 The reports from brief B §8, built in Google Analytics 4. Events and parameters: [`TRACKING.md`](TRACKING.md). Before
-any of these work, the container must be imported and the custom dimensions registered
-([Setting up Tag Manager and GA4](TRACKING.md#setting-up-tag-manager-and-ga4)).
+any of these work, the custom dimensions must be registered ([Setting up GA4](TRACKING.md#setting-up-ga4)).
 
 ## How to use them
 

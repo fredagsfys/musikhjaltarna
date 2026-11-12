@@ -20,8 +20,8 @@ export default defineConfig({
     { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    // A placeholder container id, so a missing stub never reaches the real one (tests/fixtures.ts).
-    command: `rm -rf ${E2E_STATE} && PUBLIC_GTM_ID=GTM-E2E npx astro build && npx wrangler dev --port ${PORT} --local --persist-to ${E2E_STATE}`,
+    // A placeholder measurement ID, so a missing stub never reaches a real stream (tests/fixtures.ts).
+    command: `rm -rf ${E2E_STATE} && PUBLIC_GA4_ID=G-E2E npx astro build && npx wrangler dev --port ${PORT} --local --persist-to ${E2E_STATE}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 180_000,

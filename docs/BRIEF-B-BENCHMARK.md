@@ -2,7 +2,7 @@
 
 How much of _Pianotopia Musikhjältarna – B. Teknisk spårningsbrief_ the current build fulfils.
 
-> **Since 2026-11-12** events go to Google Analytics 4 through Google Tag Manager instead of PostHog, with the same
+> **Since 2026-11-12** events go to Google Analytics 4 instead of PostHog, with the same
 > events and parameters ([`TRACKING.md`](TRACKING.md)) and the reports rebuilt as GA4 explorations
 > ([`REPORTS.md`](REPORTS.md)). The assessment below is of the PostHog setup and has not been redone.
 

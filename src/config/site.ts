@@ -18,11 +18,11 @@ export const site = {
   /** Cloudflare Web Analytics site token. Public by design: it appears in every page's HTML. */
   webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
   /**
-   * Google Tag Manager, which loads Google Analytics 4 (brief B). The container id is public by design:
-   * it is in every page's JavaScript. Empty means tracking is off; PUBLIC_GTM_ID overrides it (used by
-   * the tests).
+   * Google Analytics 4 web stream, loaded directly with gtag.js (brief B). The measurement ID is public by
+   * design: it is in every page's JavaScript. Empty means tracking is off; PUBLIC_GA4_ID overrides it (used
+   * by the tests). The stream is created by `npm run ga4:setup` (docs/TRACKING.md).
    */
-  gtmId: 'GTM-M8WZZXQZ',
+  ga4Id: 'G-QM4S4L04TV',
   /** The Worker's name, to tell its own workers.dev address from branch previews. */
   workerName: 'musikhjaltarna',
 } as const;
