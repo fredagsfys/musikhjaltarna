@@ -43,7 +43,16 @@ const schema = z.strictObject({
       title: text,
       text,
       note: text,
-      app: z.strictObject({ speech: text, feedback: text, listen: text, play: text, alt: text }),
+      app: z.strictObject({
+        speech: text,
+        feedback: text,
+        tryAgain: text,
+        done: text,
+        listen: text,
+        play: text,
+        playAgain: text,
+        alt: text,
+      }),
     }),
   }),
   everyday: z.strictObject({

@@ -3,99 +3,201 @@ import Art from './Art.astro';
 import Icon from './Icon.astro';
 
 /**
- * Drawn view of a practice in the app, from the client's mock-up: a hero asks the child to play
- * the notes as they light up, and the app answers "Rätt ton!". The notes light up one at a time, in a loop;
- * with reduced motion only E stays lit. It is an illustration, not a control: one image for screen readers,
- * and the "buttons" are plain shapes.
+ * A playable practice from the app, after the client's mock-up. A hero asks the visitor to play the notes as they
+ * light up: the lit note on the staff shows which key to press on the small piano below. Each right note plays its
+ * tone and earns a star; a wrong one asks again, and after two misses the right key gives a hint. All five give a
+ * cheer. "Lyssna" plays the tune first. Until the visitor starts, the notes light up one at a time in a loop (still,
+ * with only E lit, for reduced motion).
+ *
+ * The states are on `data-state`: idle, listening, playing and done.
  */
 export interface Props {
   speech: string;
   feedback: string;
+  tryAgain: string;
+  done: string;
   listen: string;
   play: string;
+  playAgain: string;
   alt: string;
   class?: string;
 }
 
-const { speech, feedback, listen, play, alt, class: className } = Astro.props;
+const { speech, feedback, tryAgain, done, listen, play, playAgain, alt, class: className } = Astro.props;
 
 // C4 to G4 on a treble staff: lines at y 40–100, 15 apart. C sits on a ledger line below the staff.
 // The labels are large in viewBox units so they stay readable when the card is phone-sized.
 const notes = [
-  { name: 'C', y: 115 },
-  { name: 'D', y: 107.5 },
-  { name: 'E', y: 100, lit: true },
-  { name: 'F', y: 92.5 },
-  { name: 'G', y: 85 },
+  { name: 'C', y: 115, hz: 261.63 },
+  { name: 'D', y: 107.5, hz: 293.66 },
+  { name: 'E', y: 100, hz: 329.63 },
+  { name: 'F', y: 92.5, hz: 349.23 },
+  { name: 'G', y: 85, hz: 392.0 },
 ].map((note, i) => ({ ...note, x: 56 + i * 62 }));
 const staffLines = [40, 55, 70, 85, 100];
-const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-center gap-2.5 px-5 font-extrabold';
+// The black keys between C–D, D–E and F–G, placed on the line between two white keys (each white key is 20%).
+const blackKeys = [
+  { after: 1, hz: 277.18 },
+  { after: 2, hz: 311.13 },
+  { after: 4, hz: 369.99 },
+];
+const pill =
+  'rounded-pill inline-flex min-h-12 flex-1 cursor-pointer items-center justify-center gap-2.5 px-5 font-extrabold whitespace-nowrap transition-[transform,opacity] active:scale-[0.97] max-sm:gap-2 max-sm:px-3 disabled:cursor-default disabled:opacity-50';
 ---
 
 <div
-  role="img"
+  role="group"
   aria-label={alt}
-  class:list={['rounded-card border-border shadow-card w-full max-w-[460px] border bg-white p-5 sm:p-6', className]}
+  data-app-example
+  data-state="idle"
+  data-messages={JSON.stringify({ speech, feedback, tryAgain, done, play, playAgain })}
+  class:list={[
+    'app-example rounded-card border-border shadow-card relative w-full max-w-[460px] border bg-white p-5 sm:p-6',
+    className,
+  ]}
 >
-  <div aria-hidden="true" class="flex flex-col gap-5">
-    <div class="flex items-center gap-4">
-      <Art
-        name="app-example-avatar"
-        alt=""
-        widths={[64, 128]}
-        sizes="64px"
-        class="rounded-tile size-16 shrink-0 object-cover"
-      />
-      <p class="border-border bg-bg rounded-tile text-ink border px-4 py-3 text-[0.9375rem] leading-snug font-bold">
-        {speech}
+  <div class="@container flex flex-col gap-4">
+    <div class="flex items-center gap-3.5">
+      <div data-hero class="app-hero shrink-0">
+        <Art
+          name="app-example-avatar"
+          alt=""
+          widths={[64, 128]}
+          sizes="64px"
+          class="rounded-tile size-16 object-cover max-[22.5rem]:size-12"
+        />
+      </div>
+      <!-- Every message sits in the same cell, the unused ones invisible, so the bubble keeps the tallest height. -->
+      <p
+        aria-live="polite"
+        class="app-bubble border-border bg-bg rounded-tile text-ink relative grid flex-1 border px-4 py-3 text-[0.9375rem] leading-snug font-bold"
+      >
+        <span data-speech class="[grid-area:1/1]">
+          {speech}
+        </span>
+        <span aria-hidden="true" class="invisible [grid-area:1/1]">
+          {speech}
+        </span>
+        <span aria-hidden="true" class="invisible [grid-area:1/1]">
+          {done}
+        </span>
       </p>
     </div>
 
-    <div class="bg-bg border-gold-light rounded-tile flex flex-col items-center gap-2 border-2 px-3 pt-3 pb-4">
-      <svg viewBox="0 0 360 152" class="text-ink w-full" fill="none">
+    <div class="bg-bg border-gold-light rounded-tile flex flex-col items-center gap-1 border-2 px-3 pt-3 pb-3.5">
+      <!-- Stars earned, one per right note. -->
+      <ol class="flex gap-2.5" aria-hidden="true">
+        {notes.map((_, i) => (
+          <li data-star class="app-star" style={`--i: ${i}`}>
+            <Icon name="star" class="size-[1.375rem]" />
+          </li>
+        ))}
+      </ol>
+      <svg viewBox="0 0 360 152" class="text-ink w-full overflow-visible" fill="none" aria-hidden="true">
         {staffLines.map((y) => (
           <line x1="16" x2="344" y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />
         ))}
-        {notes.map(({ name, x, y, lit }, i) => (
-          <g class:list={['app-note', { 'is-lit': lit }]} style={`--i: ${i}`}>
-            <circle cx={x} cy={y} r="17" class="app-note-halo fill-primary/20" />
+        {notes.map(({ name, x, y }, i) => (
+          <g data-note={name} class:list={['app-note', { 'is-lit': name === 'E' }]} style={`--i: ${i}`}>
+            <circle cx={x} cy={y} r="18" class="app-note-halo fill-primary/20" />
             {name === 'C' && <line x1={x - 16} x2={x + 16} y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />}
-            <ellipse cx={x} cy={y} rx="9.5" ry="7" transform={`rotate(-20 ${x} ${y})`} fill="currentColor" />
-            <line x1={x + 8.6} x2={x + 8.6} y1={y - 2} y2={y - 40} stroke-width="2.2" stroke="currentColor" />
+            <g class="app-note-head">
+              <ellipse cx={x} cy={y} rx="9.5" ry="7" transform={`rotate(-20 ${x} ${y})`} fill="currentColor" />
+              <line x1={x + 8.6} x2={x + 8.6} y1={y - 2} y2={y - 40} stroke-width="2.2" stroke="currentColor" />
+            </g>
             <text x={x} y="146" text-anchor="middle" class="app-note-label font-sans text-[19px] font-bold">
               {name}
             </text>
           </g>
         ))}
       </svg>
-      <span class="rounded-pill bg-cream-warm text-primary-dark inline-flex items-center gap-2 px-4 py-1.5 text-[0.9375rem] font-bold">
+      <span
+        data-feedback
+        class="app-feedback rounded-pill bg-cream-warm text-primary-dark inline-flex min-h-8 items-center gap-2 px-4 py-1.5 text-[0.9375rem] font-bold whitespace-nowrap max-[22.5rem]:px-3 max-[22.5rem]:text-sm"
+      >
         <Icon name="check" strokeWidth={2.6} class="size-4" />
-        {feedback}
+        <span data-feedback-text>{feedback}</span>
       </span>
     </div>
 
-    <div class="flex gap-3">
-      <span class:list={[pill, 'border-primary text-primary-dark border-2']}>
+    <!-- The small piano. The white keys are buttons; the black keys only sound, and count as a miss. -->
+    <div class="app-piano rounded-[22px] bg-[#f3f3f1] p-2.5">
+      <div data-keys class="relative flex h-[clamp(6.5rem,26vw,8.25rem)] gap-[3px]">
+        {notes.map(({ name, hz }) => (
+          <button
+            type="button"
+            data-key={name}
+            data-hz={hz}
+            aria-label={name}
+            class="app-key text-text flex flex-1 cursor-pointer items-end justify-center rounded-b-[12px] pb-2.5 font-sans text-[0.9375rem] font-bold"
+          >
+            {name}
+          </button>
+        ))}
+        {blackKeys.map(({ after, hz }) => (
+          <span
+            data-black
+            data-hz={hz}
+            aria-hidden="true"
+            class="app-black absolute top-0 z-10 h-[60%] w-[12%] cursor-pointer rounded-b-[14px]"
+            style={`left: calc(${after * 20}% - 6%)`}
+          />
+        ))}
+      </div>
+    </div>
+
+    <!-- Side by side when the card is wide enough for both labels, so "Spela" → "Börja om" never reflows. -->
+    <div class="flex flex-col gap-3 @[21rem]:flex-row">
+      <button type="button" data-listen class:list={[pill, 'border-primary text-primary-dark border-2 bg-white']}>
         <Icon name="speaker" class="size-5" />
         {listen}
-      </span>
-      <span class:list={[pill, 'bg-primary text-white']}>
+      </button>
+      <button type="button" data-play class:list={[pill, 'bg-primary text-white']}>
         <Icon name="play" class="size-4" />
-        {play}
-      </span>
+        <span data-play-label>{play}</span>
+      </button>
     </div>
   </div>
+
+  <!-- Confetti for the finished tune; decoration only. -->
+  <div data-confetti class="rounded-card pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true"></div>
 </div>
 
 <style>
+  .app-example {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The speech bubble points at the hero. */
+  .app-bubble::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -7px;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-left: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    transform: translateY(-50%) rotate(45deg);
+  }
+
   .app-note {
     color: var(--color-ink);
+    transition: color 0.25s;
   }
   .app-note-label {
     fill: var(--color-text);
+    transition: fill 0.25s;
+  }
+  .app-note-halo,
+  .app-note-head {
+    transform-box: fill-box;
+    transform-origin: center;
   }
   .app-note-halo {
     opacity: 0;
+    transition: opacity 0.25s;
   }
   .app-note.is-lit {
     color: var(--color-primary);
@@ -106,22 +208,145 @@ const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-cent
   .is-lit .app-note-halo {
     opacity: 1;
   }
+  .app-note.is-done {
+    color: var(--color-gold-dark);
+  }
+  .is-done .app-note-label {
+    fill: var(--color-gold-dark);
+  }
 
-  /* One note at a time, C to G, a second each. The negative delay starts every note mid-cycle, so C is lit at once. */
+  .app-star {
+    color: color-mix(in srgb, var(--color-gold-light) 70%, white);
+    transition:
+      color 0.2s,
+      transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .app-star.is-earned {
+    color: var(--color-gold);
+    transform: scale(1.15);
+  }
+
+  .app-feedback {
+    transition: opacity 0.2s;
+  }
+  .app-feedback.is-empty {
+    opacity: 0;
+  }
+
+  /* Piano keys as in the app: a light frame, flat white keys with thin borders, solid round-ended black keys. */
+  .app-piano {
+    box-shadow:
+      0 12px 24px -14px rgb(0 0 0 / 0.3),
+      0 0 0 1px rgb(0 0 0 / 0.04);
+  }
+  .app-key,
+  .app-black {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+      transform 0.08s,
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .app-key {
+    background: #fff;
+    border: 2px solid #e6e6e3;
+    border-top: 0;
+  }
+  .app-key.is-down {
+    transform: translateY(2px);
+    background: #f7f7f5;
+  }
+  .app-key.is-right {
+    background: color-mix(in srgb, var(--color-primary) 16%, white);
+    border-color: color-mix(in srgb, var(--color-primary) 45%, white);
+    color: var(--color-primary-dark);
+  }
+  .app-key.is-wrong {
+    background: color-mix(in srgb, var(--color-gold) 20%, white);
+    border-color: var(--color-gold-light);
+  }
+  .app-key.is-hint {
+    border-color: var(--color-primary);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+    color: var(--color-primary-dark);
+  }
+  .app-key:focus-visible {
+    outline-offset: -5px;
+  }
+  .app-black {
+    background: #1d1d1d;
+  }
+  .app-black.is-down {
+    transform: translateY(1px);
+    background: #3a3a3a;
+  }
+
+  /* The floating stars and confetti are made by the script, so they carry no scope attribute. */
+  [data-app-example] :global(.app-float) {
+    position: absolute;
+    bottom: 55%;
+    color: var(--color-gold);
+    pointer-events: none;
+    filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.25));
+  }
+
+  [data-app-example] :global(.app-confetti) {
+    position: absolute;
+    top: 45%;
+    width: 8px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
-    .app-note,
-    .app-note-label,
-    .app-note-halo {
+    /* Before the visitor plays: one note at a time, C to G, a second each. The negative delay starts every note
+       mid-cycle, so C is lit at once. */
+    [data-state='idle'] .app-note,
+    [data-state='idle'] .app-note-label,
+    [data-state='idle'] .app-note-halo {
       animation: 5s ease-in-out calc(var(--i) * 1s - 5s) infinite;
     }
-    .app-note {
+    [data-state='idle'] .app-note {
       animation-name: app-note-color;
     }
-    .app-note-label {
+    [data-state='idle'] .app-note-label {
       animation-name: app-note-label;
     }
-    .app-note-halo {
+    [data-state='idle'] .app-note-halo {
       animation-name: app-note-halo;
+    }
+
+    [data-app-example]:not([data-state='idle']) .is-lit .app-note-halo {
+      animation: app-note-pulse 1.1s ease-in-out infinite;
+    }
+    .is-lit .app-note-head {
+      animation: app-note-bob 1.1s ease-in-out infinite;
+    }
+    [data-state='idle'] .is-lit .app-note-head {
+      animation: none;
+    }
+    .app-feedback.is-pop {
+      animation: app-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    [data-state='done'] .app-star {
+      animation: app-star-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--i) * 0.08s) both;
+    }
+    .app-hero.is-cheering {
+      animation: app-hero-cheer 0.55s ease-in-out 2;
+    }
+    .app-key.is-wrong {
+      animation: app-key-shake 0.3s ease-in-out;
+    }
+    .app-key.is-hint {
+      animation: app-hint 1s ease-in-out infinite;
+    }
+    [data-app-example] :global(.app-float) {
+      animation: app-float 0.8s ease-out forwards;
+    }
+    [data-app-example] :global(.app-confetti) {
+      animation: app-confetti 1.5s cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
     }
   }
 
@@ -155,4 +380,303 @@ const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-cent
       opacity: 0;
     }
   }
+  @keyframes app-note-pulse {
+    50% {
+      transform: scale(1.3);
+    }
+  }
+  @keyframes app-note-bob {
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  @keyframes app-pop {
+    from {
+      transform: scale(0.85);
+    }
+  }
+  @keyframes app-star-pop {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.55) rotate(-12deg);
+    }
+    100% {
+      transform: scale(1.15);
+    }
+  }
+  @keyframes app-hero-cheer {
+    30% {
+      transform: translateY(-8px) rotate(-6deg);
+    }
+    60% {
+      transform: translateY(0) rotate(4deg);
+    }
+  }
+  @keyframes app-key-shake {
+    25% {
+      translate: -3px 0;
+    }
+    75% {
+      translate: 3px 0;
+    }
+  }
+  @keyframes app-hint {
+    50% {
+      box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--color-primary) 45%, white);
+    }
+  }
+  @keyframes app-float {
+    from {
+      transform: translateY(0) scale(0.6);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+      transform: translateY(-10px) scale(1.1);
+    }
+    to {
+      transform: translateY(-46px) scale(1);
+      opacity: 0;
+    }
+  }
+  @keyframes app-confetti {
+    from {
+      transform: translate(0, 0) rotate(0);
+      opacity: 1;
+    }
+    to {
+      transform: translate(var(--dx), var(--dy)) rotate(var(--r));
+      opacity: 0;
+    }
+  }
 </style>
+
+<script>
+  type Messages = Record<'speech' | 'feedback' | 'tryAgain' | 'done' | 'play' | 'playAgain', string>;
+  type State = 'idle' | 'listening' | 'playing' | 'done';
+
+  const TUNE = ['C', 'D', 'E', 'F', 'G'];
+  const LISTEN_GAP = 520;
+  const CONFETTI_COLOURS = ['var(--color-gold)', 'var(--color-primary)', 'var(--color-gold-light)', '#e2574c'];
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let audio: AudioContext | undefined;
+  /** A short, soft piano-like tone. Browsers only allow sound after a tap or key press, which is when this runs. */
+  function tone(hz: number, delay = 0) {
+    try {
+      audio ??= new AudioContext();
+      if (audio.state === 'suspended') void audio.resume();
+      const start = audio.currentTime + delay;
+      const gain = audio.createGain();
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.22, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.06, start + 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 1.3);
+      gain.connect(audio.destination);
+      for (const [type, multiple, level] of [
+        ['triangle', 1, 1],
+        ['sine', 2, 0.25],
+        ['sine', 3, 0.08],
+      ] as const) {
+        const osc = audio.createOscillator();
+        const oscGain = audio.createGain();
+        osc.type = type;
+        osc.frequency.value = hz * multiple;
+        oscGain.gain.value = level;
+        osc.connect(oscGain).connect(gain);
+        osc.start(start);
+        osc.stop(start + 1.4);
+      }
+    } catch {
+      // No sound is fine; the game still works.
+    }
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-app-example]')) {
+    const messages = JSON.parse(root.dataset.messages!) as Messages;
+    const speech = root.querySelector<HTMLElement>('[data-speech]')!;
+    const hero = root.querySelector<HTMLElement>('[data-hero]')!;
+    const feedback = root.querySelector<HTMLElement>('[data-feedback]')!;
+    const feedbackIcon = feedback.querySelector('svg')!;
+    const feedbackText = root.querySelector<HTMLElement>('[data-feedback-text]')!;
+    const stars = [...root.querySelectorAll<HTMLElement>('[data-star]')];
+    const confetti = root.querySelector<HTMLElement>('[data-confetti]')!;
+    const keyboard = root.querySelector<HTMLElement>('[data-keys]')!;
+    const playButton = root.querySelector<HTMLButtonElement>('[data-play]')!;
+    const playLabel = root.querySelector<HTMLElement>('[data-play-label]')!;
+    const listenButton = root.querySelector<HTMLButtonElement>('[data-listen]')!;
+    const noteEls = new Map([...root.querySelectorAll<SVGGElement>('[data-note]')].map((el) => [el.dataset.note!, el]));
+    const keys = new Map(
+      [...root.querySelectorAll<HTMLButtonElement>('[data-key]')].map((el) => [el.dataset.key!, el]),
+    );
+
+    let state: State = 'idle';
+    let step = 0;
+    let misses = 0;
+    let timers: number[] = [];
+    const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
+    const keyTimers = new WeakMap<Element, number>();
+
+    function setState(next: State) {
+      state = next;
+      root.dataset.state = next;
+      listenButton.disabled = next === 'listening';
+      playLabel.textContent = next === 'idle' ? messages.play : messages.playAgain;
+    }
+
+    function light(name: string | null) {
+      for (const [note, el] of noteEls) el.classList.toggle('is-lit', note === name);
+    }
+
+    function say(text: string, ok: boolean) {
+      // An empty message keeps the last text, hidden, so the card keeps its height.
+      if (text) feedbackText.textContent = text;
+      feedbackIcon.style.display = ok ? '' : 'none';
+      feedback.classList.toggle('is-empty', !text);
+      feedback.classList.remove('is-pop');
+      void feedback.offsetWidth; // Restart the pop on the same text.
+      if (text) feedback.classList.add('is-pop');
+    }
+
+    /** Shows a key pressed, or right or wrong, for a moment. */
+    function mark(key: Element, className: string, ms: number) {
+      key.classList.remove('is-right', 'is-wrong');
+      void (key as HTMLElement).offsetWidth;
+      key.classList.add(className, 'is-down');
+      window.clearTimeout(keyTimers.get(key));
+      keyTimers.set(
+        key,
+        window.setTimeout(() => key.classList.remove(className, 'is-down'), ms),
+      );
+    }
+
+    function hint(name: string | null) {
+      for (const [note, key] of keys) key.classList.toggle('is-hint', note === name);
+    }
+
+    function floatStar(key: HTMLElement) {
+      if (reducedMotion()) return;
+      const star = document.createElement('span');
+      star.className = 'app-float';
+      star.innerHTML = stars[0]!.innerHTML;
+      star.style.left = `${key.offsetLeft + key.offsetWidth / 2 - 11}px`;
+      keyboard.append(star);
+      window.setTimeout(() => star.remove(), 850);
+    }
+
+    function celebrate() {
+      hero.classList.remove('is-cheering');
+      void hero.offsetWidth;
+      hero.classList.add('is-cheering');
+      [0, 2, 4].forEach((i, n) => tone(Number(keys.get(TUNE[i]!)!.dataset.hz), 0.3 + n * 0.1));
+      if (reducedMotion()) return;
+      for (let i = 0; i < 32; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'app-confetti';
+        piece.style.left = `${42 + Math.random() * 16}%`;
+        piece.style.background = CONFETTI_COLOURS[i % CONFETTI_COLOURS.length]!;
+        piece.style.setProperty('--dx', `${(Math.random() - 0.5) * 360}px`);
+        piece.style.setProperty('--dy', `${-80 - Math.random() * 140}px`);
+        piece.style.setProperty('--r', `${(Math.random() - 0.5) * 720}deg`);
+        confetti.append(piece);
+        window.setTimeout(() => piece.remove(), 1600);
+      }
+    }
+
+    /** Starts (or restarts) the game from C, cancelling anything still playing. */
+    function start() {
+      timers.forEach(window.clearTimeout);
+      timers = [];
+      setState('playing');
+      step = 0;
+      misses = 0;
+      stars.forEach((star) => star.classList.remove('is-earned'));
+      noteEls.forEach((el) => el.classList.remove('is-done'));
+      hint(null);
+      speech.textContent = messages.speech;
+      say('', true);
+      light(TUNE[0]!);
+    }
+
+    function listen() {
+      start();
+      setState('listening');
+      light(null);
+      TUNE.forEach((name, i) =>
+        later(() => {
+          light(name);
+          tone(Number(keys.get(name)!.dataset.hz));
+          mark(keys.get(name)!, 'is-right', 280);
+        }, i * LISTEN_GAP),
+      );
+      later(
+        () => {
+          start();
+        },
+        TUNE.length * LISTEN_GAP + 250,
+      );
+    }
+
+    function press(key: HTMLElement, name: string | null) {
+      tone(Number(key.dataset.hz));
+      if (state === 'listening') {
+        mark(key, 'is-down', 140);
+        return;
+      }
+      if (state !== 'playing') start();
+
+      const target = TUNE[step]!;
+      if (name !== target) {
+        misses++;
+        mark(key, 'is-wrong', 420);
+        say(messages.tryAgain, false);
+        // After two misses, show which key it is.
+        if (misses >= 2) hint(target);
+        return;
+      }
+
+      mark(key, 'is-right', 420);
+      floatStar(key);
+      noteEls.get(target)!.classList.add('is-done');
+      stars[step]!.classList.add('is-earned');
+      misses = 0;
+      hint(null);
+      step++;
+
+      if (step < TUNE.length) {
+        say(messages.feedback, true);
+        light(TUNE[step]!);
+        return;
+      }
+      light(null);
+      say('', true);
+      speech.textContent = messages.done;
+      setState('done');
+      celebrate();
+    }
+
+    // Pointer input plays at once, without waiting for the click; the keyboard (Enter or Space) comes as a click.
+    const playable = [
+      ...[...keys].map(([name, key]) => [key, name] as const),
+      ...[...root.querySelectorAll<HTMLElement>('[data-black]')].map((key) => [key, null] as const),
+    ];
+    for (const [key, name] of playable) {
+      key.addEventListener('pointerdown', (event) => {
+        if ((event as PointerEvent).button !== 0) return;
+        event.preventDefault();
+        press(key, name);
+      });
+      key.addEventListener('click', (event) => {
+        if ((event as MouseEvent).detail === 0) press(key, name);
+      });
+    }
+
+    playButton.addEventListener('click', () => {
+      start();
+      keys.get(TUNE[0]!)!.focus({ preventScroll: true });
+    });
+    listenButton.addEventListener('click', listen);
+  }
+</script>
