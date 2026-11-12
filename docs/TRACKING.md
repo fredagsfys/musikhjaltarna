@@ -10,6 +10,7 @@ How visits, exposure and the purchase flow are measured (brief B), and how to re
 | ------------ | -------------------------------------------------------------------------------------- |
 | Service      | Google Analytics 4, loaded through Google Tag Manager                                  |
 | Container    | `GTM-M8WZZXQZ`, `site.gtmId` in `src/config/site.ts` (public by design)                |
+| GA4 stream   | Measurement ID `G-H9SG7679XK`, set in the container (variable **GA4 measurement ID**)  |
 | Data layer   | The site pushes each event to `window.dataLayer`; Tag Manager sends it on to GA4       |
 | Consent Mode | `analytics_storage` granted, `ad_storage`, `ad_user_data`, `ad_personalization` denied |
 | Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`)            |
@@ -23,11 +24,9 @@ If Tag Manager is blocked or fails, the purchase flow works as usual and the eve
 The site only pushes events; the tags that send them to GA4 live in the Tag Manager container.
 [`gtm/musikhjaltarna-container.json`](gtm/musikhjaltarna-container.json) holds them, ready to import:
 
-1. In GA4, create a property and a web data stream for `musikhjaltarna.se`, and copy its measurement ID (`G-…`).
-2. In Tag Manager, open container `GTM-M8WZZXQZ`, then **Admin → Import container**: choose the file, the workspace, and
-   **Merge** (rename conflicting).
-3. Open the variable **GA4 measurement ID** and replace `G-XXXXXXXXXX` with the ID from step 1.
-4. Check in **Preview** that `offer_view` fires the tag **GA4 event – site events**, then **Submit** to publish.
+1. In Tag Manager, open container `GTM-M8WZZXQZ`, then **Admin → Import container**: choose the file, the workspace, and
+   **Merge** (rename conflicting). The GA4 measurement ID `G-H9SG7679XK` is already in the file.
+2. Check in **Preview** that `offer_view` fires the tag **GA4 event – site events**, then **Submit** to publish.
 
 What the import contains:
 
