@@ -10,7 +10,7 @@ How visits, exposure and the purchase flow are measured (brief B), and how to re
 | ------------ | -------------------------------------------------------------------------------------- |
 | Service      | Google Analytics 4, loaded through Google Tag Manager                                  |
 | Container    | `GTM-M8WZZXQZ`, `site.gtmId` in `src/config/site.ts` (public by design)                |
-| GA4 stream   | Measurement ID `G-H9SG7679XK`, set in the container (variable **GA4 measurement ID**)  |
+| GA4 stream   | Measurement ID `G-WVS0P8YRGV`, set in the container (variable **GA4 measurement ID**)  |
 | Data layer   | The site pushes each event to `window.dataLayer`; Tag Manager sends it on to GA4       |
 | Consent Mode | `analytics_storage` granted, `ad_storage`, `ad_user_data`, `ad_personalization` denied |
 | Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`)            |
@@ -25,8 +25,12 @@ The site only pushes events; the tags that send them to GA4 live in the Tag Mana
 [`gtm/musikhjaltarna-container.json`](gtm/musikhjaltarna-container.json) holds them, ready to import:
 
 1. In Tag Manager, open container `GTM-M8WZZXQZ`, then **Admin → Import container**: choose the file, the workspace, and
-   **Merge** (rename conflicting). The GA4 measurement ID `G-H9SG7679XK` is already in the file.
+   **Merge** (rename conflicting). The GA4 measurement ID `G-WVS0P8YRGV` is already in the file.
 2. Check in **Preview** that `offer_view` fires the tag **GA4 event – site events**, then **Submit** to publish.
+3. **Never combine the Google tag with the container**, if Tag Manager or GA4 suggests it. The first stream,
+   `G-H9SG7679XK`, was combined with `GTM-M8WZZXQZ`: Google then served the container for the GA4 ID, with no GA4
+   destination, and no data arrived. Removing the combination didn't undo it, so the site moved to a new stream.
+   Check on the live site: after accepting, `window.google_tag_data.tidr.destination` should list the `G-` ID.
 
 What the import contains:
 
