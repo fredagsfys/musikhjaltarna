@@ -254,6 +254,40 @@ FROM registrations
 Since 2026-11-08 a purchase intent stores nothing; only a "ja" with the consent box ticked is stored in D1, with first
 name and e-mail. `npm run export:registrations` lists them; "nej" and no choice are only in PostHog.
 
+## Practice game
+
+The playable example in "Så fungerar" (events in [`TRACKING.md`](TRACKING.md)): how many play, how many finish, and
+whether the sessions that played clicked buy more often.
+
+```sql
+WITH sessions AS (
+  SELECT
+    $session_id AS session,
+    countIf(event = 'section_view' AND properties.section_id = 'sektion_hjalpen') > 0 AS saw_section,
+    countIf(event = 'practice_listen') > 0 AS listened,
+    countIf(event = 'practice_start') > 0 AS played,
+    countIf(event = 'practice_complete') > 0 AS finished,
+    countIf(event = 'purchase_click') > 0 AS clicked
+  FROM events
+  WHERE properties.environment = 'production' AND {filters}
+  GROUP BY session
+  HAVING saw_section
+)
+SELECT
+  count() AS sessions_saw_section,
+  countIf(listened) AS listened,
+  countIf(played) AS played,
+  countIf(finished) AS finished,
+  round(played / sessions_saw_section * 100, 1) AS play_rate_pct,
+  round(finished / played * 100, 1) AS finish_rate_pct,
+  round(countIf(played AND clicked) / played * 100, 1) AS click_rate_played_pct,
+  round(countIf(NOT played AND clicked) / countIf(NOT played) * 100, 1) AS click_rate_not_played_pct
+FROM sessions
+```
+
+The two click rates show whether players and non-players differ, not that the game causes the difference: visitors
+who are already interested are more likely to play.
+
 ## Data quality
 
 **Traffic by environment:** shows how much was left out of the reports above as tests and previews.

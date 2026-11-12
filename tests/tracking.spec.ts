@@ -303,3 +303,31 @@ test('double clicks give one purchase intent, one registration and one choice', 
   expect(analytics.named('updates_choice')).toHaveLength(1);
   expect(await stored(email)).toHaveLength(1);
 });
+
+test('the practice game: listen, start at the first key, and complete with misses and time', async ({
+  page,
+  analytics,
+}) => {
+  await page.goto('/');
+  const example = page.locator('[data-app-example]');
+  await example.scrollIntoViewIfNeeded();
+
+  await example.locator('[data-listen]').click();
+  await analytics.waitFor('practice_listen');
+  // "Spela" alone starts nothing; the first key does.
+  await example.locator('[data-play]').click();
+  expect(analytics.named('practice_start')).toHaveLength(0);
+
+  await example.locator('[data-key="D"]').click();
+  for (const key of ['C', 'D', 'E', 'F', 'G']) await example.locator(`[data-key="${key}"]`).click();
+  const [start] = await analytics.waitFor('practice_start');
+  expect(start.properties.attempt).toBe(1);
+  const [complete] = await analytics.waitFor('practice_complete');
+  expect(complete.properties).toMatchObject({ attempt: 1, misses: 1, hinted: false });
+  expect(complete.properties.duration_ms).toBeGreaterThan(0);
+
+  // A key after a finished game is the next attempt.
+  await example.locator('[data-key="C"]').click();
+  await expect.poll(() => analytics.named('practice_start').length).toBe(2);
+  expect(analytics.named('practice_start')[1]!.properties.attempt).toBe(2);
+});

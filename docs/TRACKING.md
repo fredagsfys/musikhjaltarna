@@ -118,6 +118,9 @@ Every event has `event_id` (unique, or deterministic where noted), `event_timest
 | `updates_choice`            | Ja is **stored**, or nej is chosen (nothing stored)    | `event_id` = `updates_choice:<id>:<choice>`, `registration_id`, `choice` (`ja`/`nej`), `info_version`                                                |
 | `updates_confirmation_view` | The confirmation after a stored ja is shown            | `registration_id`                                                                                                                                    |
 | `external_link_click`       | A link to Pianotopia's website is clicked              | `link_id` (`pianotopia_website`), `placement` (`footer`, `declined`)                                                                                 |
+| `practice_listen`           | "Lyssna" in the playable practice example              | `attempt` (games started so far on this page view)                                                                                                   |
+| `practice_start`            | The first key of a game in the practice example        | `attempt` (1 for the first game on this page view)                                                                                                   |
+| `practice_complete`         | All five notes played in that game                     | `attempt`, `misses` (wrong keys), `hinted` (a key hint was shown), `duration_ms` (from the first key)                                                |
 
 Rules behind the events:
 
@@ -136,6 +139,10 @@ Rules behind the events:
   never answers has no `updates_choice`: count them as "no choice", not as nej.
 - **Direct visits:** opening `/kop/uppdatering` or `/kop/tack` without going through the flow sends no step event.
 - **Repeat clicks:** every buy click is sent; count them once per session for conversion rates.
+- **The practice example:** a game starts at its first key, from "Spela", a key, or after "Lyssna". "Börja om" or a
+  key after a finished game starts the next `attempt`. A visitor who plays without finishing has a `practice_start`
+  and no `practice_complete`. To see whether playing goes with buying, compare `purchase_click` for sessions with and
+  without a `practice_start`.
 
 ## Reports
 

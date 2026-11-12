@@ -33,7 +33,10 @@ export type TrackingEvent =
   | 'availability_notice_view'
   | 'updates_choice'
   | 'updates_confirmation_view'
-  | 'external_link_click';
+  | 'external_link_click'
+  | 'practice_listen'
+  | 'practice_start'
+  | 'practice_complete';
 
 export type TrackingProperties = Record<string, string | number | boolean | string[] | null | undefined>;
 
