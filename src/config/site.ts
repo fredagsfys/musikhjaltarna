@@ -13,6 +13,8 @@ export const site = {
   currency: 'SEK',
   themeColor: '#fdfaf4',
   ogImage: '/og-image.png',
+  /** Meta Business domain verification for musikhjaltarna.se. Public by design: Meta reads it from the page. */
+  facebookDomainVerification: 'bky2sa7m6ygz10itsa4gpk31frjkpy',
   /** Cloudflare Web Analytics site token. Public by design: it appears in every page's HTML. */
   webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
   /**
