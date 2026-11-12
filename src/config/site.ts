@@ -16,16 +16,13 @@ export const site = {
   /** Cloudflare Web Analytics site token. Public by design: it appears in every page's HTML. */
   webAnalyticsToken: 'd1e467b136e34bb7b94a7af4868eea98',
   /**
-   * PostHog Cloud EU for event tracking (brief B). The project key is public by design: it is in every
-   * page's JavaScript (project 330450). Empty means tracking is off; PUBLIC_POSTHOG_KEY overrides it
-   * (used by the tests).
+   * Google Tag Manager, which loads Google Analytics 4 (brief B). The container id is public by design:
+   * it is in every page's JavaScript. Empty means tracking is off; PUBLIC_GTM_ID overrides it (used by
+   * the tests).
    */
-  posthog: {
-    key: 'phc_w6wmndfeFrQWbxzQc8oShXxLMBWUo5kiLDxAgQqv77rH',
-    host: 'https://eu.i.posthog.com',
-    /** The Worker's name, to tell its own workers.dev address from branch previews. */
-    workerName: 'musikhjaltarna',
-  },
+  gtmId: 'GTM-M8WZZXQZ',
+  /** The Worker's name, to tell its own workers.dev address from branch previews. */
+  workerName: 'musikhjaltarna',
 } as const;
 
 /** Fixed section ids from brief A. They are part of the measurement setup; content edits must not change them. */

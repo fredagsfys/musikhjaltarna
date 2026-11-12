@@ -82,7 +82,7 @@ Vi använder bara statistik- och marknadsföringscookies om du har godkänt dem 
 | Kategori       | Vad den används till                                       | Exempel                                                                                                                                           | Kräver samtycke |
 | :------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------- |
 | Nödvändiga     | Får webbplatsen att fungera och kommer ihåg ditt cookieval | `musikhjaltarna:consent` (ditt val, 12 månader), `musikhjaltarna:registration` och `musikhjaltarna:confirmation` (köpsteget, tills fliken stängs) | Nej             |
-| Statistik      | Mäter trafik, klick och hur långt besökare går i köpsteget | PostHog och Cloudflare Web Analytics, `musikhjaltarna:source` (tills fliken stängs)                                                               | Ja              |
+| Statistik      | Mäter trafik, klick och hur långt besökare går i köpsteget | Google Analytics (`_ga` och `_ga_*`, upp till 13 månader) och Cloudflare Web Analytics, `musikhjaltarna:source` (tills fliken stängs)             | Ja              |
 | Marknadsföring | Visar och mäter annonser på Facebook och Instagram         | Meta-pixeln (\_fbp, upp till 90 dagar)                                                                                                            | Ja              |
 
 En fullständig lista med namn och lagringstid för varje cookie finns i cookiebannern.
@@ -94,7 +94,7 @@ Vi delar bara personuppgifter med de leverantörer som behövs för att driva we
 | Leverantör                                       | Vad de gör                               | Roll                             | Var uppgifterna lagras |
 | :----------------------------------------------- | :--------------------------------------- | :------------------------------- | :--------------------- |
 | Meta Platforms Ireland Ltd (Facebook, Instagram) | Visar och mäter annonser via Meta-pixeln | Gemensamt personuppgiftsansvarig | EU och USA             |
-| PostHog Inc. (PostHog Cloud EU)                  | Mäter trafik och klick                   | Personuppgiftsbiträde            | EU                     |
+| Google Ireland Limited (Google Analytics)        | Mäter trafik och klick                   | Personuppgiftsbiträde            | EU och USA             |
 | Cloudflare, Inc.                                 | Driver webbplatsen och köpsteget         | Personuppgiftsbiträde            | EU och USA             |
 
 Personuppgiftsbiträden får bara behandla uppgifterna enligt våra instruktioner, och vi har personuppgiftsbiträdesavtal med dem.

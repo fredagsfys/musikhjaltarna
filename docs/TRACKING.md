@@ -6,20 +6,46 @@ How visits, exposure and the purchase flow are measured (brief B), and how to re
 
 ## Setup
 
-| Part         | Value                                                                       |
-| ------------ | --------------------------------------------------------------------------- |
-| Service      | PostHog Cloud EU (data stored in the EU), project `330450`                  |
-| Project key  | `site.posthog.key` in `src/config/site.ts` (public by design)               |
-| Ingestion    | `https://eu.i.posthog.com`, directly from the browser                       |
-| Mode         | Cookieless (`cookieless_mode: 'always'`), no person profiles                |
-| Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`) |
+| Part         | Value                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------- |
+| Service      | Google Analytics 4, loaded through Google Tag Manager                                  |
+| Container    | `GTM-M8WZZXQZ`, `site.gtmId` in `src/config/site.ts` (public by design)                |
+| Data layer   | The site pushes each event to `window.dataLayer`; Tag Manager sends it on to GA4       |
+| Consent Mode | `analytics_storage` granted, `ad_storage`, `ad_user_data`, `ad_personalization` denied |
+| Registration | Cloudflare D1, with the ad source and page version on each row (`ADMIN.md`)            |
 
-**Required project setting:** cookieless server hash mode must be turned on in the PostHog project settings (search the
-settings for "cookieless"). Without it, PostHog drops the events the site sends.
+Tag Manager is loaded only after the visitor accepts, and only the events below are sent, plus GA4's own page views.
+If Tag Manager is blocked or fails, the purchase flow works as usual and the events are lost (see
+[Measurement loss](#measurement-loss)).
 
-PostHog is loaded after the page, from the site itself (about 52 KB compressed), and only the events below are sent: no
-autocapture, session recording, heatmaps, surveys or feature flags. If PostHog is blocked or fails, the purchase flow
-works as usual and the events are lost (see [Measurement loss](#measurement-loss)).
+### Setting up Tag Manager and GA4
+
+The site only pushes events; the tags that send them to GA4 live in the Tag Manager container.
+[`gtm/musikhjaltarna-container.json`](gtm/musikhjaltarna-container.json) holds them, ready to import:
+
+1. In GA4, create a property and a web data stream for `musikhjaltarna.se`, and copy its measurement ID (`G-…`).
+2. In Tag Manager, open container `GTM-M8WZZXQZ`, then **Admin → Import container**: choose the file, the workspace, and
+   **Merge** (rename conflicting).
+3. Open the variable **GA4 measurement ID** and replace `G-XXXXXXXXXX` with the ID from step 1.
+4. Check in **Preview** that `offer_view` fires the tag **GA4 event – site events**, then **Submit** to publish.
+
+What the import contains:
+
+- **Google tag – GA4** on every page, with Google signals and ad personalisation off and cookies kept for 13 months
+  (`cookie_expires`), as the privacy policy says.
+- **GA4 event – site events**, triggered by the site's events (a regular expression over the names below), sending the
+  event name and every parameter. A parameter the event doesn't have isn't sent.
+- One data layer variable per parameter (`DLV - section_id`, …).
+
+When an event or parameter is added in the code, add it to the trigger and the tag, or regenerate the file.
+
+**Custom dimensions:** GA4 only shows a parameter in reports once it is registered, under **Admin → Custom definitions**,
+event-scoped, with the same name. Register these: `page_version`, `environment`, `message_id`, `ad_id`, `utm_content`,
+`section_id`, `section_position`, `view_order`, `cta_id`, `max_section_seen`, `last_section_seen`, `sections_seen`,
+`category`, `fields`, `choice`, `link_id`, `placement`, `hinted`, and as custom metrics `max_scroll_percent`,
+`exposure_ms`, `time_to_click`, `active_time_to_click`, `attempt`, `misses` and `duration_ms`. Data from before a
+dimension was registered doesn't show in it. `event_id`, `event_timestamp` and `registration_id` are for matching
+single events and are left unregistered (GA4 limits dimensions with many values).
 
 ### Consent
 
@@ -41,14 +67,14 @@ Nothing is measured until the visitor accepts (brief B §9). Code: `src/lib/cons
 - **Texts** are in `copy.yaml` under `consent`; the full description is the privacy policy, `src/content/integritetspolicy.md`.
 - **Before a decision:** nothing is sent and nothing is stored. Events from the current page wait in memory and keep
   the time they happened. If the visitor accepts, they are sent; if they decline or leave, they are discarded.
-- **Accepted:** PostHog and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
+- **Accepted:** Tag Manager (with GA4) and Cloudflare Web Analytics start, and the ad source is kept for the rest of the tab's session.
 - **Declined:** nothing is sent, now or on later pages, and registrations get no ad source.
 - **Change of mind:** _Cookieinställningar_ in the footer opens the settings. Unticking and saving stops all
-  measurement from that moment.
+  measurement from that moment, and deletes GA4's cookies (`_ga`, `_ga_<id>`).
 - **Remembered** in `localStorage` (`musikhjaltarna:consent`) for 12 months. Bump `CONSENT_VERSION` in
   `src/lib/consent.ts` when the analytics tools or their purpose change: everyone is asked again.
 - **On each registration** D1 stores `analytics_consent` (`granted`, `denied`, or empty if undecided). This
-  separates the registrations PostHog can see from those it can't.
+  separates the registrations GA4 can see from those it can't.
 
 **Regulatory risk, accepted by the client (2026-11-02):** declining is only on the second layer. The European Data
 Protection Board's cookie banner taskforce (2023) found that most EU data protection authorities treat a first layer
@@ -58,8 +84,11 @@ risk, add a "Neka" button to the first layer, in the same style as "Hantera inst
 
 ### Privacy
 
-- No cookies, even with consent. PostHog identifies a visitor for one day by a server-side hash of IP address, user
-  agent and a daily rotating salt; the hash is not stored with the events.
+- With consent, GA4 sets its cookies `_ga` and `_ga_<id>` (13 months) to recognise the browser. Without consent, Tag
+  Manager isn't loaded and no cookies are set. Google signals and ad personalisation are off, and Consent Mode denies
+  all advertising storage.
+- GA4 is Google's service and data may be processed in the USA; the privacy policy names Google Ireland Limited as
+  processor. The client needs Google's data processing terms accepted in GA4 (**Admin → Account settings**).
 - Names, e-mail addresses and form values are never sent. The tests check every request for the test's name and
   address.
 - In the browser, the site keeps only the choice itself and, with consent, the ad source (`sessionStorage`,
@@ -69,7 +98,8 @@ risk, add a "Neka" button to the first layer, in the same style as "Hantera inst
 
 ## Sessions and versions
 
-- **Session:** ends after 30 minutes of inactivity, assigned by PostHog's servers (`$session_id` on every event).
+- **Session:** GA4's own (`ga_session_id`), ending after 30 minutes of inactivity. A browser is recognised by the
+  `_ga` cookie, so a return visit within 13 months is the same user.
 - **Ad source:** the first tagged arrival in a tab sets it; later pages and later tagged links in the same tab don't
   change it. It is sent with every event and stored on the registration.
 - **`page_version`:** `<commit>.<content hash>`, for example `2b10a42.09fdc282`. The first part changes with each code
@@ -98,12 +128,13 @@ exact value.
 
 ## Events
 
-Every event has `event_id` (unique, or deterministic where noted), `event_timestamp` (UTC, ISO 8601), `$session_id`,
-`page_version`, `environment` and the ad source parameters that are set.
+Every event has `event_id` (unique, or deterministic where noted), `event_timestamp` (UTC, ISO 8601), `page_version`,
+`environment` and the ad source parameters that are set. Lists (`sections_seen`, `fields`) are sent as comma-separated
+text, since GA4 parameters can't hold lists.
 
 | Event                       | When                                                   | Properties                                                                                                                                           |
 | --------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$pageview`                 | Every page load                                        | PostHog's standard (`$current_url`, `$referrer`, device)                                                                                             |
+| `page_view`                 | Every page load                                        | GA4's own, from the Google tag (page, referrer, device, UTM parameters in the URL)                                                                   |
 | `offer_view`                | The offer page is shown in an active tab               |                                                                                                                                                      |
 | `section_view`              | A section has been in view for 2 s (see below)         | `section_id`, `section_position` (1–5), `view_order`, `view_count` (this section), `time_since_arrival` (ms), `max_scroll_percent`                   |
 | `section_exposure_end`      | That view ends (scrolled away or tab hidden)           | `section_id`, `exposure_ms`, `max_scroll_percent`                                                                                                    |
@@ -150,20 +181,21 @@ All reports from brief B §8, with filters and the session rates, are in [`REPOR
 
 ## Measurement loss
 
-Expect PostHog to count fewer events than actually happened:
+Expect GA4 to count fewer events than actually happened:
 
-- **Declined or unanswered consent:** the largest loss. PostHog only sees visitors who accepted, so every rate is
+- **Declined or unanswered consent:** the largest loss. GA4 only sees visitors who accepted, so every rate is
   computed within that group (brief B §9). D1 stores only registrations with the consent box ticked, whatever the
-  analytics choice, with `analytics_consent`. Purchase intent itself is only in PostHog.
+  analytics choice, with `analytics_consent`. Purchase intent itself is only in GA4.
 - **Deciding after leaving the arrival page:** the ad source is only in the arrival URL until the visitor accepts. A
   visitor who accepts on a later page is measured without a source.
-- **Blockers:** ad and tracking blockers block `eu.i.posthog.com`. Registrations still reach D1, so compare
+- **Blockers:** ad and tracking blockers block `googletagmanager.com` and `google-analytics.com`, more often than most
+  analytics tools. Registrations still reach D1, so compare
   `updates_choice` with `ja` against the D1 count to see the share lost.
 - **Closing the tab:** `section_exposure_end` is sent when a view ends; when a visitor closes the tab mid-view it may
   not arrive, so exposure times are lower bounds.
-- **Bots:** PostHog drops events from browsers that identify as automated.
+- **Bots:** GA4 drops traffic from known bots and spiders.
 - **In-app browsers:** Facebook and Instagram use the phone's browser engine; the tests cover both (Safari and
-  Chromium). Every event is sent immediately in its own request, so navigation doesn't drop queued events.
+  Chromium). GA4 sends events in batches and flushes them when the page is left.
 
 ## Verification
 
@@ -182,7 +214,8 @@ Chrome, desktop Safari, iPhone 15 (Safari) and Pixel 7 (Chrome).
 | With analytics blocked, the purchase flow works                                       | Passes; the loss is described above                                                                         |
 | Changing a heading or button text keeps events and fixed ids working                  | Passes: ids are fixed in code, independent of `copy.yaml` (`tests/acceptance.spec.ts`)                      |
 
-Checked by hand: events from a branch preview arrive in the PostHog project, tagged `environment = preview`.
+Still to check by hand once the container is published: events from a branch preview arrive in GA4's **Realtime**
+report, tagged `environment = preview`.
 
 ### Known limitations
 
@@ -193,12 +226,15 @@ Checked by hand: events from a branch preview arrive in the PostHog project, tag
 - **Exposure times are lower bounds:** an episode ending when the tab closes may not be sent.
 - **Ad clicks are not on the site:** clicks and click-through rates come from the ad platform; the site counts arrivals.
 - **Sessions are per browser:** the same person on phone and laptop is two sessions, by design (brief B §2).
-- **Cookieless sessions can merge:** PostHog tells visitors apart by a hash of IP address and browser identity. Two
-  visitors on the same network with identical browsers, within 30 minutes of each other, count as one session, with
-  the first visitor's ad source. Seen in testing; rare for real ad traffic, but it lowers session counts slightly.
+- **Thresholds and sampling:** GA4 may hide rows with few users in reports and sample large explorations. At the
+  test's traffic levels, expect small numbers to be withheld.
+- **Processing delay:** standard reports and explorations can take up to a day to show new events; Realtime and
+  DebugView show them at once.
 - **Still to do by hand:** a visit through the Facebook and Instagram in-app browsers on a real phone.
 
 ## Testing
 
 - Open the site with `?test` to mark the whole tab as `environment = test`; its registrations get `is_test = 1`.
-- `npm run test:e2e` runs `tests/tracking.spec.ts` with PostHog stubbed out: nothing reaches the real project.
+- `npm run test:e2e` runs `tests/tracking.spec.ts` with Tag Manager stubbed out: nothing reaches Google. The stub
+  merges the data layer like Tag Manager does, so the tests also check that no parameter carries over between events.
+- In Tag Manager's **Preview**, or GA4's **DebugView**, events from your own browser show as they happen.

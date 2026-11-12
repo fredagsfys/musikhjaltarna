@@ -1,13 +1,13 @@
 /**
  * Shared test setup.
  *
- * - Every page gets a PostHog stub: requests to PostHog never leave the machine, and the events they
- *   carry are collected in `analytics` so tests can check them. Cloudflare Web Analytics is stubbed too.
+ * - Every page gets a Google Tag Manager stub: the container never loads from Google. In its place a
+ *   small script forwards each event the site pushes to the data layer, and those are collected in
+ *   `analytics` so tests can check them. Cloudflare Web Analytics is stubbed too.
  * - Visitors have accepted analytics unless a test sets `consent` (null for undecided).
  */
 import { expect, test as base, type Page } from '@playwright/test';
 import { CONSENT_KEY, CONSENT_VERSION, type ConsentChoice } from '../src/lib/consent';
-import { gunzipSync } from 'node:zlib';
 import { registrationsFor } from './d1';
 
 export interface CapturedEvent {
@@ -15,8 +15,12 @@ export interface CapturedEvent {
   properties: Record<string, unknown>;
 }
 
+const COLLECT_URL = 'https://www.googletagmanager.com/e2e/collect';
+
 export class Analytics {
   readonly events: CapturedEvent[] = [];
+  /** How many times the page requested the Tag Manager container. */
+  containerLoads = 0;
   /** Raw request bodies, to check that no personal data is sent. */
   readonly bodies: string[] = [];
 
@@ -31,11 +35,25 @@ export class Analytics {
   }
 }
 
-function decode(body: Buffer | null): string {
-  if (!body) return '';
-  const raw = body[0] === 0x1f ? gunzipSync(body).toString('utf8') : body.toString('utf8');
-  return raw.startsWith('data=') ? Buffer.from(decodeURIComponent(raw.slice(5)), 'base64').toString('utf8') : raw;
-}
+/**
+ * Stands in for gtm.js. Like Tag Manager it merges each push into one data model, and for every site
+ * event (not Tag Manager's own) it forwards what a tag would read from the model at that moment.
+ */
+const GTM_STUB = `(() => {
+  const model = {};
+  const send = (entry) => {
+    if (!entry || Object.prototype.toString.call(entry) !== '[object Object]') return; // gtag() commands
+    Object.assign(model, entry);
+    if (typeof entry.event !== 'string' || entry.event.startsWith('gtm.')) return;
+    const { event, ...properties } = model;
+    delete properties['gtm.start'];
+    fetch('${COLLECT_URL}', { method: 'POST', body: JSON.stringify({ event, properties }), keepalive: true });
+  };
+  const layer = (window.dataLayer = window.dataLayer || []);
+  layer.forEach(send);
+  const push = layer.push.bind(layer);
+  layer.push = (...entries) => (entries.forEach(send), push(...entries));
+})();`;
 
 export const test = base.extend<{ analytics: Analytics; blockAnalytics: boolean; consent: ConsentChoice | null }>({
   blockAnalytics: [false, { option: true }],
@@ -52,24 +70,20 @@ export const test = base.extend<{ analytics: Analytics; blockAnalytics: boolean;
   analytics: [
     async ({ page, blockAnalytics }, use) => {
       const analytics = new Analytics();
-      // PostHog skips automated browsers; present the test browser as an ordinary one.
-      await page.addInitScript(() => {
-        Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false });
-        Object.defineProperty(Navigator.prototype, 'userAgentData', { get: () => undefined });
-      });
       await page.route('https://static.cloudflareinsights.com/**', (route) =>
         route.fulfill({ contentType: 'text/javascript', body: '' }),
       );
-      await page.route('https://eu.i.posthog.com/**', async (route) => {
+      await page.route('https://www.googletagmanager.com/**', async (route) => {
         if (blockAnalytics) return route.abort('blockedbyclient');
-        const text = decode(route.request().postDataBuffer());
-        if (text) {
+        const url = route.request().url();
+        if (url.startsWith(COLLECT_URL)) {
+          const text = route.request().postData() ?? '';
           analytics.bodies.push(text);
-          const parsed = JSON.parse(text);
-          const batch = Array.isArray(parsed) ? parsed : (parsed.batch ?? [parsed]);
-          for (const { event, properties } of batch) analytics.events.push({ event, properties });
+          analytics.events.push(JSON.parse(text) as CapturedEvent);
+          return route.fulfill({ status: 204 });
         }
-        await route.fulfill({ status: 200, contentType: 'application/json', body: '{"status":1}' });
+        analytics.containerLoads++;
+        await route.fulfill({ contentType: 'text/javascript', body: GTM_STUB });
       });
       await use(analytics);
     },

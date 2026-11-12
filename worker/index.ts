@@ -2,7 +2,7 @@
  * Serves the static site and stores registrations from the purchase flow in D1.
  * Only `/api/*` reaches this code (`run_worker_first` in wrangler.jsonc); every other
  * request is served directly from the static assets. Behaviour on the page is tracked
- * in PostHog (src/lib/tracking.ts); this database holds the registrations themselves.
+ * in Google Analytics (src/lib/tracking.ts); this database holds the registrations themselves.
  *
  * No cookies, IP addresses or user agents are stored.
  */

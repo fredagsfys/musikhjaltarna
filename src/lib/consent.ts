@@ -2,7 +2,7 @@
  * The visitor's choice about analytics (brief B §9). Nothing is measured until they accept:
  *
  * - undecided: events from the current page are held in memory only, and nothing is sent or stored;
- * - granted: PostHog and Cloudflare Web Analytics run;
+ * - granted: Google Tag Manager (with Google Analytics) and Cloudflare Web Analytics run;
  * - denied: nothing is sent, and the held events are discarded.
  *
  * The choice itself is kept in localStorage, which is strictly necessary to remember it. It is asked
@@ -12,7 +12,7 @@
 export type ConsentChoice = 'granted' | 'denied';
 
 export const CONSENT_KEY = 'musikhjaltarna:consent';
-export const CONSENT_VERSION = 1;
+export const CONSENT_VERSION = 2;
 const MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
 
 interface StoredConsent {

@@ -212,10 +212,15 @@ test.describe('before the visitor has decided', () => {
   });
 });
 
-test('the choice can be withdrawn from the footer', async ({ page, analytics }) => {
+test('the choice can be withdrawn from the footer', async ({ page, context, analytics }) => {
   await page.goto('/');
   await analytics.waitFor('offer_view');
   await expect(page.locator(banner)).toBeHidden();
+  // What Google Analytics would have set.
+  await page.evaluate(() => {
+    document.cookie = '_ga=GA1.1.1.1; path=/';
+    document.cookie = '_ga_TEST=GS1.1.1; path=/';
+  });
 
   const settings = page.getByRole('button', { name: 'Cookieinställningar' });
   await settings.click();
@@ -227,6 +232,9 @@ test('the choice can be withdrawn from the footer', async ({ page, analytics }) 
   await page.click('#samtycke_spara');
   await expect(page.locator(banner)).toBeHidden();
   await expect(settings).toBeFocused();
+  expect(await context.cookies()).toEqual([]);
+  const layer = await page.evaluate(() => JSON.stringify(window.dataLayer));
+  expect(layer).toContain('{"0":"consent","1":"update","2":{"analytics_storage":"denied"}}');
 
   const sent = analytics.events.length;
   await page.locator('#sektion_hjalpen').scrollIntoViewIfNeeded();

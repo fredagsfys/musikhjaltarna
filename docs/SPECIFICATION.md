@@ -154,7 +154,7 @@ Köpflödet ska inte indexeras av sökmotorer (`noindex`).
   2026-11-08; tidigare frågade steget efter namn och e-post och sparade dem.
 
 **Mätpunkt:** `köpintention` (event: `purchase_intent_submit`), när besökaren går vidare. Med CTA-ID för den knapp som
-ledde hit. Mäts bara i PostHog, för besökare som har godkänt mätning.
+ledde hit. Mäts bara i Google Analytics, för besökare som har godkänt mätning.
 
 ### Steg 2 – Förklara och erbjud nästa steg (`/kop/uppdatering`)
 
@@ -197,12 +197,12 @@ Mätningen följer spårningsbriefen (B) och beskrivs i [`TRACKING.md`](TRACKING
 
 | Mätpunkt                      | Mäts som                                                             | Var              |
 | ----------------------------- | -------------------------------------------------------------------- | ---------------- |
-| Exponering per sektion        | `section_view` och `section_exposure_end`                            | PostHog Cloud EU |
-| Visning och klick på köpknapp | `cta_view` och `purchase_click`, med köpknappens `cta_id`            | PostHog Cloud EU |
-| Köpflödet                     | `checkout_view`, `checkout_start`, `checkout_error`, `checkout_back` | PostHog Cloud EU |
-| Köpavsikt (steg 1)            | `purchase_intent_submit`, när besökaren går vidare                   | PostHog Cloud EU |
-| Ja eller nej till information | `updates_choice`; ja sparas med förnamn och e-post, nej sparas inte  | PostHog och D1   |
-| Annonskälla                   | UTM-parametrar, `message_id` och `ad_id` från annonslänken           | PostHog och D1   |
+| Exponering per sektion        | `section_view` och `section_exposure_end`                            | Google Analytics |
+| Visning och klick på köpknapp | `cta_view` och `purchase_click`, med köpknappens `cta_id`            | Google Analytics |
+| Köpflödet                     | `checkout_view`, `checkout_start`, `checkout_error`, `checkout_back` | Google Analytics |
+| Köpavsikt (steg 1)            | `purchase_intent_submit`, när besökaren går vidare                   | Google Analytics |
+| Ja eller nej till information | `updates_choice`; ja sparas med förnamn och e-post, nej sparas inte  | GA och D1        |
+| Annonskälla                   | UTM-parametrar, `message_id` och `ad_id` från annonslänken           | GA och D1        |
 | Sidvisningar                  | Sidvisning per adress                                                | Web Analytics    |
 
 Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
@@ -214,6 +214,6 @@ Köpavsikt och uppdateringsintresse lagras och redovisas var för sig.
 1. ~~**"Nej tack" i steg 2.**~~ Löst i designfilen (variant D): leder till en egen bekräftelse, `/kop/nej-tack`.
 2. ~~**Samtycke och GDPR.**~~ Löst 2026-11-08: förnamn och e-post lämnas i sista steget, efter beskedet att tjänsten inte finns, och sparas bara med ikryssad samtyckesruta, enligt kundens integritetspolicy. "Nej tack" sparar ingenting.
 3. ~~**Lagring av leads.**~~ Löst: egen endpoint, `/api/leads` i Cloudflare Workern, lagrat i D1.
-4. ~~**Analysverktyg.**~~ Löst: PostHog Cloud EU för händelser, utan cookies, och Cloudflare Web Analytics för sidvisningar. Ingen mätning sker innan besökaren har godkänt den i samtyckesrutan, och valet kan ändras via Cookieinställningar i sidfoten.
+4. ~~**Analysverktyg.**~~ Löst: Google Analytics 4 via Google Tag Manager för händelser och Cloudflare Web Analytics för sidvisningar (byte från PostHog 2026-11-12). Ingen mätning sker innan besökaren har godkänt den i samtyckesrutan, och valet kan ändras via Cookieinställningar i sidfoten.
 5. ~~**Domän.**~~ Löst: `musikhjaltarna.se`, standard för canonical-URL:er och sitemap.
 6. **Undersidor.** Kontakt, Villkor, Integritet och "Om Pianotopia" behöver innehåll.

@@ -203,7 +203,7 @@ const inputClass =
     if (nameError) return nameInput.focus();
     if (emailError) return emailInput.focus();
 
-    // The checkout's id is the registration's, so retries update one row and PostHog's intent matches it.
+    // The checkout's id is the registration's, so retries update one row and the intent in Google Analytics matches it.
     const registration: Registration = {
       id: checkout.id,
       name,
