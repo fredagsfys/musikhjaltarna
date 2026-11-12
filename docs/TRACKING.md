@@ -38,13 +38,18 @@ What the import contains:
 
 When an event or parameter is added in the code, add it to the trigger and the tag, or regenerate the file.
 
-**Custom dimensions:** GA4 only shows a parameter in reports once it is registered, under **Admin → Custom definitions**,
-event-scoped, with the same name. Register these: `page_version`, `environment`, `message_id`, `ad_id`, `utm_content`,
-`section_id`, `section_position`, `view_order`, `cta_id`, `max_section_seen`, `last_section_seen`, `sections_seen`,
-`category`, `fields`, `choice`, `link_id`, `placement`, `hinted`, and as custom metrics `max_scroll_percent`,
-`exposure_ms`, `time_to_click`, `active_time_to_click`, `attempt`, `misses` and `duration_ms`. Data from before a
-dimension was registered doesn't show in it. `event_id`, `event_timestamp` and `registration_id` are for matching
-single events and are left unregistered (GA4 limits dimensions with many values).
+**Custom dimensions:** GA4 only shows a parameter in reports once it is registered as a custom dimension or metric,
+and only from that moment on, so do it before the ads start. `scripts/ga4-custom-definitions.mjs` registers them all
+through the Admin API and skips those that exist:
+
+```sh
+GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789        # shows what it would create
+GA_ACCESS_TOKEN=… npm run ga4:definitions -- --property=123456789 --yes  # creates them
+```
+
+The property ID is the number under **Admin → Property details**. The top of the script explains how to get an access
+token. The script's lists are the ones to keep up to date. `event_id`, `event_timestamp` and `registration_id` are for
+matching single events and are left unregistered (GA4 limits dimensions with many values).
 
 ### Consent
 

@@ -17,6 +17,7 @@
     "export:registrations": "node scripts/export-registrations.mjs",
     "delete:registration": "node scripts/delete-registration.mjs",
     "report:registrations": "node scripts/report-registrations.mjs",
+    "ga4:definitions": "node scripts/ga4-custom-definitions.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
