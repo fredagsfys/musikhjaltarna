@@ -13,7 +13,6 @@ const { everyday: content } = copy;
 // The content file has exactly three benefits; each keeps its icon by position.
 const icons: IconName[] = ['clock', 'star', 'home-heart'];
 const benefits = content.benefits.map((benefit, i) => ({ ...benefit, icon: icons[i] }));
-const rayAngles = [-50, -20, 10, 40];
 ---
 
 <!-- Sektion 3: Värdet i vardagen. Visa hur hjälpen passar ett fullt vardagsschema. -->
@@ -25,32 +24,17 @@ const rayAngles = [-50, -20, 10, 40];
       <SectionHeading id={`${SECTION_IDS.vardag}-title`} eyebrow={content.eyebrow} title={content.title}>
         <p>{content.intro}</p>
       </SectionHeading>
-      <div class="flex flex-wrap items-end gap-3 sm:gap-5">
-        <BuyButton ctaId="kop_vardag" />
-        <!-- On phones he fills what is left beside the button, from 56 to 84 px, and wraps below it only if less. -->
-        <div class="relative max-w-[84px] min-w-[56px] flex-1 sm:max-w-none sm:flex-none">
-          <svg
-            viewBox="0 0 140 140"
-            class="text-gold absolute -top-3.5 -left-3.5 aspect-square w-[calc(100%+28px)] overflow-visible"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="3"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            {rayAngles.map((angle) => (
-              <path d="M70 6Q74 0 70 -6" transform={`rotate(${angle} 70 70)`} />
-            ))}
-          </svg>
-          <Art
-            name="family-mascot"
-            alt=""
-            widths={[130, 260]}
-            sizes="(min-width: 640px) 130px, 84px"
-            class="relative aspect-[291/483] w-full sm:w-[130px]"
-          />
-        </div>
+      <!-- A child and Gilbert G-klav celebrating at home. Decoration: the text beside it says the same. -->
+      <div class="border-border rounded-card shadow-card bg-cream-warm overflow-hidden border">
+        <Art
+          name="family-photo"
+          alt=""
+          widths={[480, 960]}
+          sizes="(min-width: 1024px) 480px, 90vw"
+          class="aspect-[1752/897] size-full object-cover"
+        />
       </div>
+      <BuyButton ctaId="kop_vardag" class="self-start" />
     </div>
 
     <ul class="flex min-w-0 flex-[1.3_1_460px] flex-col gap-4">

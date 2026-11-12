@@ -12,7 +12,7 @@ export type ImageName =
   | 'step-reward'
   | 'hero-photo'
   | 'app-example-avatar'
-  | 'family-mascot'
+  | 'family-photo'
   | 'pedagogue-photo'
   | 'pedagogue-mascot';
 

@@ -4,8 +4,9 @@ import Icon from './Icon.astro';
 
 /**
  * Drawn view of a practice in the app, from the client's mock-up: a hero asks the child to play
- * the notes as they light up, E is lit and the app answers "Rätt ton!". It is an illustration,
- * not a control: one image for screen readers, and the "buttons" are plain shapes.
+ * the notes as they light up, and the app answers "Rätt ton!". The notes light up one at a time, in a loop;
+ * with reduced motion only E stays lit. It is an illustration, not a control: one image for screen readers,
+ * and the "buttons" are plain shapes.
  */
 export interface Props {
   speech: string;
@@ -55,32 +56,13 @@ const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-cent
         {staffLines.map((y) => (
           <line x1="16" x2="344" y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />
         ))}
-        {notes.map(({ name, x, y, lit }) => (
-          <g>
-            {lit && <circle cx={x} cy={y} r="17" class="fill-primary/20" />}
+        {notes.map(({ name, x, y, lit }, i) => (
+          <g class:list={['app-note', { 'is-lit': lit }]} style={`--i: ${i}`}>
+            <circle cx={x} cy={y} r="17" class="app-note-halo fill-primary/20" />
             {name === 'C' && <line x1={x - 16} x2={x + 16} y1={y} y2={y} stroke="currentColor" stroke-width="1.6" />}
-            <ellipse
-              cx={x}
-              cy={y}
-              rx="9.5"
-              ry="7"
-              transform={`rotate(-20 ${x} ${y})`}
-              class={lit ? 'fill-primary' : 'fill-ink'}
-            />
-            <line
-              x1={x + 8.6}
-              x2={x + 8.6}
-              y1={y - 2}
-              y2={y - 40}
-              stroke-width="2.2"
-              class={lit ? 'stroke-primary' : 'stroke-ink'}
-            />
-            <text
-              x={x}
-              y="146"
-              text-anchor="middle"
-              class:list={['font-sans text-[19px] font-bold', lit ? 'fill-primary-dark' : 'fill-text']}
-            >
+            <ellipse cx={x} cy={y} rx="9.5" ry="7" transform={`rotate(-20 ${x} ${y})`} fill="currentColor" />
+            <line x1={x + 8.6} x2={x + 8.6} y1={y - 2} y2={y - 40} stroke-width="2.2" stroke="currentColor" />
+            <text x={x} y="146" text-anchor="middle" class="app-note-label font-sans text-[19px] font-bold">
               {name}
             </text>
           </g>
@@ -104,3 +86,73 @@ const pill = 'rounded-pill inline-flex min-h-12 flex-1 items-center justify-cent
     </div>
   </div>
 </div>
+
+<style>
+  .app-note {
+    color: var(--color-ink);
+  }
+  .app-note-label {
+    fill: var(--color-text);
+  }
+  .app-note-halo {
+    opacity: 0;
+  }
+  .app-note.is-lit {
+    color: var(--color-primary);
+  }
+  .is-lit .app-note-label {
+    fill: var(--color-primary-dark);
+  }
+  .is-lit .app-note-halo {
+    opacity: 1;
+  }
+
+  /* One note at a time, C to G, a second each. The negative delay starts every note mid-cycle, so C is lit at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    .app-note,
+    .app-note-label,
+    .app-note-halo {
+      animation: 5s ease-in-out calc(var(--i) * 1s - 5s) infinite;
+    }
+    .app-note {
+      animation-name: app-note-color;
+    }
+    .app-note-label {
+      animation-name: app-note-label;
+    }
+    .app-note-halo {
+      animation-name: app-note-halo;
+    }
+  }
+
+  @keyframes app-note-color {
+    0%,
+    18% {
+      color: var(--color-primary);
+    }
+    22%,
+    100% {
+      color: var(--color-ink);
+    }
+  }
+  @keyframes app-note-label {
+    0%,
+    18% {
+      fill: var(--color-primary-dark);
+    }
+    22%,
+    100% {
+      fill: var(--color-text);
+    }
+  }
+  @keyframes app-note-halo {
+    0%,
+    18% {
+      opacity: 1;
+    }
+    22%,
+    100% {
+      opacity: 0;
+    }
+  }
+</style>

@@ -84,7 +84,7 @@ visas en platshållare.
 
 1. Öppna mappen `src/assets/images/` på GitHub.
 2. Klicka **Add file → Upload files** och ladda upp bilden med **exakt** det filnamn som står i
-   [mappens README](../src/assets/images/README.md), till exempel `family-mascot.png`.
+   [mappens README](../src/assets/images/README.md), till exempel `family-photo.jpg`.
 3. Klicka **Commit changes**.
 
 PNG, JPG, WebP och AVIF fungerar. Sidan gör automatiskt mindre och snabbare versioner för olika skärmar. För att byta en
