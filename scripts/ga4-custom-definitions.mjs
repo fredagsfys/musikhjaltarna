@@ -62,11 +62,16 @@ if (!token) {
 
 const base = `https://analyticsadmin.googleapis.com/v1beta/properties/${property}`;
 
-async function call(path, init = {}) {
+/** One API call, retried a few times when Google answers 429 or 5xx (the Admin API is briefly unavailable at times). */
+async function call(path, init = {}, attempt = 1) {
   const response = await fetch(`${base}/${path}`, {
     ...init,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
   });
+  if ((response.status === 429 || response.status >= 500) && attempt < 5) {
+    await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+    return call(path, init, attempt + 1);
+  }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(`${init.method ?? 'GET'} ${path}: ${response.status} ${body.error?.message ?? ''}`);
   return body;
