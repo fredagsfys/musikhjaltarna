@@ -212,6 +212,17 @@ Chrome, desktop Safari, iPhone 15 (Safari) and Pixel 7 (Chrome).
 Checked by hand on the preview: events reach GA4 (requests to `google-analytics.com/g/collect` with the stream's ID),
 tagged `environment = preview`.
 
+To read back what GA4 actually recorded, use `scripts/ga4-check.mjs`. It needs a token with the `analytics.readonly`
+scope:
+
+```sh
+GA_ACCESS_TOKEN=… npm run ga4:check -- --property=564064130
+```
+
+It prints event counts from the last 30 minutes (Realtime), then today's and yesterday's counts per `environment` and
+per key custom dimension. Standard reports can lag by up to a day. Custom events on a newly created stream can also
+show up later than `page_view`.
+
 ### Known limitations
 
 - **Buy buttons and the consent banner:** the bar steps aside for buy buttons (see [Consent](#consent)), so it never
