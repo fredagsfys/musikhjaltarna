@@ -123,11 +123,11 @@ test.describe('before the visitor has decided', () => {
       await tab();
       order.push(await focused());
     }
-    expect(order.slice(1)).toEqual(['Läs mer', 'samtycke_godkann', 'samtycke_hantera']);
+    expect(order.slice(1)).toEqual(['Läs mer om mätningen', 'samtycke_godkann', 'samtycke_hantera']);
     await page.keyboard.press('Enter');
     await expect(page.locator('#samtycke_matning')).toBeFocused();
     await page.keyboard.press('Space');
-    await tab(); // Läs mer
+    await tab(); // Läs mer om mätningen
     await tab();
     expect(await focused()).toBe('samtycke_spara');
     await page.keyboard.press('Enter');

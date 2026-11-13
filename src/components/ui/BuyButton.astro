@@ -15,7 +15,10 @@ const { ctaId, class: className } = Astro.props;
   href={purchasePath(ctaId)}
   data-cta-id={ctaId}
   data-astro-prefetch
-  class:list={['max-sm:gap-3 max-sm:px-6', className]}
+  class:list={[
+    'max-sm:gap-2.5 max-sm:px-5 max-sm:text-[clamp(1rem,4.4vw,1.1875rem)] min-[22.5rem]:whitespace-nowrap',
+    className,
+  ]}
 >
   {buyLabel}
 </Button>
