@@ -156,7 +156,7 @@ footer:
 consent:
   title: Får vi mäta hur sidan används?
   # Länkar till integritetssidan, där mätningen beskrivs.
-  privacyLink: Läs mer
+  privacyLink: Läs mer om mätningen
   acceptAll: Godkänn alla
   manage: Hantera inställningar
   # Inställningarna, som också öppnas från Cookieinställningar i sidfoten.

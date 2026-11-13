@@ -1,16 +1,27 @@
 ---
 /**
  * Text from copy.yaml where each new line starts a new line on the page, e.g. a two-sentence
- * heading. Each line wraps and balances on its own. With `inlineLast`, the last line stays inline
- * so a phrase can follow it on the same line (the hero's accent).
+ * heading. Each line wraps on its own. With `inlineLast`, the last line stays inline so a phrase
+ * can follow it on the same line (the hero's accent).
+ *
+ * A short last word is joined to the word before it with a non-breaking space, so a wrapped line
+ * never ends with one short word on its own ("Med fokus på barnets / framsteg.").
  */
 export interface Props {
   text: string;
   inlineLast?: boolean;
 }
 
+/** Last words up to this many letters are kept with the word before. */
+const SHORT_WORD = 9;
+
+const keepLastWordWithPrevious = (line: string) =>
+  line.replace(/ (\S+)$/, (match, word: string) =>
+    word.replace(/\P{L}/gu, '').length <= SHORT_WORD ? ` ${word}` : match,
+  );
+
 const { text, inlineLast = false } = Astro.props;
-const lines = text.split('\n');
+const lines = text.split('\n').map(keepLastWordWithPrevious);
 const last = inlineLast ? lines.pop() : undefined;
 ---
 
