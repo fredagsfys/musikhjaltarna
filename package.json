@@ -18,6 +18,7 @@
     "delete:registration": "node scripts/delete-registration.mjs",
     "report:registrations": "node scripts/report-registrations.mjs",
     "ga4:setup": "node scripts/ga4-setup.mjs",
+    "ga4:check": "node scripts/ga4-check.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
