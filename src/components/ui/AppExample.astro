@@ -121,7 +121,7 @@ const pill =
     </div>
 
     <!-- The small piano. The white keys are buttons; the black keys only sound, and count as a miss. -->
-    <div class="app-piano rounded-[22px] bg-[#f3f3f1] p-2.5">
+    <div class="app-piano rounded-[22px] bg-cream-warm p-2.5">
       <div data-keys class="relative flex h-[clamp(6.5rem,26vw,8.25rem)] gap-[3px]">
         {notes.map(({ name, hz }) => (
           <button
@@ -236,8 +236,8 @@ const pill =
   /* Piano keys as in the app: a light frame, flat white keys with thin borders, solid round-ended black keys. */
   .app-piano {
     box-shadow:
-      0 12px 24px -14px rgb(0 0 0 / 0.3),
-      0 0 0 1px rgb(0 0 0 / 0.04);
+      0 12px 24px -14px rgb(30 42 43 / 0.3),
+      0 0 0 1px rgb(30 42 43 / 0.04);
   }
   .app-key,
   .app-black {
@@ -250,13 +250,13 @@ const pill =
       border-color 0.15s;
   }
   .app-key {
-    background: #fff;
-    border: 2px solid #e6e6e3;
+    background: var(--color-white);
+    border: 2px solid var(--color-border);
     border-top: 0;
   }
   .app-key.is-down {
     transform: translateY(2px);
-    background: #f7f7f5;
+    background: var(--color-bg);
   }
   .app-key.is-right {
     background: color-mix(in srgb, var(--color-primary) 16%, white);
@@ -276,11 +276,11 @@ const pill =
     outline-offset: -5px;
   }
   .app-black {
-    background: #1d1d1d;
+    background: var(--color-ink);
   }
   .app-black.is-down {
     transform: translateY(1px);
-    background: #3a3a3a;
+    background: var(--color-text);
   }
 
   /* The floating stars and confetti are made by the script, so they carry no scope attribute. */
@@ -289,7 +289,7 @@ const pill =
     bottom: 55%;
     color: var(--color-gold);
     pointer-events: none;
-    filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.25));
+    filter: drop-shadow(0 2px 2px rgb(30 42 43 / 0.25));
   }
 
   [data-app-example] :global(.app-confetti) {
@@ -461,7 +461,12 @@ const pill =
 
   const TUNE = ['C', 'D', 'E', 'F', 'G'];
   const LISTEN_GAP = 520;
-  const CONFETTI_COLOURS = ['var(--color-gold)', 'var(--color-primary)', 'var(--color-gold-light)', '#e2574c'];
+  const CONFETTI_COLOURS = [
+    'var(--color-gold)',
+    'var(--color-primary)',
+    'var(--color-gold-light)',
+    'var(--color-primary-dark)',
+  ];
   const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let audio: AudioContext | undefined;
