@@ -3,10 +3,10 @@
 The acceptance checklist from brief A §9, run as the automated suite in
 [`tests/acceptance.spec.ts`](../tests/acceptance.spec.ts).
 
-- **Run:** 2026-11-01, commit `f482389`, Playwright 1.64.1, Node 24.
+- **Run:** 2026-11-21, commit `f183384`, Playwright 1.64.1, Node 23.
 - **Environment:** the production build served by `wrangler dev`, with the real Worker and an isolated local D1
   database.
-- **Result:** 43 passed, 0 failed, 5 skipped by design (see below).
+- **Result:** 47 passed, 0 failed, 5 skipped by design (see below).
 
 Rerun at any time:
 
