@@ -126,7 +126,7 @@ const inputClass =
     submitUpdateStatus,
     type Registration,
   } from '~/lib/registration';
-  import { adSource, pageVersion, track, whenVisible } from '~/lib/tracking';
+  import { adSource, pageVersion, track, whenVisible, withAdSource } from '~/lib/tracking';
 
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -234,7 +234,7 @@ const inputClass =
       info_version: infoVersion,
     });
     completeRegistration(registration);
-    location.assign(routes.thanks);
+    location.assign(withAdSource(routes.thanks));
   });
 
   // "Nej tack" stores nothing, and anything typed is left behind.
@@ -247,6 +247,6 @@ const inputClass =
       info_version: infoVersion,
     });
     clearCheckout();
-    location.assign(routes.declined);
+    location.assign(withAdSource(routes.declined));
   });
 </script>

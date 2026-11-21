@@ -11,7 +11,12 @@
  *   as comma-separated text, which is what GA4 can store.
  * - The ad source (UTM parameters, message_id, ad_id) is read from the arrival URL and, with consent,
  *   kept for the tab's session in sessionStorage, so it follows the visitor through the purchase flow
- *   and onto the registration, and internal navigation never overwrites it (brief B §3).
+ *   and onto the registration, and internal navigation never overwrites it (brief B §3). Until the visitor
+ *   decides, nothing is stored: internal links and steps carry the ad parameters in their URL instead
+ *   (withAdSource), so a visitor who accepts on a later page is still attributed to the ad, in GA4 too.
+ * - Google's own events (page_view, session_start, scroll) don't carry page_version and environment: the
+ *   enhanced-measurement page view ignores both config parameters and send_page_view. Filter reports on
+ *   environment through the site's own events (offer_view, checkout_view …), not page views.
  * - If gtag.js is blocked or fails to load, events are dropped and the purchase flow is unaffected
  *   (brief B §9).
  * - Never pass names, e-mail addresses or form values here.
@@ -108,6 +113,44 @@ export function adSource(): AdSource {
   return source;
 }
 
+/**
+ * An internal URL with this page's ad parameters added, while the visitor hasn't decided about consent.
+ * The source then travels in the URL, not in storage, and is there wherever the visitor accepts; GA4 reads it
+ * from the page address. Once decided, the URL is returned unchanged: with consent the source is in
+ * sessionStorage, and without it nothing should follow the visitor.
+ */
+export function withAdSource(url: string): string {
+  if (consent() !== null) return url;
+  const target = new URL(url, location.href);
+  if (target.origin !== location.origin) return url;
+  const current = new URLSearchParams(location.search);
+  let changed = false;
+  for (const key of AD_PARAMETERS) {
+    const value = current.get(key);
+    if (value && !target.searchParams.has(key)) {
+      target.searchParams.set(key, value);
+      changed = true;
+    }
+  }
+  return changed ? `${target.pathname}${target.search}${target.hash}` : url;
+}
+
+/** Adds the ad parameters to internal links as they are followed (withAdSource). */
+function carryAdSourceOnLinks() {
+  const carry = (event: Event) => {
+    const link = (event.target as Element | null)?.closest?.('a[href]');
+    if (!(link instanceof HTMLAnchorElement) || link.target === '_blank' || link.hasAttribute('download')) return;
+    const href = link.getAttribute('href') ?? '';
+    if (href.startsWith('#')) return;
+    const updated = withAdSource(link.href);
+    if (updated !== link.href) link.setAttribute('href', updated);
+  };
+  // Before the click's default action, and before the middle-click or long-press menu opens.
+  document.addEventListener('click', carry, true);
+  document.addEventListener('auxclick', carry, true);
+  document.addEventListener('contextmenu', carry, true);
+}
+
 /** Events recorded before the visitor decided, in memory only. */
 let pending: (() => void)[] = [];
 let started = false;
@@ -193,6 +236,7 @@ function startWebAnalytics() {
 
 /** Starts analytics on every page: right away with consent, or as soon as the visitor accepts. */
 export function initTracking() {
+  carryAdSourceOnLinks();
   const start = () => {
     adSource();
     startAnalytics();

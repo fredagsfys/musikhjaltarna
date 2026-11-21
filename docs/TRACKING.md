@@ -121,6 +121,16 @@ Example:
 Meta Ads fills in `{{ad.id}}` itself. Use lowercase and underscores, and the same spelling every time: reports group by
 exact value.
 
+**Visitors who haven't answered the consent question yet** keep the parameters in the URL: internal links and the
+purchase steps carry them along, and nothing is stored. A visitor who clicks buy first and accepts on the purchase
+step is still attributed to the ad, in GA4's own acquisition reports as well. Once the visitor has accepted, the
+source is kept in sessionStorage and the URLs stay clean; after declining, nothing follows them.
+
+**GA4's own events** (`page_view`, `session_start`, `scroll`, `user_engagement`) don't carry `environment` or
+`page_version`: the stream's enhanced-measurement page view ignores the parameters the site sets. A filter on
+`environment` therefore drops them. Filter on the site's own events (`offer_view`, `checkout_view` …) instead, for
+example with a session segment "sessions with `offer_view` where `environment` = `production`".
+
 ## Events
 
 Every event has `event_id` (unique, or deterministic where noted), `event_timestamp` (UTC, ISO 8601), `page_version`,
