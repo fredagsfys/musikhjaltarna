@@ -62,7 +62,7 @@ async function run(kind, body) {
     const response = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${property}:${kind}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, limit: 100000, offset }),
+      body: JSON.stringify(kind === 'runRealtimeReport' ? body : { ...body, limit: 100000, offset }),
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(`${response.status} ${result.error?.message ?? ''}`);
