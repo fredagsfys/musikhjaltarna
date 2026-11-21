@@ -49,6 +49,34 @@ test('a later tagged arrival in the same session does not overwrite the source',
   expect(views[1].properties).toMatchObject({ utm_source: 'facebook', ad_id: AD.ad_id });
 });
 
+test.describe('before the visitor has decided about measurement', () => {
+  test.use({ consent: null });
+
+  test('the ad source travels in the URL, and counts once the visitor accepts on a later page', async ({
+    page,
+    analytics,
+  }) => {
+    await page.goto(adUrl('/'));
+    await page.locator('[data-cta-id="kop_hjalpen"]').click();
+    await expect(page).toHaveURL(/\/kop\/hjalpen\?/);
+    expect(Object.fromEntries(new URL(page.url()).searchParams)).toEqual(AD);
+    // Nothing is stored before the choice.
+    expect(await page.evaluate(() => sessionStorage.getItem('musikhjaltarna:source'))).toBeNull();
+
+    await page.locator('#samtycke_godkann').click();
+    const [checkout] = await analytics.waitFor('checkout_view');
+    expect(checkout.properties).toMatchObject(AD);
+  });
+
+  test('declining leaves internal links as they are', async ({ page }) => {
+    await page.goto(adUrl('/'));
+    await page.locator('#samtycke_hantera').click();
+    await page.locator('#samtycke_spara').click();
+    await page.locator('[data-cta-id="kop_hjalpen"]').click();
+    await expect(page).toHaveURL(/\/kop\/hjalpen$/);
+  });
+});
+
 test('section and buy-button views need the dwell time', async ({ page, analytics }) => {
   await page.goto('/');
   const [hero] = await analytics.waitFor('section_view');

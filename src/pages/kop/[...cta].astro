@@ -58,7 +58,7 @@ const { purchase: content } = copy;
 <script>
   import { isCtaId, routes } from '~/config/site';
   import { loadCheckout, saveCheckout, type Checkout } from '~/lib/registration';
-  import { track, whenVisible } from '~/lib/tracking';
+  import { track, whenVisible, withAdSource } from '~/lib/tracking';
 
   const form = document.querySelector<HTMLFormElement>('#lead-form')!;
   const ctaId = isCtaId(form.dataset.cta) ? form.dataset.cta : null;
@@ -99,7 +99,7 @@ const { purchase: content } = copy;
       checkout.intentTracked = true;
     }
     saveCheckout(checkout);
-    location.assign(routes.updates);
+    location.assign(withAdSource(routes.updates));
   });
 
   // Going back from step 2 restores this page as it was left; let the button work again.
