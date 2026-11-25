@@ -1,0 +1,34 @@
+// Starter spec, read from the code and traces by portal (no AI).
+// It says what exists. Add what the code can't: domains, your names,
+// rules, and what you plan to build.
+// Conventions: https://portal.haris-d21.workers.dev/skills/portal-architecture/SKILL.md
+model {
+  system = domain 'musikhjaltarna' {
+    musikhjaltarna = service 'musikhjaltarna' {  // wrangler.jsonc:6
+      metadata {
+        code 'worker/**'
+        otel_service 'musikhjaltarna'
+      }
+    }
+    musikhjaltarna_2 = datastore 'musikhjaltarna' {  // wrangler.jsonc:21
+      metadata {
+        resource 'musikhjaltarna'
+      }
+    }
+  }
+
+  musikhjaltarna -> musikhjaltarna_2  // reads or writes? say which: -[reads]-> or -[writes]->
+}
+
+specification {
+  element domain
+  element service
+  element event
+  element datastore
+  element infra
+  relationship request
+  relationship publishes
+  relationship consumes
+  relationship reads
+  relationship writes
+}
