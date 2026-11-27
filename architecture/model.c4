@@ -5,12 +5,44 @@
 model {
   system = domain 'musikhjaltarna' {
     musikhjaltarna = service 'musikhjaltarna' {  // wrangler.jsonc:6
+      technology 'Cloudflare Worker'
       metadata {
         code 'worker/**'
         otel_service 'musikhjaltarna'
       }
+      scripts = component 'scripts' {
+        metadata {
+          code 'scripts/**'
+        }
+      }
+      config = component 'config' {
+        metadata {
+          code 'src/config/**'
+        }
+      }
+      content = component 'content' {
+        metadata {
+          code 'src/content/**'
+        }
+      }
+      lib = component 'lib' {
+        metadata {
+          code 'src/lib/**'
+        }
+      }
+      pages = component 'pages' {
+        metadata {
+          code 'src/pages/**'
+        }
+      }
+      worker = component 'worker' {
+        metadata {
+          code 'worker/**'
+        }
+      }
     }
     musikhjaltarna_2 = datastore 'musikhjaltarna' {  // wrangler.jsonc:21
+      technology 'Cloudflare D1'
       metadata {
         resource 'musikhjaltarna'
       }
@@ -18,6 +50,9 @@ model {
   }
 
   musikhjaltarna -> musikhjaltarna_2  // reads or writes? say which: -[reads]-> or -[writes]->
+  config -> content
+  lib -> config
+  worker -> config
 }
 
 specification {
@@ -26,6 +61,7 @@ specification {
   element event
   element datastore
   element infra
+  element component
   relationship request
   relationship publishes
   relationship consumes
