@@ -1,0 +1,70 @@
+// Starter spec, read from the code and traces by portal (no AI).
+// It says what exists. Add what the code can't: domains, your names,
+// rules, and what you plan to build.
+// Conventions: https://portal.haris-d21.workers.dev/skills/portal-architecture/SKILL.md
+model {
+  system = domain 'musikhjaltarna' {
+    musikhjaltarna = service 'musikhjaltarna' {  // wrangler.jsonc:6
+      technology 'Cloudflare Worker'
+      metadata {
+        code 'worker/**'
+        otel_service 'musikhjaltarna'
+      }
+      scripts = component 'scripts' {
+        metadata {
+          code 'scripts/**'
+        }
+      }
+      config = component 'config' {
+        metadata {
+          code 'src/config/**'
+        }
+      }
+      content = component 'content' {
+        metadata {
+          code 'src/content/**'
+        }
+      }
+      lib = component 'lib' {
+        metadata {
+          code 'src/lib/**'
+        }
+      }
+      pages = component 'pages' {
+        metadata {
+          code 'src/pages/**'
+        }
+      }
+      worker = component 'worker' {
+        metadata {
+          code 'worker/**'
+        }
+      }
+    }
+    musikhjaltarna_2 = datastore 'musikhjaltarna' {  // wrangler.jsonc:21
+      technology 'Cloudflare D1'
+      metadata {
+        resource 'musikhjaltarna'
+      }
+    }
+  }
+
+  musikhjaltarna -> musikhjaltarna_2  // reads or writes? say which: -[reads]-> or -[writes]->
+  config -> content
+  lib -> config
+  worker -> config
+}
+
+specification {
+  element domain
+  element service
+  element event
+  element datastore
+  element infra
+  element component
+  relationship request
+  relationship publishes
+  relationship consumes
+  relationship reads
+  relationship writes
+}
